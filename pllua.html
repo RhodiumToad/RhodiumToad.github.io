@@ -1,8 +1,9 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>PL/Lua Documentation</title>
-<style>
+<style id="css.css">
 
 body {
 	margin: 0;
@@ -57,8 +58,8 @@ pre code {
 }
 
 code.shortcode, code.longcode {
-	padding: 2px;
-	font-size: 130%;
+	padding: 2px 3px;
+	font-size: 120%;
 	background-color: #eee;
 }
 
@@ -78,55 +79,301 @@ pre.codeblock {
 	border-color: #ccc;
 }
 
+#logo {
+	width: 30vw;
+	height: 32vw;
+	float: right;
+	margin-left: 1em;
+	margin-right: 5vw;
+	background-color: white;
+	background-repeat: no-repeat;
+	background-attachment: scroll;
+	background-size: 100% 100%
+}
+
+/* eof */
+</style>
+<script id="script.js">
+(function(){
+    "use strict";
+    var shiftWindow5 = function() { scrollBy(0, -0.05 * window.innerHeight) };
+    window.addEventListener("DOMContentLoaded",(function(){ if (location.hash) shiftWindow5(); }));
+    window.addEventListener("hashchange", shiftWindow5);
+})();
+</script><style id="logo.css">
+#logo {
+  background-image: url("data:image/svg+xml;base64,\
+PD94bWwgdmVyc2lvbj0iMS4wIj8+DQo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQg\
+U1ZHIDEuMS8vRU4iDQogICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9z\
+dmcxMS5kdGQiPg0KDQo8c3ZnIHZpZXdCb3g9IjAgMCA2NzAgNjcwIiB4bWw6c3BhY2U9InByZXNl\
+cnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPg0KPGcgaWQ9Imx1YSIgdHJh\
+bnNmb3JtPSJ0cmFuc2xhdGUoMTA2LDApIHNjYWxlKDAuNikiPg0KPHBhdGggZD0ibTg4MC40IDI2\
+Ni4xOGE0NTYuNjcgNDU2LjY3IDAgMSAxIC0xNTguMTggLTE3NS42NyIgc3Ryb2tlPSIjODA4MDgw\
+IiBzdHJva2UtZGFzaGFycmF5PSIzOS44NTIyIiBzdHJva2Utd2lkdGg9IjEwLjU5NyIgZmlsbD0i\
+bm9uZSIvPg0KPGNpcmNsZSBjeT0iMTIwLjI5IiBjeD0iODI2LjcyIiByPSIxMDMuNDYiIGZpbGw9\
+IiMwMDAwODAiLz4NCjwvZz4NCjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMTA0KSI+DQo8c3Zn\
+IHdpZHRoPSI0MzIuMDcxcHQiIGhlaWdodD0iNDQ1LjM4M3B0IiB2aWV3Qm94PSIwIDAgNDQyLjA3\
+MSA0NDUuMzgzIiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv\
+MjAwMC9zdmciPg0KPGcgaWQ9IkxheWVyX3gwMDIwXzMiIHN0eWxlPSJmaWxsLXJ1bGU6bm9uemVy\
+bztjbGlwLXJ1bGU6bm9uemVybztmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRo\
+OjEyLjQ2NTE7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9r\
+ZS1taXRlcmxpbWl0OjQ7Ij4NCjxwYXRoIHN0eWxlPSJmaWxsOiMwMDAwMDA7c3Ryb2tlOiMwMDAw\
+MDA7c3Ryb2tlLXdpZHRoOjM3LjM5NTM7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpv\
+aW46bWl0ZXI7IiBkPSJNMzIzLjIwNSwzMjQuMjI3YzIuODMzLTIzLjYwMSwxLjk4NC0yNy4wNjIs\
+MTkuNTYzLTIzLjIzOWw0LjQ2MywwLjM5MmMxMy41MTcsMC42MTUsMzEuMTk5LTIuMTc0LDQxLjU4\
+Ny03YzIyLjM2Mi0xMC4zNzYsMzUuNjIyLTI3LjcsMTMuNTcyLTIzLjE0OGMtNTAuMjk3LDEwLjM3\
+Ni01My43NTUtNi42NTUtNTMuNzU1LTYuNjU1YzUzLjExMS03OC44MDMsNzUuMzEzLTE3OC44MzYs\
+NTYuMTQ5LTIwMy4zMjIgICAgQzM1Mi41MTQtNS41MzQsMjYyLjAzNiwyNi4wNDksMjYwLjUyMiwy\
+Ni44NjlsLTAuNDgyLDAuMDg5Yy05LjkzOC0yLjA2Mi0yMS4wNi0zLjI5NC0zMy41NTQtMy40OTZj\
+LTIyLjc2MS0wLjM3NC00MC4wMzIsNS45NjctNTMuMTMzLDE1LjkwNGMwLDAtMTYxLjQwOC02Ni40\
+OTgtMTUzLjg5OSw4My42MjhjMS41OTcsMzEuOTM2LDQ1Ljc3NywyNDEuNjU1LDk4LjQ3LDE3OC4z\
+MSAgICBjMTkuMjU5LTIzLjE2MywzNy44NzEtNDIuNzQ4LDM3Ljg3MS00Mi43NDhjOS4yNDIsNi4x\
+NCwyMC4zMDcsOS4yNzIsMzEuOTEyLDguMTQ3bDAuODk3LTAuNzY1Yy0wLjI4MSwyLjg3Ni0wLjE1\
+Nyw1LjY4OSwwLjM1OSw5LjAxOWMtMTMuNTcyLDE1LjE2Ny05LjU4NCwxNy44My0zNi43MjMsMjMu\
+NDE2Yy0yNy40NTcsNS42NTktMTEuMzI2LDE1LjczNC0wLjc5NywxOC4zNjdjMTIuNzY4LDMuMTkz\
+LDQyLjMwNSw3LjcxNiw2Mi4yNjgtMjAuMjI0ICAgIGwtMC43OTUsMy4xODhjNS4zMjUsNC4yNiw0\
+Ljk2NSwzMC42MTksNS43Miw0OS40NTJjMC43NTYsMTguODM0LDIuMDE3LDM2LjQwOSw1Ljg1Niw0\
+Ni43NzFjMy44MzksMTAuMzYsOC4zNjksMzcuMDUsNDQuMDM2LDI5LjQwNmMyOS44MDktNi4zODgs\
+NTIuNi0xNS41ODIsNTQuNjc3LTEwMS4xMDciLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiMzMzY3OTE7\
+c3Ryb2tlOm5vbmU7IiBkPSJNNDAyLjM5NSwyNzEuMjNjLTUwLjMwMiwxMC4zNzYtNTMuNzYtNi42\
+NTUtNTMuNzYtNi42NTVjNTMuMTExLTc4LjgwOCw3NS4zMTMtMTc4Ljg0Myw1Ni4xNTMtMjAzLjMy\
+NmMtNTIuMjctNjYuNzg1LTE0Mi43NTItMzUuMi0xNDQuMjYyLTM0LjM4bC0wLjQ4NiwwLjA4N2Mt\
+OS45MzgtMi4wNjMtMjEuMDYtMy4yOTItMzMuNTYtMy40OTZjLTIyLjc2MS0wLjM3My00MC4wMjYs\
+NS45NjctNTMuMTI3LDE1LjkwMiAgICBjMCwwLTE2MS40MTEtNjYuNDk1LTE1My45MDQsODMuNjNj\
+MS41OTcsMzEuOTM4LDQ1Ljc3NiwyNDEuNjU3LDk4LjQ3MSwxNzguMzEyYzE5LjI2LTIzLjE2Mywz\
+Ny44NjktNDIuNzQ4LDM3Ljg2OS00Mi43NDhjOS4yNDMsNi4xNCwyMC4zMDgsOS4yNzIsMzEuOTA4\
+LDguMTQ3bDAuOTAxLTAuNzY1Yy0wLjI4LDIuODc2LTAuMTUyLDUuNjg5LDAuMzYxLDkuMDE5Yy0x\
+My41NzUsMTUuMTY3LTkuNTg2LDE3LjgzLTM2LjcyMywyMy40MTYgICAgYy0yNy40NTksNS42NTkt\
+MTEuMzI4LDE1LjczNC0wLjc5NiwxOC4zNjdjMTIuNzY4LDMuMTkzLDQyLjMwNyw3LjcxNiw2Mi4y\
+NjYtMjAuMjI0bC0wLjc5NiwzLjE4OGM1LjMxOSw0LjI2LDkuMDU0LDI3LjcxMSw4LjQyOCw0OC45\
+NjljLTAuNjI2LDIxLjI1OS0xLjA0NCwzNS44NTQsMy4xNDcsNDcuMjU0YzQuMTkxLDExLjQsOC4z\
+NjgsMzcuMDUsNDQuMDQyLDI5LjQwNmMyOS44MDktNi4zODgsNDUuMjU2LTIyLjk0Miw0Ny40MDUt\
+NTAuNTU1ICAgIGMxLjUyNS0xOS42MzEsNC45NzYtMTYuNzI5LDUuMTk0LTM0LjI4bDIuNzY4LTgu\
+MzA5YzMuMTkyLTI2LjYxMSwwLjUwNy0zNS4xOTYsMTguODcyLTMxLjIwM2w0LjQ2MywwLjM5MmMx\
+My41MTcsMC42MTUsMzEuMjA4LTIuMTc0LDQxLjU5MS03YzIyLjM1OC0xMC4zNzYsMzUuNjE4LTI3\
+LjcsMTMuNTczLTIzLjE0OHoiLz4NCjxwYXRoIGQ9Ik0yMTUuODY2LDI4Ni40ODRjLTEuMzg1LDQ5\
+LjUxNiwwLjM0OCw5OS4zNzcsNS4xOTMsMTExLjQ5NWM0Ljg0OCwxMi4xMTgsMTUuMjIzLDM1LjY4\
+OCw1MC45LDI4LjA0NWMyOS44MDYtNi4zOSw0MC42NTEtMTguNzU2LDQ1LjM1Ny00Ni4wNTFjMy40\
+NjYtMjAuMDgyLDEwLjE0OC03NS44NTQsMTEuMDA1LTg3LjI4MSIvPg0KPHBhdGggZD0iTTE3My4x\
+MDQsMzguMjU2YzAsMC0xNjEuNTIxLTY2LjAxNi0xNTQuMDEyLDg0LjEwOWMxLjU5NywzMS45Mzgs\
+NDUuNzc5LDI0MS42NjQsOTguNDczLDE3OC4zMTZjMTkuMjU2LTIzLjE2NiwzNi42NzEtNDEuMzM1\
+LDM2LjY3MS00MS4zMzUiLz4NCjxwYXRoIGQ9Ik0yNjAuMzQ5LDI2LjIwN2MtNS41OTEsMS43NTMs\
+ODkuODQ4LTM0Ljg4OSwxNDQuMDg3LDM0LjQxN2MxOS4xNTksMjQuNDg0LTMuMDQzLDEyNC41MTkt\
+NTYuMTUzLDIwMy4zMjkiLz4NCjxwYXRoIHN0eWxlPSJzdHJva2UtbGluZWpvaW46YmV2ZWw7IiBk\
+PSJNMzQ4LjI4MiwyNjMuOTUzYzAsMCwzLjQ2MSwxNy4wMzYsNTMuNzY0LDYuNjUzYzIyLjA0LTQu\
+NTUyLDguNzc2LDEyLjc3NC0xMy41NzcsMjMuMTU1Yy0xOC4zNDUsOC41MTQtNTkuNDc0LDEwLjY5\
+Ni02MC4xNDYtMS4wNjljLTEuNzI5LTMwLjM1NSwyMS42NDctMjEuMTMzLDE5Ljk2LTI4LjczOWMt\
+MS41MjUtNi44NS0xMS45NzktMTMuNTczLTE4Ljg5NC0zMC4zMzggICAgYy02LjAzNy0xNC42MzMt\
+ODIuNzk2LTEyNi44NDksMjEuMjg3LTExMC4xODNjMy44MTMtMC43ODktMjcuMTQ2LTk5LjAwMi0x\
+MjQuNTUzLTEwMC41OTljLTk3LjM4NS0xLjU5Ny05NC4xOSwxMTkuNzYyLTk0LjE5LDExOS43NjIi\
+Lz4NCjxwYXRoIGQ9Ik0xODguNjA0LDI3NC4zMzRjLTEzLjU3NywxNS4xNjYtOS41ODQsMTcuODI5\
+LTM2LjcyMywyMy40MTdjLTI3LjQ1OSw1LjY2LTExLjMyNiwxNS43MzMtMC43OTcsMTguMzY1YzEy\
+Ljc2OCwzLjE5NSw0Mi4zMDcsNy43MTgsNjIuMjY2LTIwLjIyOWM2LjA3OC04LjUwOS0wLjAzNi0y\
+Mi4wODYtOC4zODUtMjUuNTQ3Yy00LjAzNC0xLjY3MS05LjQyOC0zLjc2NS0xNi4zNjEsMy45OTR6\
+Ii8+DQo8cGF0aCBkPSJNMTg3LjcxNSwyNzQuMDY5Yy0xLjM2OC04LjkxNywyLjkzLTE5LjUyOCw3\
+LjUzNi0zMS45NDJjNi45MjItMTguNjI2LDIyLjg5My0zNy4yNTUsMTAuMTE3LTk2LjMzOWMtOS41\
+MjMtNDQuMDI5LTczLjM5Ni05LjE2My03My40MzYtMy4xOTNjLTAuMDM5LDUuOTY4LDIuODg5LDMw\
+LjI2LTEuMDY3LDU4LjU0OGMtNS4xNjIsMzYuOTEzLDIzLjQ4OCw2OC4xMzIsNTYuNDc5LDY0Ljkz\
+OCIvPg0KPHBhdGggc3R5bGU9ImZpbGw6I0ZGRkZGRjtzdHJva2Utd2lkdGg6NC4xNTU7c3Ryb2tl\
+LWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7IiBkPSJNMTcyLjUxNywxNDEuN2Mt\
+MC4yODgsMi4wMzksMy43MzMsNy40OCw4Ljk3Niw4LjIwN2M1LjIzNCwwLjczLDkuNzE0LTMuNTIy\
+LDkuOTk4LTUuNTU5YzAuMjg0LTIuMDM5LTMuNzMyLTQuMjg1LTguOTc3LTUuMDE1Yy01LjIzNy0w\
+LjczMS05LjcxOSwwLjMzMy05Ljk5NiwyLjM2N3oiLz4NCjxwYXRoIHN0eWxlPSJmaWxsOiNGRkZG\
+RkY7c3Ryb2tlLXdpZHRoOjIuMDc3NTtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9p\
+bjptaXRlcjsiIGQ9Ik0zMzEuOTQxLDEzNy41NDNjMC4yODQsMi4wMzktMy43MzIsNy40OC04Ljk3\
+Niw4LjIwN2MtNS4yMzgsMC43My05LjcxOC0zLjUyMi0xMC4wMDUtNS41NTljLTAuMjc3LTIuMDM5\
+LDMuNzQtNC4yODUsOC45NzktNS4wMTVjNS4yMzktMC43Myw5LjcxOCwwLjMzMywxMC4wMDIsMi4z\
+Njh6Ii8+DQo8cGF0aCBkPSJNMzUwLjY3NiwxMjMuNDMyYzAuODYzLDE1Ljk5NC0zLjQ0NSwyNi44\
+ODgtMy45ODgsNDMuOTE0Yy0wLjgwNCwyNC43NDgsMTEuNzk5LDUzLjA3NC03LjE5MSw4MS40MzUi\
+Lz4NCjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6MzsiIGQ9Ik0wLDYwLjIzMiIvPg0KPC9nPg0K\
+PC9zdmc+DQo8L2c+DQo8L3N2Zz4NCg==");
+}
 </style>
 </head>
 <body>
+<div id="logo"></div>
 <div id="headContainer">
 <h1>Contents</h1>
 <ol>
 <li value="1">
-<a href="#S1">PL/Lua</a><ol>
+<a href="#S1">PL/Lua Introduction</a><ol>
 <li value="1"><a href="#S1.1">Quick start</a></li>
-<li value="2"><a href="#S1.2">PostgreSQL environment</a></li>
-<li value="3"><a href="#S1.3">Lua environment</a></li>
-<li value="4"><a href="#S1.4">pllua.elog</a></li>
-<li value="5"><a href="#S1.5">pllua.funcmgr</a></li>
-<li value="6"><a href="#S1.6">pllua.pgtype</a></li>
-<li value="7"><a href="#S1.7">pllua.spi</a></li>
-<li value="8"><a href="#S1.8">pllua.trusted</a></li>
-<li value="9"><a href="#S1.9">pllua.trigger</a></li>
-<li value="10"><a href="#S1.10">pllua.numeric</a></li>
-<li value="11"><a href="#S1.11">pllua.jsonb</a></li>
+<li value="2"><a href="#S1.2">Basic Examples</a></li>
 </ol>
 </li>
 <li value="2">
-<a href="#S2">Building PL/Lua</a><ol>
-<li value="1"><a href="#S2.1">Building the pllua module</a></li>
-<li value="2"><a href="#S2.2">Building the hstore_pllua module</a></li>
-<li value="3"><a href="#S2.3">Building the documentation</a></li>
-<li value="4"><a href="#S2.4">VPATH builds</a></li>
-<li value="5"><a href="#S2.5">Luajit options</a></li>
-<li value="6"><a href="#S2.6">Porting options</a></li>
+<a href="#S2">PL/Lua Reference</a><ol>
+<li value="1"><a href="#S2.1">PostgreSQL environment</a></li>
+<li value="2"><a href="#S2.2">Lua environment</a></li>
+<li value="3"><a href="#S2.3">pllua.elog</a></li>
+<li value="4"><a href="#S2.4">pllua.funcmgr</a></li>
+<li value="5"><a href="#S2.5">pllua.pgtype</a></li>
+<li value="6"><a href="#S2.6">pllua.spi</a></li>
+<li value="7"><a href="#S2.7">pllua.trusted</a></li>
+<li value="8"><a href="#S2.8">pllua.trigger</a></li>
+<li value="9"><a href="#S2.9">pllua.numeric</a></li>
+<li value="10"><a href="#S2.10">pllua.jsonb</a></li>
+</ol>
+</li>
+<li value="3">
+<a href="#S3">Building PL/Lua</a><ol>
+<li value="1"><a href="#S3.1">Building the pllua module</a></li>
+<li value="2"><a href="#S3.2">Building the hstore_pllua module</a></li>
+<li value="3"><a href="#S3.3">Building the documentation</a></li>
+<li value="4"><a href="#S3.4">VPATH builds</a></li>
+<li value="5"><a href="#S3.5">Luajit options</a></li>
+<li value="6"><a href="#S3.6">Porting options</a></li>
 </ol>
 </li>
 </ol>
 </div>
-<div id="bodyContainer">
-
-
-<h1 id="S1">PL/Lua</h1>
+<div id="bodyContainer" style="clear: both;">
+<h1 id="S1">PL/Lua Introduction</h1>
 <p>PL/Lua is a procedural language module for the PostgreSQL database
 that allows server-side functions to be written in Lua.</p>
 <h2 id="S1.1">Quick start</h2>
 <pre class="codeblock"><code>create extension pllua;
 
 create function hello(person text) returns text language pllua as $$
-  return "Hello," .. person .. ", from Lua!"
+  return "Hello, " .. person .. ", from Lua!"
 $$;
 
 select hello('Fred');
+         hello
+------------------------
+ Hello, Fred, from Lua!
+(1 row)
 </code></pre>
-<h2 id="S1.2">PostgreSQL environment</h2>
+<h2 id="S1.2">Basic Examples</h2>
+<h3>Using <code class="shortcode">print()</code> for interactive diagnostics</h3>
+<p>Anything passed to the <code class="shortcode">print()</code> function will be raised as a
+notification at <code class="shortcode">INFO</code> level, causing <code class="shortcode">psql</code> to display it
+interactively; program clients will usually just ignore non-error
+notices.</p>
+<pre class="codeblock"><code>create function print_lua_ver() returns void language pllua as $$
+  print(_VERSION)
+$$;
+select print_lua_ver();
+INFO:  Lua 5.3
+ print_lua_ver 
+---------------
+ 
+(1 row)
+</code></pre>
+<h3>Simple arguments and results</h3>
+<p>Simple scalar types (integers, floats, text, bytea, boolean) are
+converted to the matching Lua type, and conversely for results.</p>
+<pre class="codeblock"><code>create function add2(a integer, b integer) returns integer language pllua
+  as $$
+    return a + b
+$$;
+</code></pre>
+<p>Other data types are passed as userdata objects that can be converted
+to strings with <code class="shortcode">tostring()</code> or accessed via provided methods and
+metamethods. In particular, arrays and records are accessible in most
+ways as though they were Lua tables, though they're actually not.</p>
+<pre class="codeblock"><code>create type myrow as (a integer, b text[]);
+create function foo(rec myrow) returns myrow language pllua as $$
+  print("a is", rec.a)
+  print("b[1] is", rec.b[1])
+  print("b[2] is", rec.b[2])
+  return { a = 123, b = {"fred","jim"} }
+$$;
+select * from foo(row(1,array['foo','bar'])::myrow);
+INFO:  a is     1
+INFO:  b[1] is  foo
+INFO:  b[2] is  bar
+  a  |     b
+-----+------------
+ 123 | {fred,jim}
+(1 row)
+</code></pre>
+<h3>Sum of an array</h3>
+<pre class="codeblock"><code>create function array_sum(a integer[]) returns integer language pllua
+as $$
+  local total = 0
+  for k,v in pairs(a) do
+    total = total + v
+  end
+  return total
+$$;
+</code></pre>
+<p>The above assume single-dimension arrays with no NULLs. A more generic
+method uses the array mapping function provided by the array userdata:</p>
+<pre class="codeblock"><code>create function array_sum(a integer[]) returns integer language pllua
+as $$
+  local total = 0
+  a{ null = 0,
+     map = function(v,...) total = total + v end,
+	 discard = true }
+  return total
+$$;
+</code></pre>
+<h3>Simple database queries</h3>
+<p>The local environment created for each function is a good place to
+cache prepared queries:</p>
+<pre class="codeblock"><code>create table objects (id integer primary key, value text);
+create function get_value(id integer) returns text language pllua stable
+as $$
+  local r = q:execute(id)
+  return r and r[1] and r[1].value or 'value not found'
+end
+do -- the part below will be executed once before the first call
+  q = spi.prepare("select value from objects where id=$1")
+$$;
+</code></pre>
+<p>The result of executing a query is a table containing rows (if any)
+for select queries, or an integer rowcount for queries that do not
+return rows.</p>
+<h3>Triggers</h3>
+<pre class="codeblock"><code>create function mytrigger() returns trigger language pllua
+as $$
+  -- trigger functions are implicitly declared f(trigger,old,new,...)
+  new.total_cost = new.price * new.qty;
+  return new
+$$;
+</code></pre>
+<h3>JSON handling</h3>
+<p>Values of type <code class="shortcode">json</code> are passed to Lua simply as strings. But the
+<code class="shortcode">jsonb</code> data type is supported in a more direct fashion.</p>
+<p><code class="shortcode">jsonb</code> values can be mapped to Lua tables in a configurable way, and
+Lua tables converted back to <code class="shortcode">jsonb</code> values:</p>
+<pre class="codeblock"><code>create function add_stuff(val jsonb) returns jsonb language pllua
+as $$
+  local t = val{}	-- convert jsonb to table with default settings
+  t.newkey = { { foo = 1 }, { bar = 2 } }
+  return t
+$$;
+select add_stuff('{"oldkey":123}');
+	                       add_stuff
+-----------------------------------------------------
+ {"newkey": [{"foo": 1}, {"bar": 2}], "oldkey": 123}
+(1 row)
+</code></pre>
+<p>The above simplistic approach will tend to drop json null values
+(since Lua does not store nulls in tables), and loses precision on
+numeric values not representable as floats; this can be avoided as
+follows:</p>
+<pre class="codeblock"><code>create function add_stuff(val jsonb) returns jsonb language pllua
+as $$
+  local nullval = {}    -- use some unique object to mark nulls
+  local t = val{ null = nullval, pg_numeric = true }
+  t.newkey = { { foo = 1 }, { bar = 2 } }
+  return t, { null = nullval }
+$$;
+select add_stuff('{"oldkey":[147573952589676412928,null]}');
+                                   add_stuff
+-------------------------------------------------------------------------------
+ {"newkey": [{"foo": 1}, {"bar": 2}], "oldkey": [147573952589676412928, null]}
+(1 row)
+</code></pre>
+<p>Tables that originated from JSON are tagged as to whether they were
+originally objects or arrays, so as long as you provide a unique null
+value, this form of round-trip conversion should not change anything.
+(See the <code class="shortcode">pllua.jsonb</code> module documentation for more detail.)</p>
+
+<h1 id="S2">PL/Lua Reference</h1>
+<h2 id="S2.1">PostgreSQL environment</h2>
 <p>PL/Lua provides two extensions:</p>
 <pre class="codeblock"><code>create extension pllua;  -- installs the trusted language
 create extension plluau;  -- installs the untrusted language
@@ -250,7 +497,7 @@ made with a parameter of <code class="shortcode">(allocated_kbytes * multiplier)
 made instead.</p>
 </dd>
 </dl>
-<h2 id="S1.3">Lua environment</h2>
+<h2 id="S2.2">Lua environment</h2>
 <p>The Lua interpreters are initialized as follows.</p>
 <p>The standard Lua libraries are installed and a number of global functions
 are replaced:</p>
@@ -347,7 +594,7 @@ own first-call initialization by ending the function block early:</p>
     --[[ code here is executed only before first call]]
 $$;
 </code></pre>
-<h2 id="S1.4">pllua.elog</h2>
+<h2 id="S2.3">pllua.elog</h2>
 <p>The pllua.elog module is a table of simple functions:</p>
 <pre class="codeblock"><code>elog(severity, message)
 elog(severity, sqlstate, message)
@@ -373,9 +620,9 @@ error(...)   = elog('error',...)
 <p><code class="shortcode">sqlstate</code> parameters may be either 5-character codes or the error
 names from the appendix to the PostgreSQL manual.</p>
 <p>By default these functions are also available via the <code class="shortcode">spi</code> module.</p>
-<h2 id="S1.5">pllua.funcmgr</h2>
+<h2 id="S2.4">pllua.funcmgr</h2>
 <p>This module exposes nothing to Lua.</p>
-<h2 id="S1.6">pllua.pgtype</h2>
+<h2 id="S2.5">pllua.pgtype</h2>
 <p>The pgtype object provides the following functionality:</p>
 <dl>
 <dt><code class="shortcode">pgtype(value)</code></dt>
@@ -410,9 +657,7 @@ functionality:</p>
 <dt><code class="shortcode">typeinfo(datum)</code></dt>
 <dd>
 Construct a new <code class="shortcode">Datum</code> object by copying from the specified
-value, which must already be of a compatible type (currently,
-it must share the base type or for rows, have a compatible
-tupdesc)</dd>
+value, which must already be of a compatible type</dd>
 <dt><code class="shortcode">typeinfo(...)</code></dt>
 <dd>
 Construct a new <code class="shortcode">Datum</code> object of the specified type from the
@@ -433,6 +678,12 @@ representation is dependent on the client_encoding setting.</dd>
 <dd>
 Returns the name of the type as SQL syntax (same as the
 <code class="shortcode">format_type</code> function in SQL, or <code class="shortcode">::regtype</code> output)</dd>
+<dt><code class="shortcode">typeinfo:element()</code></dt>
+<dd>
+For array or range types, returns the typeinfo of the element type</dd>
+<dt><code class="shortcode">typeinfo:element(str)</code></dt>
+<dd>
+For row types, returns the typeinfo of the named column</dd>
 </dl>
 <p>The type constructor call has the following forms according to the
 type category (scalar, row, array, range)</p>
@@ -499,6 +750,14 @@ is resolved as the generic typeinfo(datum) call, NOT this one)</em></p>
 
 <p>One integer value must be given for each dimension of the array.
 The table is indexed accordingly to populate the new array.</p>
+</dd>
+<dt><code class="shortcode">arraytype(table)</code></dt>
+<dd>
+
+<p>Constructs a one-dimensional array assuming the largest integer
+index in the table as the array size. (Use the above form for
+multi-dimensional arrays or for precise control over the size when
+trailing nulls are allowed.)</p>
 </dd>
 <dt><code class="shortcode">rangetype()</code></dt>
 <dd>
@@ -589,13 +848,16 @@ the current key (not including the key) as separate additional
 parameters. The key is an integer if the current container is an
 array, a string if the container is an object, and nil if this is a
 single top-level scalar value (which I believe is not strictly allowed
-in the JSON spec, but PostgreSQL allows it). The <code class="shortcode">key</code>/<code class="shortcode">val</code> returned by
-the function are used to store the result, but do not affect the path
-values passed to any other function call. If <code class="shortcode">discard</code> is not specified,
-then the function is also called for completed containers (in which
-case <code class="shortcode">val</code> will be a table). If <code class="shortcode">pg_numeric</code> is not true, then numeric
-values are converted to Lua numbers, otherwise they remain as <code class="shortcode">Datum</code>
-values of <code class="shortcode">numeric</code> type (for which see below).</p>
+in the JSON spec, but PostgreSQL allows it). The <code class="shortcode">key</code>/<code class="shortcode">val</code> returned
+by the function are used to store the result, but do not affect the
+path values passed to any other function call. If <code class="shortcode">discard</code> is not
+specified, then the function is also called for completed containers
+(in which case <code class="shortcode">val</code> will be a table). If <code class="shortcode">pg_numeric</code> is not true,
+then numeric values are converted to Lua numbers, otherwise they
+remain as <code class="shortcode">Datum</code> values of <code class="shortcode">numeric</code> type (for which see below). All
+tables returned from a <code class="shortcode">jsonb</code> mapping will be tagged with metatables
+that record whether they were originally arrays or objects; see the
+<code class="shortcode">pllua.jsonb</code> module for details.</p>
 <p>Substitution of null values happens BEFORE the mapping function is
 called; if that's not what you want, then do the substitution
 yourself before returning the result. (If the mapping function
@@ -652,7 +914,7 @@ above.</p>
 (Lua strings are byte strings, not character strings). This makes
 the simple conversion quite different to the <code class="shortcode">fromstring</code>/<code class="shortcode">tostring</code>
 conversion, which uses the PG text representation.</p>
-<h2 id="S1.7">pllua.spi</h2>
+<h2 id="S2.6">pllua.spi</h2>
 <p>The spi module provides the following functionality (as a table of
 functions):</p>
 <dl>
@@ -673,8 +935,11 @@ caller's snapshot. Otherwise a new snapshot is taken.</p>
 <p>returns a statement object. <code class="shortcode">{argtypes}</code> is a table containing
 type names or typeinfo objects. Allowed options are:</p>
 <ul>
-<li><code class="shortcode">scroll = true or false</code></li>
+<li>
+<code class="shortcode">scroll = true</code> or <code class="shortcode">false</code>
+</li>
 <li><code class="shortcode">no_scroll = true</code></li>
+<li><code class="shortcode">hold = true</code></li>
 <li><code class="shortcode">fast_start = true</code></li>
 <li><code class="shortcode">custom_plan = true</code></li>
 <li><code class="shortcode">generic_plan = true</code></li>
@@ -852,7 +1117,7 @@ dropped). Cursor options are set on the statement object.</p>
 from SPI cursor objects. But note that when returning a cursor from a
 function, it should be explicitly disowned to ensure that garbage
 collection won't close it from under the caller's use of it.</p>
-<h2 id="S1.8">pllua.trusted</h2>
+<h2 id="S2.7">pllua.trusted</h2>
 <p>The trusted interpreter is implemented using a sandbox system;
 trusted-language code is run in an environment into which only safe
 functions have been copied (or proxied).</p>
@@ -965,7 +1230,7 @@ mode field (loading binary functions is unsafe) and overrides the
 environment to be the trusted sandbox if the caller didn't provide one
 itself (but the caller can still give an explicit environment of nil
 or anything else).</p>
-<h2 id="S1.9">pllua.trigger</h2>
+<h2 id="S2.8">pllua.trigger</h2>
 <p>This module provides nothing directly to Lua, but a <code class="shortcode">trigger</code>
 parameter is passed as the first parameter to trigger functions (and
 a different trigger parameter to event-trigger functions).</p>
@@ -1064,7 +1329,7 @@ the value of <code class="shortcode">trigger.row</code> being used as the new tu
 to <code class="shortcode">trigger.row</code>.</p>
 </li>
 </ol>
-<h2 id="S1.10">pllua.numeric</h2>
+<h2 id="S2.9">pllua.numeric</h2>
 <p>PostgreSQL values of <code class="shortcode">numeric</code> type (henceforth Numeric values) are
 converted to <code class="shortcode">Datum</code> objects as normal, but this module provides
 substantial additional functionality for such types. The methods and
@@ -1115,7 +1380,7 @@ take an optional number of digits parameter</dd>
 </dl>
 <p>The function <code class="shortcode">num.new(x)</code> will construct a new Numeric datum, as will
 <code class="shortcode">pgtype.numeric(x)</code>.</p>
-<h2 id="S1.11">pllua.jsonb</h2>
+<h2 id="S2.10">pllua.jsonb</h2>
 <p><code class="shortcode">jsonb</code> supports an inverse mapping operation for construction of JSON
 values from Lua data:</p>
 <pre class="codeblock"><code>pgtype.jsonb(value,
@@ -1132,6 +1397,11 @@ values from Lua data:</p>
 <div class="no-dl-fudge">
 <ul>
 <li>
+<p>Tables which have had the is_object or is_array metatable set (see
+below), which will convert to objects or arrays respectively (for
+arrays, any non-integer keys will be ignored)</p>
+</li>
+<li>
 <p>Empty collections, which will convert to empty json arrays unless
 <code class="shortcode">empty_object=true</code> in which case they become empty objects</p>
 </li>
@@ -1143,9 +1413,9 @@ have to be inserted, or the total size of the array would be more
 than <code class="shortcode">array_frac</code> times the number of table keys.</p>
 </li>
 <li>
-<p>Collections with keys which can be stringified: strings or numbers, or
-tables or userdata with <code class="shortcode">__tostring</code> methods, will convert to json
-objects.</p>
+<p>Collections with keys which can be stringified (i.e. strings or
+numbers, or tables or userdata with <code class="shortcode">__tostring</code> methods) will
+convert to json objects.</p>
 </li>
 <li>
 <p>Values which compare raw-equal to the <code class="shortcode">null</code> parameter are converted
@@ -1173,14 +1443,55 @@ converted to strings</p>
 <p>Unlike the other mapping functions, the map function for this
 operation is called only for values (including collections), not
 keys, and is not passed any path information.</p>
+<p>The use of metatables to distinguish JSON objects and arrays means
+that the transformation from <code class="shortcode">jsonb</code> to Lua tables and back preserves
+the original content <strong>as long as</strong> a unique <code class="shortcode">null</code> value is provided.
+However, for more complex manipulations, the following functions are
+available via <code class="shortcode">require "pllua.jsonb"</code>:</p>
+<dl>
+<dt><code class="shortcode">jsonb.is_object(table)</code></dt>
+<dd>
 
-<h1 id="S2">Building PL/Lua</h1>
+<p>Returns true if <code class="shortcode">table</code> corresponds to a JSON object, false if
+it corresponds to an array, and no value if neither</p>
+</dd>
+<dt><code class="shortcode">jsonb.is_array(table)</code></dt>
+<dd>
+
+<p>Returns true if <code class="shortcode">table</code> corresponds to a JSON array, false if
+it corresponds to an object, and no value if neither</p>
+</dd>
+<dt><code class="shortcode">jsonb.set_as_array(table)</code></dt>
+<dd>
+
+<p>Mark the table as corresponding to a JSON array, and return it.
+The table must not already have a metatable, unless it's the one
+set by this function or by <code class="shortcode">set_as_object</code>.</p>
+</dd>
+<dt><code class="shortcode">jsonb.set_as_object(table)</code></dt>
+<dd>
+
+<p>Mark the table as corresponding to a JSON object, and return it.
+The table must not already have a metatable, unless it's the one
+set by this function or by <code class="shortcode">set_as_array</code>.</p>
+</dd>
+<dt><code class="shortcode">jsonb.set_as_unknown(table)</code></dt>
+<dd>
+
+<p>Mark the table as not corresponding to either a JSON object or
+array, and return it. This is the only way to remove the metatable
+that marks the JSON type, so you may need it if you want to apply
+some other metatable instead.</p>
+</dd>
+</dl>
+
+<h1 id="S3">Building PL/Lua</h1>
 <p>GNU Make is required to build, as usual for PostgreSQL extensions.</p>
 <p>This module assumes you have already built Lua itself, either as a
 shared library or as an archive library with <code class="shortcode">-fPIC</code> (on most
 platforms a non-PIC archive library will not work). A shared library
 is recommended.</p>
-<h2 id="S2.1">Building the <code class="shortcode">pllua</code> module</h2>
+<h2 id="S3.1">Building the <code class="shortcode">pllua</code> module</h2>
 <p>Lua unfortunately does not provide much in the way of infrastructure
 for determining build locations; accordingly, those have to be
 specified explicitly to build this module. The following values must
@@ -1221,7 +1532,7 @@ case).</p>
      LUALIB="-llua5.3" \
      LUAC="luac5.3" LUA="lua5.3" install
 </code></pre>
-<h2 id="S2.2">Building the <code class="shortcode">hstore_pllua</code> module</h2>
+<h2 id="S3.2">Building the <code class="shortcode">hstore_pllua</code> module</h2>
 <p>Currently, the <code class="shortcode">hstore_pllua</code> module does not need <code class="shortcode">LUALIB</code> on most
 platforms (since it will reference lua functions either exported by
 <code class="shortcode">pllua.so</code> or by a library loaded by <code class="shortcode">pllua.so</code>).</p>
@@ -1235,17 +1546,17 @@ specifying <code class="shortcode">LIBLUA</code> unnecessarily is harmless.</p>
      LUA_INCDIR="/usr/include/lua5.3" \
      LUAC="luac5.3" LUA="lua5.3" install
 </code></pre>
-<h2 id="S2.3">Building the documentation</h2>
+<h2 id="S3.3">Building the documentation</h2>
 <p>Specifying BUILD_DOCS=1 will build the HTML documentation from the
 Markdown doc sources; this requires <code class="shortcode">cmark</code> and <code class="shortcode">xsltproc</code>.</p>
-<h2 id="S2.4">
+<h2 id="S3.4">
 <code class="shortcode">VPATH</code> builds</h2>
 <p>Both modules support building with <code class="shortcode">VPATH</code>, which can either be
 explicitly set or, if <code class="shortcode">make -f /path/to/Makefile</code> is used to specify a
 makefile outside the current directory and <code class="shortcode">VPATH</code> is not explicitly
 set, then <code class="shortcode">VPATH</code> will be set to the directory containing the
 Makefile.</p>
-<h2 id="S2.5">Luajit options</h2>
+<h2 id="S3.5">Luajit options</h2>
 <p><code class="shortcode">PLLUA_CONFIG_OPTS</code> can be used to control certain aspects of pllua's
 behavior when built with Luajit.</p>
 <dl>
@@ -1262,7 +1573,7 @@ However, as long as <code class="shortcode">NO_LUAJIT</code> was not specified, 
 freely returned from functions or passed to SQL type constructors.</p>
 <p>Actual JIT compilation of user-supplied lua code is not affected by
 any of these options.</p>
-<h2 id="S2.6">Porting options</h2>
+<h2 id="S3.6">Porting options</h2>
 <p>If you have problems building on an unusual platform, then these
 options might be useful. The values shown are the defaults if any.</p>
 <dl>

@@ -29,7 +29,7 @@ body {
 	width: 30vw;
 	height: 33vw;
 	float: right;
-	margin-left: 1em;
+	margin-left: 2em;
 	margin-right: 5vw;
 	background-color: inherit;
 	background-repeat: no-repeat;
@@ -48,15 +48,15 @@ body {
 }
 
 #footerContainer {
-	margin: 6ex 0 0 0;
-	padding: 1ex 0;
+	margin: 3em 0 0 0;
+	padding: 0.5em 0;
 	border-top: 2px solid #666;
 	background-color: #ddd;
 	color: #000;
 }
 
 dd p {
-	margin-top: 1ex;
+	margin-top: 0.5em;
 }
 
 p, ol, ul, dl, pre {
@@ -64,21 +64,46 @@ p, ol, ul, dl, pre {
 }
 
 li.tocentry-1 {
-	margin-top: 1ex;
+	margin-top: 0.5em;
 }
 
 dd {
-	margin-bottom: 8px;
+	margin-bottom: 0.5em;
 }
 
 h1 {
-	margin-top: 2ex;
 	font-size: 175%;
 }
-
 h2 {
-	margin-top: 2ex;
 	font-size: 150%;
+}
+h3 {
+	font-size: 120%;
+}
+h1, h2, h3 {
+	margin-top: 1em;
+	margin-bottom: 0.5em;
+}
+
+@supports ( display: flex ) {
+	.bodycontent h1, .bodycontent h2 {
+		display: flex;
+		flex-direction: row;
+		flex: none;
+	}
+	.bodycontent h1::after, .bodycontent h2::after {
+		margin-left: 1em;
+		flex: auto;
+		align-self: center;
+		content: "\a0";
+		height: 0px;
+	}
+	.bodycontent h1::after {
+		border-top: 2px #ddd solid;
+	}
+	.bodycontent h2::after {
+		border-top: 1px #ddd solid;
+	}
 }
 
 code {
@@ -112,8 +137,8 @@ pre code {
 }
 
 .bodycontent pre.codeblock {
-	margin: 2ex 2em 2ex 2em;
-	padding: 2ex;
+	margin: 1em 2em;
+	padding: 1em;
 	border-radius: 8px;
 	border-width: 1px;
 	border-style: solid;
@@ -1450,9 +1475,9 @@ specifying <code class="shortcode">LIBLUA</code> unnecessarily is harmless.</p>
      LUAC="luac5.3" LUA="lua5.3" install
 </code></pre>
 <h2 id="S3.3">Building the documentation</h2>
-<p>Specifying BUILD_DOCS=1 will build the HTML documentation from the
+<p>Specifying <code class="shortcode">BUILD_DOCS=1</code> will build the HTML documentation from the
 Markdown doc sources; this requires <code class="shortcode">cmark</code> and <code class="shortcode">xsltproc</code>.</p>
-<p>Additionally specifying BUILD_ICON=1 will include the favicon in the
+<p>Additionally specifying <code class="shortcode">BUILD_ICON=1</code> will include the favicon in the
 HTML documentation; this requires ImageMagick's <code class="shortcode">convert</code> program.</p>
 <h2 id="S3.4">
 <code class="shortcode">VPATH</code> builds</h2>
@@ -1536,7 +1561,7 @@ expected to be useful.)</p>
 
 
 
-</div></main><div id="footerContainer" class="mainsection"><footer id="footer" class="maincolumn footer">
+</div></main><footer id="footerContainer" class="mainsection"><div id="footer" class="maincolumn footer">
 <p>Copyright © 2017-2018, Andrew Gierth, aka RhodiumToad</p>
 <p>Licensed under the terms of the MIT license, a copy of which is included
 in the file <code class="shortcode">LICENSE</code> in the distribution.</p>
@@ -1546,6 +1571,6 @@ to the original <code class="shortcode">pllua</code> project (of which this is a
 <a href="https://wiki.postgresql.org/wiki/Trademark_Policy" rel="external nofollow">trademark policy</a>
 of the PostgreSQL Project. Additional graphic elements originate from
 the <a href="http://www.lua.org" rel="external nofollow">Lua</a> logo designed by Alexandre Nakonechnyj.</p>
-</footer></div>
+</div></footer>
 </body>
 </html>

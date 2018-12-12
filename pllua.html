@@ -209,6 +209,12 @@ a[rel~="external"] {
 	    }
 	}
     }));
+    window.addEventListener("DOMContentLoaded",(function(){
+	var t = window.getComputedStyle(document.body).getPropertyValue("font-size");
+	var p = document.createElement("p");
+	p.innerText = t;
+	document.getElementById("info1").appendChild(p);
+    }));
 })();
 </script><style id="logo.css">
 #logo {

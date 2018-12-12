@@ -214,6 +214,10 @@ a[rel~="external"] {
 	var p = document.createElement("p");
 	p.innerText = "body width " + t;
 	document.getElementById("info1").appendChild(p);
+	var t2 = window.getComputedStyle(p).getPropertyValue("font-size");
+	var p2 = document.createElement("p");
+	p2.innerText = "p font size " + t2;
+	document.getElementById("info2").appendChild(p2);
     }));
 })();
 </script><style id="logo.css">

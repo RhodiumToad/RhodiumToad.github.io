@@ -172,15 +172,18 @@ a[rel~="external"] {
 	    var i = new Image(960,960);
 	    i.src = logosrc;
 	    var c = document.createElement("canvas");
-	    c.width = 192;
-	    c.height = 192;
-	    c.getContext("2d").drawImage(i, 0, 0, 192, 192);
+	    var f = function(s){
+	    c.width = s;
+	    c.height = s;
+	    c.getContext("2d").drawImage(i, 0, 0, s, s);
 	    var link = document.createElement("link");
 	    link.rel = "icon";
 	    link.type = "image/png";
-	    link.sizes = "192x192";
+	    link.sizes = s+"x"+s;
 	    link.href = c.toDataURL();
 	    document.head.appendChild(link);
+	    }
+	    f(192); f(128);
 	}
     }));
 })();

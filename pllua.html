@@ -215,8 +215,9 @@ a[rel~="external"] {
 	p.innerText = "body width " + t;
 	document.getElementById("info1").appendChild(p);
 	var t2 = window.getComputedStyle(p).getPropertyValue("font-size");
+	var t3 = window.getComputedStyle(p).getPropertyValue("height");
 	var p2 = document.createElement("p");
-	p2.innerText = "p font size " + t2;
+	p2.innerText = "p font size " + t2 + " p height " + t3;
 	document.getElementById("info2").appendChild(p2);
     }));
 })();

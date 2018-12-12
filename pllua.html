@@ -210,9 +210,9 @@ a[rel~="external"] {
 	}
     }));
     window.addEventListener("DOMContentLoaded",(function(){
-	var t = window.getComputedStyle(document.getElementById("logo")).getPropertyValue("margin-left");
+	var t = window.getComputedStyle(document.body).getPropertyValue("width");
 	var p = document.createElement("p");
-	p.innerText = t;
+	p.innerText = "body width " + t;
 	document.getElementById("info1").appendChild(p);
     }));
 })();

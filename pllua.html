@@ -23,7 +23,6 @@ body {
 	.maincolumn {
 		width: 85%;
 	}
-	#info1:after { content: "min-width:60em "; }
 }
 
 #logo {
@@ -45,7 +44,6 @@ body {
 	#logo {
 		margin-top: 1.75em;
 	}
-	#info2:after { content: "min-width:35em "; }
 }
 
 #logo a {
@@ -181,7 +179,9 @@ a[rel~="external"] {
     window.addEventListener("hashchange", shiftWindow5);
     /* render the logo into a high-res favicon */
     window.addEventListener("DOMContentLoaded",(function(){
-	var logosrc = window.getComputedStyle(document.getElementById("logo")).getPropertyValue("background-image").match(/data:[^")]*/)[0];
+	var logosrc = (window.getComputedStyle(document.getElementById("logo"))
+		       .getPropertyValue("background-image")
+		       .match(/data:[^"")]*/)[0]);
 	if (logosrc.length)
 	{
 	    var i = new Image(960,960);
@@ -210,19 +210,6 @@ a[rel~="external"] {
 	    }
 	}
     }));
-    window.addEventListener("DOMContentLoaded",(function(){
-	var t = window.getComputedStyle(document.body).getPropertyValue("width");
-	var p = document.createElement("p");
-	p.innerText = "body width " + t;
-	document.getElementById("info1").appendChild(p);
-	var t2 = window.getComputedStyle(p).getPropertyValue("font-size");
-	var t3 = window.getComputedStyle(p).getPropertyValue("height");
-	var t4 = window.getComputedStyle(document.getElementById("S1.1")).getPropertyValue("height");
-	var t5 = window.getComputedStyle(document.getElementById("S1.2.1")).getPropertyValue("height");
-	var p2 = document.createElement("p");
-	p2.innerText = "p font size " + t2 + " p height " + t3 + " h2 height " + t4 + " h3 height " + t5;
-	document.getElementById("info2").appendChild(p2);
-    }));
 })();
 </script><style id="logo.css">
 #logo {
@@ -232,10 +219,7 @@ a[rel~="external"] {
 <link rel="icon" type="image/png" sizes="16x16" id="icon-16.png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADTUlEQVQ4y22Ty28bZRTFf9/nmYwfsp3Edhycuk1MUiWiL/FokUAgpIBAzSJtNyzKokJsCWxaAUJKFvwPsKILskBUQEVUIYU2izZSikJI6SNNXFIHu4ld24mTjB/j8czHIqIqgrO6i3uOru5PR/CUxsfH/xl1IUQQEFLKlqZpruu6UqmWtrSkxOQknwHvAZPiKb8ExNjYh7qmad4rUz/ZS8tpG5ACAgrsq1fZPXXqi56dHfsaMAAUBOAfGRk5k+wfesej6b7GbmW9UTOL4VjiqBDCiEfajarj6arV6/XKRmb2+rWFrx+ujZ4FdRq4LEZPn/n82RNvf7JW1X2W7XCsL4YmFQurZRQwsC9KJBzkt5Us7Qb4Kun5Sxe/P7djnt08edJqet4affeblXo4kilsY7Uckt1RZv7IUtypslNvsrqxSc1q0vdMhJvpPInueMJn526//oZnJpUK+KVs83ebDRspBZGQn5DfoD8RoTPkRyDwSAlAfyJCTzREs+UgpRR+nxelaEnl2KbukSil8Lbp+A2doQNdvHa4DyEg6DN45blebMfBb7ThpVnPr+fSc3NzAK60djfvh306SoFSiuVskR9u3MGyHQxdw1WKYsVk+a8iAUNDmcXV+d9v3S2XywBCbhUe3ej07dHUPBLHVSi1x9VVCrNuUW3YJKJhUlEv+dWlKaXUxsTEBIAu/7x/dzooahWvoVMxG3R1BBk60EW10cSyWwDcWyswuD+G3MqUZn75eVYI4c1kMm2A61nPF8rPHz38qgwnUg3bZTBkcagniB5oJ50r4rh75wztj9Gyqp6XXnxh2KqZ5YGDB1ccx6nK8xcubN+Zn/2yz9jePt6t3LDWVKVqi3CbS9BvoJQiHPBiPs5axVK5lMtmF6RH3uvo6KgDtvBIieO6+ssnjr/pum40ntjXY3h9vanBI8OLtVjqcWWXvng7sa1b09OXv/106NCRR+fe/6BYKORbpVIJzXFdAHvu5q9X9l43D6Cdnzj2nRQq5Srw6wKrXl1+mNtYWM2uu7lcjmQy+aRA/5FSquXUzQfxsI/OUIC4X1lbxfz1sY8+doUQT8wAnv8LWFxc5MHKPbO3KzycDAltK3P74tSPl75Kp9OWWa3+a/dvakSE4mmh/LQAAAAASUVORK5CYII=">
 </head>
 <body>
-<div id="topContainer" class="mainsection">
-<div id="info1"></div>
-<div id="info2"></div>
-</div>
+<div id="topContainer" class="mainsection"></div>
 <div id="logoContainer" class="maincolumn"><div id="logo"><a href="https://github.com/pllua/pllua-ng/"></a></div></div>
 <main id="mainContainer" class="mainsection"><div id="headcontent" class="maincolumn">
 <h1 id="S0">Contents</h1>

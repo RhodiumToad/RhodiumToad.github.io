@@ -582,5 +582,11 @@
 	
       </use>
     </g>
+
+    <g transform="translate(50,250) translate(0,16)" font-size="16px">
+      <set attributeName="display" to="none" begin="0s"/>
+      <text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
+    </g>
+
   </g>
 </svg>

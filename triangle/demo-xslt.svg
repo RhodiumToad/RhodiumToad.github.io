@@ -11,7 +11,7 @@
     xmlns:macro="file:///e05bc57b-10ae-11e9-99c9-6cf049962d5a"
     xmlns:m="file:///e05bc57c-10ae-11e9-99c9-6cf049962d5a"
     >
-  <title>Geometric proof of one-seventh area triangle</title>
+  <title>Geometric proof of the area of a certain triangle</title>
   <desc>
     Geometric proof of the one-seventh area triangle, based on a
     solution attributed (by Martin Gardner) to Hugo Steinhaus.
@@ -300,6 +300,85 @@
       </g>
     </g>
 
+    <text id="ctxt1">
+      <tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
+      <tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
+      <tspan x="0" y="2">is the shaded pink region?</tspan>
+    </text>
+    <text id="stxt1">
+      <tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
+      <tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
+    </text>
+
+    <text id="ctxt2">
+      <tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
+      <tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
+      <tspan x="0" y="2">pink one, for a total of 7.</tspan>
+    </text>
+    <text id="stxt2">
+      <tspan x="0" y="0">This solution is reported to have been published in a 1950 book by Hugo Steinhaus.</tspan>
+    </text>
+
+    <text id="ctxt3">
+      <tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
+      <tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
+      <tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
+      <tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
+      <tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
+      <tspan x="0" y="6">But...</tspan>
+    </text>
+    <text id="stxt3">
+    </text>
+
+    <text id="ctxt4">
+      <tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
+      <tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
+      <tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
+    </text>
+    <text id="stxt4">
+    </text>
+
+    <text id="ctxt5">
+      <tspan x="0" y="0">We extend the various lines of interest.</tspan>
+    </text>
+    <text id="stxt5">
+    </text>
+
+    <text id="ctxt6">
+      <tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
+      <tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
+      <tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
+      <tspan x="0" y="3">distance A from the origin.</tspan>
+    </text>
+    <text id="stxt6">
+    </text>
+
+    <text id="ctxt7">
+      <tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
+      <tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
+      <tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
+    </text>
+    <text id="stxt7">
+    </text>
+
+    <text id="ctxt8">
+      <tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
+      <tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
+      <tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
+    </text>
+    <text id="stxt8">
+    </text>
+
+    <text id="ctxt9">
+      <tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
+      <tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
+      <tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
+      <tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
+    </text>
+    <text id="stxt9">
+      <tspan x="0" y="0">QED.</tspan>
+    </text>
+
     <text id="text0">&#xA0;</text>
     <macro:iter>
       <text id="text$I">$I</text>
@@ -341,6 +420,21 @@
 	</macro:iter>
       </g>
     </g>
+    <g id="text-control" transform="translate(1000,75)" stroke-width="1">
+      <rect fill="none" stroke="#000" x="0" y="0" width="100" height="20" />
+      <rect fill="none" stroke="#000" x="5" y="5" width="10" height="10">
+	<set id="showtext" attributeName="fill" to="#000" begin="texton.click" end="textoff.click" restart="whenNotActive" />
+      </rect>
+      <g transform="translate(22,15)" font-size="12px">
+	<text>Show Text</text>
+      </g>
+      <rect id="texton" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	<set attributeName="visibility" to="visible" begin="0;showtext.endEvent" end="showtext.beginEvent" />
+      </rect>
+      <rect id="textoff" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	<set attributeName="visibility" to="visible" begin="showtext.beginEvent" end="showtext.endEvent" />
+      </rect>
+    </g>
 
     <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
 
@@ -353,6 +447,7 @@
 	  <use xlink:href="#blueline-right" />
 	</g>
 	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13A" />
       </g>
 
       <g id="frame2" display="none">
@@ -507,7 +602,23 @@
 	<use xlink:href="#label-12A" />
 	<use xlink:href="#label-32A" />
       </g>
+    </g>
 
+    <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
+      <set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent" />
+      <macro:set m:frame="1" attributeName="display" to="block" />
+      <use xlink:href="#text0">
+	<macro:iter>
+	  <macro:set attributeName="xlink:href" to="#ctxt$I" />
+	</macro:iter>
+      </use>
+    </g>
+    <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
+      <use xlink:href="#text0">
+	<macro:iter>
+	  <macro:set attributeName="xlink:href" to="#stxt$I" />
+	</macro:iter>
+      </use>
     </g>
   </g>
 </svg>

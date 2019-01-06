@@ -166,7 +166,9 @@
       <tspan x="0" y="2">pink one, for a total of 7.</tspan>
     </text>
     <text id="stxt2">
-      <tspan x="0" y="0">This solution is reported to have been published in a 1950 book by Hugo Steinhaus.</tspan>
+      <tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
+      <tspan x="0" y="1">1950 book by Hugo Steinhaus. The explanations and following diagrams</tspan>
+      <tspan x="0" y="2">are the work of the present author.</tspan>
     </text>
 
     <text id="ctxt3">

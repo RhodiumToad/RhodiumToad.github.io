@@ -10,22 +10,23 @@
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:macro="file:///e05bc57b-10ae-11e9-99c9-6cf049962d5a"
     xmlns:m="file:///e05bc57c-10ae-11e9-99c9-6cf049962d5a"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
   <title>Geometric proof of the area of a certain triangle</title>
   <desc>
     Geometric proof of the one-seventh area triangle, based on a
     solution attributed (by Martin Gardner) to Hugo Steinhaus.
   </desc>
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata>
     <dc:creator>Andrew Gierth</dc:creator>
-    <dc:date>2019-01-05</dc:date>
+    <dc:date>2019-01-09</dc:date>
     <dc:rights>Creative Commons Attribution/NonCommercial/ShareAlike 4.0</dc:rights>
   </metadata>
+
   <defs>
     <xsl:stylesheet id="xsl" version="1.0"
 		    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		    xmlns:svg="http://www.w3.org/2000/svg"
-		    xmlns:dc="http://purl.org/dc/elements/1.1/"
 		    >
       <xsl:output
 	  method="xml"
@@ -34,71 +35,322 @@
 	  cdata-section-elements="style script"
 	  doctype-public="-//W3C//DTD SVG 1.1//EN"
 	  doctype-system="http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"/>
-      <xsl:variable name="global-n" select="number(//macro:anim-core/@m:n)" />
+
+      <xsl:strip-space elements="macro:*" />
+
+      <xsl:variable name="global-n" select="number(//macro:anim-core/@macro:n)" />
+
       <xsl:template match="xsl:stylesheet" />
+
       <xsl:template match="*|@*">
 	<xsl:copy>
 	  <xsl:apply-templates select="@*" />
 	  <xsl:apply-templates />
 	</xsl:copy>
       </xsl:template>
-      <xsl:template match="@m:*" mode="iterated" />
+
+      <xsl:template mode="eval" match="@*|text()" />
+
+      <xsl:template mode="eval" match="m:v">
+	<xsl:message terminate="yes">
+	  <xsl:text>Unknown expression element </xsl:text>
+	  <xsl:value-of select="name()" />
+	</xsl:message>
+      </xsl:template>
+
+      <xsl:template mode="eval" match="m:v">
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:call-template name="subst">
+	  <xsl:with-param name="str" select="string()" />
+	  <xsl:with-param name="val" select="$val" />
+	  <xsl:with-param name="idx" select="$idx" />
+	  <xsl:with-param name="n" select="$n" />
+	  <xsl:with-param name="strict" select="true()" />
+	</xsl:call-template>
+      </xsl:template>
+
+      <xsl:template mode="eval" match="m:add|m:sub|m:mul|m:div|m:mod">
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:variable name="op1">
+	  <xsl:apply-templates mode="eval" select="m:*[1]">
+	    <xsl:with-param name="val" select="$val" />
+	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n" />
+	  </xsl:apply-templates>
+	</xsl:variable>
+	<xsl:variable name="op2">
+	  <xsl:apply-templates mode="eval" select="m:*[2]">
+	    <xsl:with-param name="val" select="$val" />
+	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n" />
+	  </xsl:apply-templates>
+	</xsl:variable>
+	<xsl:choose>
+	  <xsl:when test="local-name() = 'add'">
+	    <xsl:value-of select="number($op1) + number($op2)" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'sub'">
+	    <xsl:value-of select="number($op1) - number($op2)" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'mul'">
+	    <xsl:value-of select="number($op1) * number($op2)" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'div'">
+	    <xsl:value-of select="number($op1) div number($op2)" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'mod'">
+	    <xsl:value-of select="number($op1) mod number($op2)" />
+	  </xsl:when>
+	</xsl:choose>
+      </xsl:template>
+
+      <xsl:template mode="eval" match="m:neg|m:floor|m:ceil|m:round|m:abs">
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:variable name="op1">
+	  <xsl:apply-templates mode="eval" select="m:*[1]">
+	    <xsl:with-param name="val" select="$val" />
+	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n" />
+	  </xsl:apply-templates>
+	</xsl:variable>
+	<xsl:choose>
+	  <xsl:when test="local-name() = 'neg'">
+	    <xsl:value-of select="-number($op1)" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'floor'">
+	    <xsl:value-of select="floor(number($op1))" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'ceil'">
+	    <xsl:value-of select="ceiling(number($op1))" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'round'">
+	    <xsl:value-of select="round(number($op1))" />
+	  </xsl:when>
+	  <xsl:when test="local-name() = 'abs'">
+	    <xsl:value-of select="number($op1) * (1-(number($op1) &lt; 0)*2)" />
+	  </xsl:when>
+	</xsl:choose>
+      </xsl:template>
+
+      <xsl:template mode="eval" match="m:expr">
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:apply-templates mode="eval">
+	  <xsl:with-param name="val" select="$val" />
+	  <xsl:with-param name="idx" select="$idx" />
+	  <xsl:with-param name="n" select="$n" />
+	</xsl:apply-templates>
+      </xsl:template>
+
+      <xsl:template name="expand-ref">
+	<xsl:param name="ref" /><xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:param name="strict" select="false()" />
+	<xsl:if test="string-length($ref)=0">
+	  <xsl:message terminate="yes">Cannot expand a null reference</xsl:message>
+	</xsl:if>
+	<xsl:variable name="res">
+	  <xsl:choose>
+	    <xsl:when test="$ref=''"></xsl:when>
+	    <xsl:when test="$ref='['"><xsl:value-of select="'['" /></xsl:when>
+	    <xsl:when test="$ref='I'"><xsl:value-of select="$idx" /></xsl:when>
+	    <xsl:when test="$ref='N'"><xsl:value-of select="$n" /></xsl:when>
+	    <xsl:when test="$ref='V'"><xsl:value-of select="string($val)" /></xsl:when>
+	    <xsl:when test="translate($ref,'0123456789','')=''">
+	      <xsl:variable name="vnode" select="$val/@m:*[local-name()=concat('p',$ref)]" />
+	      <xsl:if test="count($vnode)=0">
+		<xsl:message terminate="yes">
+		  <xsl:text>Cannot find reference </xsl:text>
+		  <xsl:value-of select="$ref" />
+		</xsl:message>
+	      </xsl:if>
+	      <xsl:value-of select="string($vnode)" />
+	    </xsl:when>
+	    <xsl:when test="translate($ref,'0123456789','')='*'">
+	      <xsl:variable name="nref" select="translate($ref,'*','')" />
+	      <xsl:variable name="vnode" select="$val/@m:*[local-name()=concat('r',$nref)]" />
+	      <xsl:if test="count($vnode)=0">
+		<xsl:message terminate="yes">
+		  <xsl:text>Cannot find reference </xsl:text>
+		  <xsl:value-of select="$ref" />
+		</xsl:message>
+	      </xsl:if>
+	      <xsl:call-template name="expand-ref">
+		<xsl:with-param name="ref" select="string($vnode)" />
+		<xsl:with-param name="val" select="$val" />
+		<xsl:with-param name="idx" select="$idx" />
+		<xsl:with-param name="n" select="$n" />
+	      </xsl:call-template>
+	    </xsl:when>
+	    <xsl:when test="starts-with($ref,'*')">
+	      <xsl:variable name="nref" select="substring-after($ref,'*')" />
+	      <xsl:variable name="vnode" select="$val/ancestor-or-self::*[child::m:expr[@m:name=$nref]][1]" />
+	      <xsl:if test="count($vnode)=0">
+		<xsl:message terminate="yes">
+		  <xsl:text>Cannot find reference </xsl:text>
+		  <xsl:value-of select="$ref" />
+		</xsl:message>
+	      </xsl:if>
+	      <xsl:apply-templates mode="eval" select="$vnode/m:expr[@m:name=$nref]">
+		<xsl:with-param name="val" select="$val" />
+		<xsl:with-param name="idx" select="$idx" />
+		<xsl:with-param name="n" select="$n" />
+	      </xsl:apply-templates>
+	    </xsl:when>
+	    <xsl:otherwise><xsl:value-of select="$val/ancestor-or-self::*[@m:*[local-name()=$ref]][1]/@m:*[local-name()=$ref]" /></xsl:otherwise>
+	  </xsl:choose>
+	</xsl:variable>
+	<xsl:if test="$strict and string-length($res)=0">
+	  <xsl:message terminate="yes">
+	    <xsl:text>Empty result from expansion of </xsl:text>
+	    <xsl:value-of select="$ref" />
+	  </xsl:message>
+	</xsl:if>
+	<xsl:value-of select="$res" />
+      </xsl:template>
+
+      <xsl:template name="subst">
+	<xsl:param name="str" /><xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:param name="strict" select="false()" />
+	<xsl:choose>
+	  <xsl:when test="contains($str,'[')">
+	    <xsl:value-of select="substring-before($str,'[')" />
+	    <xsl:variable name="str-xrest" select="substring-after($str,'[')" />
+	    <xsl:variable name="str1" select="substring-before($str-xrest,']')" />
+	    <xsl:variable name="str2" select="substring($str-xrest,string-length($str1)+1,1)" />
+	    <xsl:variable
+		name="str-rest"
+		select="substring($str-xrest,($str2=']')*(string-length($str1)+1)+1)"
+		/>
+	    <xsl:call-template name="subst">
+	      <xsl:with-param name="str">
+		<xsl:call-template name="expand-ref">
+		  <xsl:with-param name="ref" select="$str1" />
+		  <xsl:with-param name="val" select="$val" />
+		  <xsl:with-param name="idx" select="$idx" />
+		  <xsl:with-param name="n" select="$n" />
+		  <xsl:with-param name="strict" select="$strict" />
+		</xsl:call-template>
+	      </xsl:with-param>
+	      <xsl:with-param name="val" select="$val" />
+	      <xsl:with-param name="idx" select="$idx" />
+	      <xsl:with-param name="n" select="$n" />
+	      <xsl:with-param name="strict" select="$strict" />
+	    </xsl:call-template>
+	    <xsl:call-template name="subst">
+	      <xsl:with-param name="str" select="$str-rest" />
+	      <xsl:with-param name="val" select="$val" />
+	      <xsl:with-param name="idx" select="$idx" />
+	      <xsl:with-param name="n" select="$n" />
+	      <xsl:with-param name="strict" select="$strict" />
+	    </xsl:call-template>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="$str" />
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:template>
+
+      <xsl:template match="m:*|@m:*|@macro:*" mode="iterated" />
+      <xsl:template match="m:*|@m:*|@macro:*" mode="substed" />
+
       <xsl:template match="@*" mode="iterated">
-	<xsl:param name="idx" />
-	<xsl:choose>
-	  <xsl:when test="contains(string(),'$I')">
-	    <xsl:attribute name="{name()}">
-	      <xsl:value-of select="concat(substring-before(string(),'$I'),$idx,substring-after(string(),'$I'))" />
-	    </xsl:attribute>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:copy />
-	  </xsl:otherwise>
-	</xsl:choose>
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
+	  <xsl:call-template name="subst">
+	    <xsl:with-param name="str" select="string()" />
+	    <xsl:with-param name="val" select="$val" />
+	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n"/>
+	  </xsl:call-template>
+	</xsl:attribute>
       </xsl:template>
+
+      <xsl:template match="@*" mode="substed">
+	<xsl:param name="val" />
+	<xsl:attribute name="{name()}" namespace="{namespace-uri()}">
+	  <xsl:call-template name="subst">
+	    <xsl:with-param name="str" select="string()" />
+	    <xsl:with-param name="val" select="$val" />
+	  </xsl:call-template>
+	</xsl:attribute>
+      </xsl:template>
+
       <xsl:template match="text()" mode="iterated">
-	<xsl:param name="idx" />
-	<xsl:choose>
-	  <xsl:when test="contains(string(),'$I')">
-	    <xsl:value-of select="concat(substring-before(string(),'$I'),$idx,substring-after(string(),'$I'))" />
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:copy />
-	  </xsl:otherwise>
-	</xsl:choose>
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:call-template name="subst">
+	  <xsl:with-param name="str" select="string()" />
+	  <xsl:with-param name="val" select="$val" />
+	  <xsl:with-param name="idx" select="$idx" />
+	  <xsl:with-param name="n" select="$n"/>
+	</xsl:call-template>
       </xsl:template>
+
+      <xsl:template match="text()" mode="substed">
+	<xsl:param name="val" />
+	<xsl:call-template name="subst">
+	  <xsl:with-param name="str" select="string()" />
+	  <xsl:with-param name="val" select="$val" />
+	</xsl:call-template>
+      </xsl:template>
+
       <xsl:template mode="iterated" match="*">
-	<xsl:param name="idx" />
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
 	<xsl:copy>
 	  <xsl:apply-templates mode="iterated" select="@*|node()">
+	    <xsl:with-param name="val" select="$val" />
 	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n"/>
 	  </xsl:apply-templates>
 	</xsl:copy>
       </xsl:template>
-      <xsl:template mode="iterated" match="macro:*">
-	<xsl:param name="idx" />
-	<xsl:apply-templates mode="iterated" select="@*|node()">
-	  <xsl:with-param name="idx" select="$idx" />
+
+      <xsl:template mode="substed" match="*">
+	<xsl:param name="val" />
+	<xsl:copy>
+	  <xsl:apply-templates mode="substed" select="@*|node()">
+	    <xsl:with-param name="val" select="$val" />
+	  </xsl:apply-templates>
+	</xsl:copy>
+      </xsl:template>
+
+      <xsl:template mode="substed" match="macro:*">
+	<xsl:param name="val" />
+	<xsl:apply-templates mode="iterated" select=".">
+	  <xsl:with-param name="val" select="$val" />
 	</xsl:apply-templates>
       </xsl:template>
-      <xsl:template mode="iterated" match="macro:set">
-	<xsl:param name="n" />
-	<xsl:param name="idx" />
-	<xsl:element name="set">
-	  <xsl:apply-templates mode="iterated" select="@*">
-	    <xsl:with-param name="idx" select="$idx" />
-	  </xsl:apply-templates>
-	  <xsl:attribute name="begin"><xsl:value-of select="concat('step',$idx,'.begin')" /></xsl:attribute>
-	  <xsl:attribute name="end"><xsl:value-of select="concat('step',$idx,'.endEvent')" /></xsl:attribute>
-	</xsl:element>
+
+      <xsl:template match="macro:*">
+	<xsl:apply-templates mode="iterated" select="." />
       </xsl:template>
+
+      <xsl:template name="iterate">
+	<xsl:param name="n" select="$global-n" />
+	<xsl:param name="idx" select="1" />
+	<xsl:param name="val" select="/.." />
+	<xsl:param name="base" select="node()" />
+	<xsl:if test="$n >= $idx">
+	  <xsl:apply-templates mode="iterated" select="$base">
+	    <xsl:with-param name="n" select="$n" />
+	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="val" select="$val" />
+	  </xsl:apply-templates>
+	  <xsl:text>&#x0A;</xsl:text>
+	  <xsl:call-template name="iterate">
+	    <xsl:with-param name="n" select="$n" />
+	    <xsl:with-param name="idx" select="$idx + 1" />
+	    <xsl:with-param name="val" select="$val" />
+	    <xsl:with-param name="base" select="$base" />
+	  </xsl:call-template>
+	</xsl:if>
+      </xsl:template>
+
       <xsl:template mode="iterated" match="macro:anim-core">
-	<xsl:param name="n" />
-	<xsl:param name="idx" />
-	<xsl:text>&#x0A;</xsl:text>
+	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
 	<xsl:element name="set">
 	  <xsl:apply-templates mode="iterated" select="@*">
+	    <xsl:with-param name="val" select="$val" />
 	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n"/>
 	  </xsl:apply-templates>
 	  <xsl:attribute name="id"><xsl:value-of select="concat('step',$idx)" /></xsl:attribute>
 	  <xsl:attribute name="begin">
@@ -115,46 +367,99 @@
 	  <xsl:attribute name="restart">whenNotActive</xsl:attribute>
 	</xsl:element>
       </xsl:template>
-      <xsl:template name="iterate">
-	<xsl:param name="n" select="$global-n" />
-	<xsl:param name="idx" select="1" />
-	<xsl:if test="$n >= $idx">
-	  <xsl:apply-templates mode="iterated" select=".">
-	    <xsl:with-param name="n" select="$n" />
-	    <xsl:with-param name="idx" select="$idx" />
-	  </xsl:apply-templates>
-	  <xsl:call-template name="iterate">
-	    <xsl:with-param name="n" select="$n" />
-	    <xsl:with-param name="idx" select="$idx + 1" />
-	  </xsl:call-template>
-	</xsl:if>
+
+      <xsl:template match="macro:anim-core" mode="substed">
+	<xsl:param name="val" select="/.." />
+	<xsl:call-template name="iterate">
+	  <xsl:with-param name="base" select="." />
+	  <xsl:with-param name="val" select="$val" />
+	</xsl:call-template>
       </xsl:template>
+
       <xsl:template match="macro:anim-core">
-	<xsl:call-template name="iterate" />
+	<xsl:call-template name="iterate">
+	  <xsl:with-param name="base" select="." />
+	</xsl:call-template>
       </xsl:template>
-      <xsl:template match="macro:iter">
+
+      <xsl:template match="macro:iter" mode="iterated">
+	<xsl:param name="val" select="/.." />
 	<xsl:choose>
-	  <xsl:when test="@m:n">
+	  <xsl:when test="@macro:n">
 	    <xsl:call-template name="iterate">
-	      <xsl:with-param name="n" select="number(@m:n)" />
+	      <xsl:with-param name="n" select="number(@macro:n)" />
+	      <xsl:with-param name="val" select="$val" />
 	    </xsl:call-template>
 	  </xsl:when>
 	  <xsl:otherwise>
-	    <xsl:call-template name="iterate" />
+	    <xsl:call-template name="iterate">
+	      <xsl:with-param name="val" select="$val" />
+	    </xsl:call-template>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:template>
-      <xsl:template match="macro:set">
-	<xsl:variable name="idx" select="number(@m:frame)" />
+
+      <xsl:template match="macro:foreach" mode="iterated">
+	<xsl:variable name="n" select="count(m:v)" />
+	<xsl:for-each select="m:v">
+	  <xsl:apply-templates mode="iterated" select="../node()">
+	    <xsl:with-param name="n" select="$n" />
+	    <xsl:with-param name="idx" select="position()" />
+	    <xsl:with-param name="val" select="." />
+	  </xsl:apply-templates>
+	  <xsl:text>&#x0A;</xsl:text>
+	</xsl:for-each>
+      </xsl:template>
+
+      <xsl:template match="macro:subst" mode="iterated">
+	<xsl:param name="idx" /><xsl:param name="n" />
+	<xsl:apply-templates mode="iterated" select="node()">
+	  <xsl:with-param name="val" select="." />
+	  <xsl:with-param name="idx" select="$idx" />
+	  <xsl:with-param name="n" select="$n"/>
+	</xsl:apply-templates>
+      </xsl:template>
+
+      <xsl:template match="macro:subst" mode="substed" name="subst-impl">
+	<xsl:apply-templates mode="substed" select="node()">
+	  <xsl:with-param name="val" select="." />
+	</xsl:apply-templates>
+      </xsl:template>
+
+      <xsl:template match="macro:subst">
+	<xsl:call-template name="subst-impl" />
+      </xsl:template>
+
+      <xsl:template mode="iterated" match="macro:set" name="set-impl">
+	<xsl:param name="val" select="/.." /><xsl:param name="idx" /><xsl:param name="n" />
 	<xsl:element name="set">
 	  <xsl:apply-templates mode="iterated" select="@*">
+	    <xsl:with-param name="val" select="$val" />
 	    <xsl:with-param name="idx" select="$idx" />
+	    <xsl:with-param name="n" select="$n"/>
 	  </xsl:apply-templates>
 	  <xsl:attribute name="begin"><xsl:value-of select="concat('step',$idx,'.begin')" /></xsl:attribute>
 	  <xsl:attribute name="end"><xsl:value-of select="concat('step',$idx,'.endEvent')" /></xsl:attribute>
 	</xsl:element>
       </xsl:template>
-      <xsl:template match="macro:copyright">
+
+      <xsl:template match="macro:set" mode="substed">
+	<xsl:param name="val" select="/.." />
+	<xsl:call-template name="set-impl">
+	  <xsl:with-param name="val" select="$val" />
+	  <xsl:with-param name="idx" select="number(@macro:frame)" />
+	  <xsl:with-param name="n" select="$global-n" />
+	</xsl:call-template>
+      </xsl:template>
+
+      <xsl:template match="macro:set">
+	<xsl:call-template name="set-impl">
+	  <xsl:with-param name="idx" select="number(@macro:frame)" />
+	  <xsl:with-param name="n" select="$global-n" />
+	</xsl:call-template>
+      </xsl:template>
+
+      <xsl:template match="macro:copyright" mode="iterated">
         <xsl:text>©&#xA0;</xsl:text>
 	<xsl:value-of select="substring-before(/svg:svg/svg:metadata/dc:date/text(),'-')" />
 	<xsl:text> </xsl:text>
@@ -162,471 +467,558 @@
 	<xsl:text>. </xsl:text>
 	<xsl:value-of select="/svg:svg/svg:metadata/dc:rights/text()" />
       </xsl:template>
+
     </xsl:stylesheet>
-
-    <clipPath id="clip-orgtri">
-      <path d="M0,0 L315,0 L63,210 Z" />
-    </clipPath>
-    <clipPath id="exp1">
-      <path d="M-54,270 L18,-90 L414,30 Z" />
-    </clipPath>
-    <clipPath id="expL">
-      <path d="M-54,270 L0,0 L63,210 Z" />
-    </clipPath>
-    <clipPath id="expR">
-      <path d="M63,210 L414,30 L315,0 Z" />
-    </clipPath>
-    <clipPath id="expB">
-      <path d="M0,0 L18,-90 L315,0 Z" />
-    </clipPath>
-
-    <g id="longbase">
-      <path stroke="#888" d="M-630,0 L472.5,0" />
-    </g>
-    <g id="smalltri-fill-centre">
-      <path stroke="none" fill="#fcf" d="M99,30 L198,60 L81,120 Z" />
-    </g>
-    <g id="smalltri-others">
-	<path stroke="none" d="M180,150 L198,60 L81,120 Z" />
-	<path stroke="none" transform="translate(-99,-30)" d="M180,150 L198,60 L81,120 Z" />
-	<path stroke="none" transform="translate(-117,60)" d="M180,150 L198,60 L81,120 Z" />
-	<path stroke="none" transform="translate(117,-60)" d="M180,150 L198,60 L81,120 Z" />
-	<path stroke="none" transform="translate(18,-90)" d="M180,150 L198,60 L81,120 Z" />
-	<path stroke="none" transform="translate(-81,-120)" d="M180,150 L198,60 L81,120 Z" />
-    </g>
-    <g id="smalltri-fill-others">
-      <g fill="#8ff">
-	<use xlink:href="#smalltri-others" />
-      </g>
-    </g>
-    <g id="smalltri-darkfill-others">
-      <g fill="#0cc">
-	<use xlink:href="#smalltri-others" />
-      </g>
-    </g>
-    <g id="large1-green">
-      <path stroke="none" fill="#cfc" d="M-630,0 L315,0 L63,210 Z" />
-      <path stroke="none" fill="#6f6" d="M0,0 L315,0 L231,70 Z" />
-    </g>
-    <g id="large1-blue">
-      <path stroke="none" fill="#ccf" d="M0,0 L472.5,0 L63,210 Z" />
-      <path stroke="none" fill="#66f" d="M0,0 L21,70 L157.5,0 Z" />
-    </g>
-    <g id="large2-green">
-      <path stroke="none" fill="#cfc" d="M-630,0 L105,0 L63,210 Z" />
-      <path stroke="none" fill="#6f6" d="M0,0 L105,0 L99,30 Z" />
-    </g>
-    <g id="large2-blue">
-      <path stroke="none" fill="#ccf" d="M105,0 L63,210 L472.5,0 Z" />
-      <path stroke="none" fill="#66f" d="M105,0 L99,30 L157.5,0 Z" />
-    </g>
-    <g id="orgtri">
-      <path stroke-width="2" d="M0,0 L315,0 L63,210 Z" />
-      <g fill="#000" stroke="none" font-size="20px">
-	<g transform="translate(0,0) scale(1,-1) translate(0,20)">
-	  <text x="0" y="0" text-anchor="end">0</text>
-	</g>
-	<g transform="translate(315,0) scale(1,-1) translate(0,20)">
-	  <text x="0" y="0" text-anchor="end">A</text>
-	</g>
-	<g transform="translate(63,210) scale(1,-1) translate(0,-6)">
-	  <text x="0" y="0" text-anchor="start">B</text>
-	</g>
-      </g>
-    </g>
-    <!-- red gradient x=-0.2y -->
-    <g id="redline-xleft">
-      <path stroke="#f00" d="M-54,270 L24,-120" />
-    </g>
-    <g id="redline-left">
-      <path stroke="#f00" d="M51,270 L129,-120" />
-    </g>
-    <g id="redline-right">
-      <path stroke="#f00" d="M156,270 L234,-120" />
-    </g>
-    <g id="redline-xright">
-      <path stroke="#f00" d="M261,270 L339,-120" />
-    </g>
-    <!-- green gradient x=3.3y -->
-    <g id="greenline-xupper">
-      <path stroke="#0f0" d="M-630,0 L162,240" />
-    </g>
-    <g id="greenline-upper">
-      <path stroke="#0f0" d="M-315,0 L279,180" />
-    </g>
-    <g id="greenline-lower">
-      <path stroke="#0f0" d="M-148.5,-45 L396,120" />
-    </g>
-    <g id="greenline-xlower">
-      <path stroke="#0f0" d="M18,-90 L414,30" />
-    </g>
-    <!-- blue gradient x=-1.95y -->
-    <g id="blueline-xleft">
-      <path stroke="#00f" d="M-234,120 L234,-120" />
-    </g>
-    <g id="blueline-left">
-      <path stroke="#00f" d="M-135,150 L333,-90" />
-    </g>
-    <g id="blueline-right">
-      <path stroke="#00f" d="M-36,180 L432,-60" />
-    </g>
-    <g id="blueline-xright">
-      <path stroke="#00f" d="M-54,270 L472.5,0" />
-    </g>
-
-    <g id="label-32A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(472.5,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">³⁄₂A</text>
-      </g>
-    </g>
-    <g id="label-13A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(105,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">⅓A</text>
-      </g>
-    </g>
-    <g id="label-12A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(157.5,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">½A</text>
-      </g>
-    </g>
-    <g id="label--2A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(-630,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="start">-2A</text>
-      </g>
-    </g>
-    <g id="label-13B" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(21,70) scale(1,-1) translate(-5,13)">
-	<text x="0" y="0" text-anchor="end">⅓B</text>
-      </g>
-    </g>
-
-    <text id="ctxt1">
-      <tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
-      <tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
-      <tspan x="0" y="2">is the shaded pink region?</tspan>
-    </text>
-    <text id="stxt1">
-      <tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
-      <tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
-    </text>
-
-    <text id="ctxt2">
-      <tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
-      <tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
-      <tspan x="0" y="2">pink one, for a total of 7.</tspan>
-    </text>
-    <text id="stxt2">
-      <tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
-      <tspan x="0" y="1">1950 book by Hugo Steinhaus. The explanations and following diagrams</tspan>
-      <tspan x="0" y="2">are the work of the present author.</tspan>
-    </text>
-
-    <text id="ctxt3">
-      <tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
-      <tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
-      <tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
-      <tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
-      <tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
-      <tspan x="0" y="6">But...</tspan>
-    </text>
-    <text id="stxt3">
-    </text>
-
-    <text id="ctxt4">
-      <tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
-      <tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
-      <tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
-    </text>
-    <text id="stxt4">
-    </text>
-
-    <text id="ctxt5">
-      <tspan x="0" y="0">We extend the various lines of interest.</tspan>
-    </text>
-    <text id="stxt5">
-    </text>
-
-    <text id="ctxt6">
-      <tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
-      <tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
-      <tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
-      <tspan x="0" y="3">distance A from the origin.</tspan>
-    </text>
-    <text id="stxt6">
-    </text>
-
-    <text id="ctxt7">
-      <tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
-      <tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
-      <tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
-    </text>
-    <text id="stxt7">
-    </text>
-
-    <text id="ctxt8">
-      <tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
-      <tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
-      <tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
-    </text>
-    <text id="stxt8">
-    </text>
-
-    <text id="ctxt9">
-      <tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
-      <tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
-      <tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
-      <tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
-    </text>
-    <text id="stxt9">
-      <tspan x="0" y="0">QED.</tspan>
-    </text>
-
-    <text id="text0">&#xA0;</text>
-    <macro:iter>
-      <text id="text$I">$I</text>
-    </macro:iter>
   </defs>
 
-  <rect fill="none" stroke="#404" x="0" y="0" width="1120" height="500" />
+  <!-- basic x,y coords;
+       yA is assumed to be always 0, xA is assumed > 0, yB is assumed > 0
+       (without loss of generality)
+       m:xA="315" m:yA="0"   m:cA="[xA],[yA]"
+       m:xB="63"  m:yB="210" m:cB="[xB],[yB]"
+       All coords in the construction are computed from this, though the
+       layout relative to the outer viewbox uses explicit coordinates
+  -->
+  <macro:subst
+      m:xA="315" m:yA="0"   m:cA="[xA],[yA]"
+      m:xB="63"  m:yB="210" m:cB="[xB],[yB]"
 
-  <g>
+      m:cR="[*dxR],[*dyR]" m:nR="[*nxR],[*nyR]"
+      m:cG="[*dxG],[*dyG]" m:nG="[*nxG],[*nyG]"
+      m:cL="[*dxL],[*dyL]" m:nL="[*nxL],[*nyL]"
+      >
+    <m:expr m:name="xMA"><m:div><m:v>[xA]</m:v><m:v>2</m:v></m:div></m:expr>
+    <m:expr m:name="xLA"><m:mul><m:v>[xA]</m:v><m:v>-2</m:v></m:mul></m:expr>
+    <m:expr m:name="xRA"><m:mul><m:v>[xA]</m:v><m:v>1.5</m:v></m:mul></m:expr>
+    <m:expr m:name="xTA"><m:div><m:v>[xA]</m:v><m:v>3</m:v></m:div></m:expr>
 
-    <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
-      <text><macro:copyright /></text>
-    </g>
+    <!-- gradients:
+	 red gradient is B+R=A/3, B-A/3 = R
+	 [63,210] - [105,0] = [-42,210] = k*[-0.2,1]
+	 red triangle side length is 3/7ths of this: [-18,90]
+	 = [(3xB - xA)/7, (3yB - yA)/7]
+	 green gradient is G+((A-B)/3)=A, G=A-(A-B)/3, G=2A/3 + B/3
+	 [210+21, 0+70] = [231,70] = k*[3.3,1]
+	 green side length is 3/7ths of this: [99,30]
+	 = [(2xA + xB)/7, (2yA + yB)/7]
+	 blue gradient is A+L=2B/3, L = 2B/3 - A
+	 [42,140] - [315,0] = [-273,140] = k*[-1.95,1]
+	 blue side length is 3/7ths of this: [-117,60]
+	 = [(2xB - 3xA)/7, (2yB - 3yA)/7]
+    -->
+    <m:expr m:name="dxR">
+      <m:div><m:sub><m:mul><m:v>[xB]</m:v><m:v>3</m:v></m:mul><m:v>[xA]</m:v></m:sub><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nxR"><m:neg><m:v>[*dxR]</m:v></m:neg></m:expr>
+    <m:expr m:name="dyR">
+      <m:div><m:sub><m:mul><m:v>[yB]</m:v><m:v>3</m:v></m:mul><m:v>[yA]</m:v></m:sub><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nyR"><m:neg><m:v>[*dyR]</m:v></m:neg></m:expr>
 
-    <g id="anim-control" transform="translate(1000,20) scale(5,5)" stroke-width="0.2">
-      <rect fill="#ccc" stroke="#444" x="0" y="0" width="20" height="10" />
-      <rect fill="none" stroke="#fff" x="7" y="1" width="6" height="8" />
-      <g transform="translate(10,7.5)" font-size="7px" text-anchor="middle">
+    <m:expr m:name="dxG">
+      <m:div><m:add><m:mul><m:v>[xA]</m:v><m:v>2</m:v></m:mul><m:v>[xB]</m:v></m:add><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nxG"><m:neg><m:v>[*dxG]</m:v></m:neg></m:expr>
+    <m:expr m:name="dyG">
+      <m:div><m:add><m:mul><m:v>[yA]</m:v><m:v>2</m:v></m:mul><m:v>[yB]</m:v></m:add><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nyG"><m:neg><m:v>[*dyG]</m:v></m:neg></m:expr>
+
+    <m:expr m:name="dxL">
+      <m:div><m:sub><m:mul><m:v>[xB]</m:v><m:v>2</m:v></m:mul><m:mul><m:v>[xA]</m:v><m:v>3</m:v></m:mul></m:sub><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nxL"><m:neg><m:v>[*dxL]</m:v></m:neg></m:expr>
+    <m:expr m:name="dyL">
+      <m:div><m:sub><m:mul><m:v>[yB]</m:v><m:v>2</m:v></m:mul><m:mul><m:v>[yA]</m:v><m:v>3</m:v></m:mul></m:sub><m:v>7</m:v></m:div>
+    </m:expr>
+    <m:expr m:name="nyL"><m:neg><m:v>[*dyL]</m:v></m:neg></m:expr>
+
+    <defs>
+
+      <clipPath id="clip-orgtri">
+	<path d="M0,0 L[cA] L[cB] Z" />
+      </clipPath>
+      <clipPath id="exp1">
+	<path transform="translate([nR]) scale(4,4)"
+	      d="M0,0 l[cG] l[cL] Z" />
+      </clipPath>
+      <clipPath id="expL">
+	<path d="M0,0 L[cB] l[cL] Z" />
+      </clipPath>
+      <clipPath id="expR">
+	<path d="M[cB] L[cA] l[cG] Z" />
+      </clipPath>
+      <clipPath id="expB">
+	<path d="M[cA] L0,0 l[nR] Z" />
+      </clipPath>
+
+      <clipPath id="magcircle">
+	<circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" />
+      </clipPath>
+
+      <g id="longbase">
+	<path stroke="#888" d="M[*xLA],0 L[*xRA],0" />
+      </g>
+
+      <g id="smalltri-fill-centre">
+	<path stroke="none" fill="#fcf" d="M[cG] l[cG] l[cL] Z" />
+      </g>
+      <g id="smalltri-others">
+	<macro:subst
+	    m:trG="translate([cG])"
+	    m:trR="translate([cR])">
+	  <macro:foreach>
+	    <m:v></m:v>
+	    <m:v>[trG]</m:v>
+	    <m:v>[trG] [trG]</m:v>
+	    <m:v>[trR]</m:v>
+	    <m:v>[trR] [trR]</m:v>
+	    <m:v>[trR] [trG]</m:v>
+	  <path stroke="none"
+		transform="[V]"
+		d="M0,0 l[nL] l[cR] Z" />
+	  </macro:foreach>
+	</macro:subst>
+      </g>
+      <g id="smalltri-fill-others">
+	<g fill="#8ff">
+	  <use xlink:href="#smalltri-others" />
+	</g>
+      </g>
+      <g id="smalltri-darkfill-others">
+	<g fill="#0cc">
+	  <use xlink:href="#smalltri-others" />
+	</g>
+      </g>
+      <macro:subst>
+	<m:expr m:name="xGsc"><m:div><m:mul><m:v>[*dxG]</m:v><m:v>7</m:v></m:mul><m:v>3</m:v></m:div></m:expr>
+	<m:expr m:name="yGsc"><m:div><m:mul><m:v>[*dyG]</m:v><m:v>7</m:v></m:mul><m:v>3</m:v></m:div></m:expr>
+	<m:expr m:name="xBsc"><m:div><m:v>[xB]</m:v><m:v>3</m:v></m:div></m:expr>
+	<m:expr m:name="yBsc"><m:div><m:v>[yB]</m:v><m:v>3</m:v></m:div></m:expr>
+
+	<g id="large1-green">
+	  <path stroke="none" fill="#cfc" d="M[*xLA],0 L[cA] L[cB] Z" />
+	  <path stroke="none" fill="#6f6" d="M0,0 L[cA] L[*xGsc],[*yGsc] Z" />
+	</g>
+	<g id="large1-blue">
+	  <path stroke="none" fill="#ccf" d="M0,0 L[*xRA],0 L[cB] Z" />
+	  <path stroke="none" fill="#66f" d="M0,0 L[*xBsc],[*yBsc] L[*xMA],0 Z" />
+	</g>
+	<g id="large2-green">
+	  <path stroke="none" fill="#cfc" d="M[*xLA],0 L[*xTA],0 L[cB] Z" />
+	  <path stroke="none" fill="#6f6" d="M[cG] L0,0 L[*xTA],0 Z" />
+	</g>
+	<g id="large2-blue">
+	  <path stroke="none" fill="#ccf" d="M[*xTA],0 L[cB] L[*xRA],0 Z" />
+	  <path stroke="none" fill="#66f" d="M[*xTA],0 L[cG] L[*xMA],0 Z" />
+	</g>
+      </macro:subst>
+      <g id="orgtri">
+	<path stroke-width="2" d="M0,0 L[cA] L[cB] Z" />
+	<g fill="#000" stroke="none" font-size="20px">
+	  <g transform="translate(0,0) scale(1,-1) translate(0,20)">
+	    <text x="0" y="0" text-anchor="end">0</text>
+	  </g>
+	  <g transform="translate([cA]) scale(1,-1) translate(0,20)">
+	    <text x="0" y="0" text-anchor="end">A</text>
+	  </g>
+	  <g transform="translate([cB]) scale(1,-1) translate(0,-6)">
+	    <text x="0" y="0" text-anchor="start">B</text>
+	  </g>
+	</g>
+      </g>
+      <!-- red gradient x=-0.2y -->
+      <macro:foreach>
+	<m:v m:name="xleft"  m:trans="translate([nR])" />
+	<m:v m:name="left"   m:trans="translate([nL])" />
+	<m:v m:name="right"  m:trans="translate([nL]) translate([nL])" />
+	<m:v m:name="xright" m:trans="translate([cG]) translate([nL]) translate([nL])" />
+	<g id="redline-[name]">
+	  <path stroke="#f00"
+		transform="[trans]"
+		d="M0,0 l[cR] l[cR] l[cR] l[cR]" />
+	</g>
+      </macro:foreach>
+      <!-- green gradient x=3.3y -->
+      <macro:foreach>
+	<m:v m:name="xupper"  m:d="M[*xLA],0 l[cG] l[cG] l[cG]" />
+	<m:v m:name="upper"   m:d="M[cL]" />
+	<m:v m:name="lower"   m:d="M[nG]" />
+	<m:v m:name="xlower"  m:d="M[nR]" />
+	<g id="greenline-[name]">
+	  <path stroke="#0f0"
+		d="[d] l[cG] l[cG] l[cG] l[cG] l[cG]" />
+	</g>
+      </macro:foreach>
+      <!-- blue gradient x=-1.95y -->
+      <macro:foreach>
+	<m:v m:name="xleft"  m:trans="translate([nL]) translate([nL])" />
+	<m:v m:name="left"   m:trans="translate([*xRA],0) translate([nG]) translate([nG])" />
+	<m:v m:name="right"  m:trans="translate([*xRA],0) translate([nG])" />
+	<m:v m:name="xright" m:trans="translate([*xRA],0)" />
+	<g id="blueline-[name]">
+	  <path stroke="#00f"
+		transform="[trans]"
+		d="M0,0 l[cL] l[cL] l[cL] l[cL]" />
+	</g>
+      </macro:foreach>
+
+      <g id="major-lines">
+	<macro:foreach>
+	  <m:v>#redline-left</m:v>	<m:v>#redline-right</m:v>	<m:v>#redline-xright</m:v>
+	  <m:v>#greenline-xupper</m:v>	<m:v>#greenline-upper</m:v>	<m:v>#greenline-lower</m:v>
+	  <m:v>#blueline-right</m:v>	<m:v>#blueline-left</m:v>	<m:v>#blueline-xleft</m:v>
+	  <use xlink:href="[V]" />
+	</macro:foreach>
+      </g>
+
+      <g id="label-32A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate([*xRA],0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">³⁄₂A</text>
+	</g>
+      </g>
+      <g id="label-13A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate([*xTA],0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">⅓A</text>
+	</g>
+      </g>
+      <g id="label-12A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate([*xMA],0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">½A</text>
+	</g>
+      </g>
+      <g id="label--2A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate([*xLA],0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="start">-2A</text>
+	</g>
+      </g>
+      <g id="label-13B" fill="#000" stroke="none" font-size="20px">
+	<g transform="scale(0.3333333333333333,0.3333333333333333) translate([cB]) scale(3,-3) translate(-5,13)">
+	  <text x="0" y="0" text-anchor="end">⅓B</text>
+	</g>
+      </g>
+
+      <text id="ctxt1">
+	<tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
+	<tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
+	<tspan x="0" y="2">is the shaded pink region?</tspan>
+      </text>
+      <text id="stxt1">
+	<tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
+	<tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
+      </text>
+
+      <text id="ctxt2">
+	<tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
+	<tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
+	<tspan x="0" y="2">pink one, for a total of 7.</tspan>
+      </text>
+      <text id="stxt2">
+	<tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
+	<tspan x="0" y="1">1950 book <tspan font-style="italic">Mathematical Snapshots</tspan> by Hugo Steinhaus. The explanations</tspan>
+	<tspan x="0" y="2"> and following diagrams are the work of the present author.</tspan>
+      </text>
+
+      <text id="ctxt3">
+	<tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
+	<tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
+	<tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
+	<tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
+	<tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
+	<tspan x="0" y="6">But...</tspan>
+      </text>
+      <text id="stxt3">
+      </text>
+
+      <text id="ctxt4">
+	<tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
+	<tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
+	<tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
+      </text>
+      <text id="stxt4">
+      </text>
+
+      <text id="ctxt5">
+	<tspan x="0" y="0">We extend the various lines of interest.</tspan>
+      </text>
+      <text id="stxt5">
+      </text>
+
+      <text id="ctxt6">
+	<tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
+	<tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
+	<tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
+	<tspan x="0" y="3">distance A from the origin.</tspan>
+      </text>
+      <text id="stxt6">
+      </text>
+
+      <text id="ctxt7">
+	<tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
+	<tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
+	<tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
+      </text>
+      <text id="stxt7">
+      </text>
+
+      <text id="ctxt8">
+	<tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
+	<tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
+	<tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
+      </text>
+      <text id="stxt8">
+      </text>
+
+      <text id="ctxt9">
+	<tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
+	<tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
+	<tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
+	<tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
+      </text>
+      <text id="stxt9">
+	<tspan x="0" y="0">QED.</tspan>
+      </text>
+
+      <text id="text0">&#xA0;</text>
+      <macro:iter>
+	<text id="text[I]">[I]</text>
+      </macro:iter>
+
+      <symbol id="tick" viewBox="0 0 20 20">
+	<path d="M2,12 L8,16 L17,3" stroke-width="3" />
+      </symbol>
+    </defs>
+
+    <rect fill="none" stroke="#404" x="0" y="0" width="1120" height="500" />
+
+    <g>
+
+      <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
+	<text><macro:copyright /></text>
+      </g>
+
+      <g id="anim-control" transform="translate(1000,20) scale(5,5)" stroke-width="0.2">
+	<rect fill="#ccc" stroke="#444" x="0" y="0" width="20" height="10" />
+	<rect fill="none" stroke="#fff" x="7" y="1" width="6" height="8" />
+	<g transform="translate(10,7.5)" font-size="7px" text-anchor="middle">
+	  <use xlink:href="#text0">
+	    <macro:anim-core macro:n="9" attributeName="xlink:href" attributeType="XML" to="#text[I]" />
+	  </use>
+	</g>
+	<rect fill="#444" stroke="#aaa" x="1" y="1" width="5" height="8" />
+	<path fill="#eee" d="M2,5 L5,2.5 L5,7.5 Z" />
+	<rect fill="#444" stroke="#aaa" x="14" y="1" width="5" height="8" />
+	<path fill="#eee" transform="translate(20,0) scale(-1,1)" d="M2,5 L5,2.5 L5,7.5 Z" />
+
+	<macro:foreach>
+	  <m:v m:p1="prev" m:p2="1" />
+	  <m:v m:p1="next" m:p2="14" />
+	  <g fill="none" stroke="none" transform="translate([2],1) scale(5,8)" visibility="hidden">
+	    <macro:iter>
+	      <rect id="a[1][I]" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<macro:set attributeName="visibility" to="visible" />
+	      </rect>
+	    </macro:iter>
+	  </g>
+	</macro:foreach>
+      </g>
+      <g id="text-control" transform="translate(1000,75)" stroke-width="1">
+	<rect fill="none" stroke="#000" x="0" y="0" width="100" height="20" />
+	<rect fill="none" stroke="#000" x="5" y="5" width="10" height="10" />
+	<use xlink:href="#tick" x="6" y="6" width="8" height="8" stroke="#000" fill="none" visibility="hidden">
+	  <set id="showtext" attributeName="visibility" to="visible" begin="texton.click" end="textoff.click" restart="whenNotActive" />
+	</use>
+	<!--<rect fill="none" stroke="#000" x="5" y="5" width="10" height="10">
+	  <set id="showtext" attributeName="fill" to="#000" begin="texton.click" end="textoff.click" restart="whenNotActive" />
+	</rect>-->
+	<g transform="translate(22,15)" font-size="12px">
+	  <text>Show Text</text>
+	</g>
+	<macro:foreach>
+	  <m:v m:p1="texton"  m:p2="0;showtext.endEvent" m:p3="showtext.beginEvent" />
+	  <m:v m:p1="textoff" m:p2="showtext.beginEvent" m:p3="showtext.endEvent" />
+	  <rect id="[1]" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	    <set attributeName="visibility" to="visible" begin="[2]" end="[3]" />
+	  </rect>
+	</macro:foreach>
+      </g>
+
+      <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
+
+	<g id="frame1" display="none">
+	  <macro:set macro:frame="1" attributeName="display" to="block" />
+	  <g clip-path="url(#clip-orgtri)">
+	    <use xlink:href="#smalltri-fill-centre" />
+	    <use xlink:href="#redline-left" />
+	    <use xlink:href="#greenline-lower" />
+	    <use xlink:href="#blueline-right" />
+	  </g>
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-13A" />
+	</g>
+
+	<g id="frame2" display="none">
+	  <macro:set macro:frame="2" attributeName="display" to="block" />
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#smalltri-fill-centre" />
+	    <use xlink:href="#smalltri-fill-others" />
+	    <use xlink:href="#major-lines" />
+	  </g>
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-13B" />
+	  <use xlink:href="#label-12A" />
+	</g>
+
+	<g id="frame3" display="none">
+	  <macro:set macro:frame="3" attributeName="display" to="block" />
+	  <g clip-path="url(#clip-orgtri)">
+	    <use xlink:href="#smalltri-fill-centre" />
+	    <use xlink:href="#smalltri-fill-others" />
+	  </g>
+	  <macro:subst>
+	    <!-- xA and yB are positive, but xB might not be. -->
+	    <m:expr m:name="xMB"><m:div><m:v>[xB]</m:v><m:v>2</m:v></m:div></m:expr>
+	    <m:expr m:name="nxMB"><m:div><m:v>[xB]</m:v><m:v>-2</m:v></m:div></m:expr>
+	    <m:expr m:name="yMB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
+	    <m:expr m:name="xMAB"><m:add><m:v>[*xMB]</m:v><m:v>[*xMA]</m:v></m:add></m:expr>
+	    <m:expr m:name="nxMAB"><m:add><m:v>[*nxMB]</m:v><m:v>-[*xMA]</m:v></m:add></m:expr>
+	    <m:expr m:name="yMAB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
+	    <macro:foreach>
+	      <m:v m:p1="[*xMB]"  m:p2="[*nxMB]"  m:p3="[*yMB]"  m:p4="#expL" />
+	      <m:v m:p1="[*xMA]"  m:p2="-[*xMA]"  m:p3="0"       m:p4="#expB" />
+	      <m:v m:p1="[*xMAB]" m:p2="[*nxMAB]" m:p3="[*yMAB]" m:p4="#expR" />
+	      <g transform="translate([1],[3])">
+		<animateTransform attributeName="transform" type="rotate"
+				  values="0;0;180;180" keyTimes="0;0.2;0.6;1"
+				  begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
+				  additive="sum" accumulate="sum" />
+		<g transform="translate([2],-[3])">
+		  <g clip-path="url([4])">
+		    <use xlink:href="#smalltri-darkfill-others" />
+		  </g>
+		</g>
+	      </g>
+	    </macro:foreach>
+	  </macro:subst>
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#major-lines" />
+	  </g>
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-13B" />
+	  <use xlink:href="#label-12A" />
+	</g>
+
+	<g id="frame4" display="none">
+	  <macro:set macro:frame="4" attributeName="display" to="block" />
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#smalltri-fill-centre" />
+	    <use xlink:href="#smalltri-fill-others" />
+	    <use xlink:href="#major-lines" />
+	  </g>
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-13B" />
+	  <use xlink:href="#label-12A" />
+	  <circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" />
+	  <g transform="translate([cG])">
+	    <macro:foreach>
+	      <m:v>matrix(1 0 0 -1 0 0)</m:v><!-- scale(1,-1) -->
+	      <m:v>matrix(0.8 -0.6 0.6 0.8 0 0)</m:v><!-- rotation by -2*atan(1/3) -->
+	      <path stroke="#888" stroke-width="1.5" fill="none"
+		    transform="[V]"
+		    d="M0,10 h-270" />
+	    </macro:foreach>
+	    <g transform="translate(-270,90) scale(10,10) translate([nG])">
+	      <g clip-path="url(#magcircle)">
+		<use xlink:href="#smalltri-fill-centre" />
+		<use xlink:href="#smalltri-fill-others" />
+		<use xlink:href="#major-lines" />
+	      </g>
+	      <circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" stroke-width="0.25" />
+	    </g>
+	  </g>
+	</g>
+
+	<g id="frame5" display="none">
+	  <macro:set macro:frame="5" attributeName="display" to="block" />
+	  <use xlink:href="#longbase" />
+	  <use xlink:href="#redline-left" />
+	  <use xlink:href="#greenline-xupper" />
+	  <use xlink:href="#greenline-lower" />
+	  <use xlink:href="#blueline-xright" />
+	  <use xlink:href="#blueline-left" />
+	  <use xlink:href="#orgtri" />
+	</g>
+
+	<g id="frame6" display="none">
+	  <macro:set macro:frame="6" attributeName="display" to="block" />
+	  <use xlink:href="#large1-green" />
+	  <use xlink:href="#longbase" />
+	  <use xlink:href="#greenline-xupper" />
+	  <use xlink:href="#greenline-lower" />
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label--2A" />
+	</g>
+
+	<g id="frame7" display="none">
+	  <macro:set macro:frame="7" attributeName="display" to="block" />
+	  <use xlink:href="#large1-blue" />
+	  <use xlink:href="#longbase" />
+	  <use xlink:href="#blueline-xright" />
+	  <use xlink:href="#blueline-left" />
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-12A" />
+	  <use xlink:href="#label-32A" />
+	</g>
+
+	<g id="frame8" display="none">
+	  <macro:set macro:frame="8" attributeName="display" to="block" />
+	  <use xlink:href="#large2-green" />
+	  <use xlink:href="#longbase" />
+	  <use xlink:href="#redline-left" />
+	  <use xlink:href="#greenline-xupper" />
+	  <use xlink:href="#greenline-lower" />
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label--2A" />
+	  <use xlink:href="#label-13A" />
+	</g>
+
+	<g id="frame9" display="none">
+	  <macro:set macro:frame="9" attributeName="display" to="block" />
+	  <use xlink:href="#large2-blue" />
+	  <use xlink:href="#longbase" />
+	  <use xlink:href="#redline-left" />
+	  <use xlink:href="#blueline-xright" />
+	  <use xlink:href="#blueline-left" />
+	  <use xlink:href="#orgtri" />
+	  <use xlink:href="#label-13A" />
+	  <use xlink:href="#label-12A" />
+	  <use xlink:href="#label-32A" />
+	</g>
+      </g>
+
+      <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
+	<set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent" />
+	<macro:set macro:frame="1" attributeName="display" to="block" />
 	<use xlink:href="#text0">
-	  <macro:anim-core m:n="9" attributeName="xlink:href" attributeType="XML" to="#text$I" />
+	  <macro:iter>
+	    <macro:set attributeName="xlink:href" to="#ctxt[I]" />
+	  </macro:iter>
 	</use>
       </g>
-      <rect fill="#444" stroke="#aaa" x="1" y="1" width="5" height="8" />
-      <path fill="#eee" d="M2,5 L5,2.5 L5,7.5 Z" />
-      <g fill="none" stroke="none" transform="translate(1,1) scale(5,8)" visibility="hidden">
-	<macro:iter>
-	  <rect id="aprev$I" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <macro:set attributeName="visibility" to="visible" />
-	  </rect>
-	</macro:iter>
+      <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
+	<use xlink:href="#text0">
+	  <macro:iter>
+	    <macro:set attributeName="xlink:href" to="#stxt[I]" />
+	  </macro:iter>
+	</use>
       </g>
-      <rect fill="#444" stroke="#aaa" x="14" y="1" width="5" height="8" />
-      <path fill="#eee" transform="translate(20,0) scale(-1,1)" d="M2,5 L5,2.5 L5,7.5 Z" />
-      <g fill="none" stroke="none" transform="translate(14,1) scale(5,8)" visibility="hidden">
-	<macro:iter>
-	  <rect id="anext$I" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <macro:set attributeName="visibility" to="visible" />
-	  </rect>
-	</macro:iter>
+
+      <g transform="translate(50,250) translate(0,16)" font-size="16px">
+	<set attributeName="display" to="none" begin="0s" />
+	<text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
       </g>
-    </g>
-    <g id="text-control" transform="translate(1000,75)" stroke-width="1">
-      <rect fill="none" stroke="#000" x="0" y="0" width="100" height="20" />
-      <rect fill="none" stroke="#000" x="5" y="5" width="10" height="10">
-	<set id="showtext" attributeName="fill" to="#000" begin="texton.click" end="textoff.click" restart="whenNotActive" />
-      </rect>
-      <g transform="translate(22,15)" font-size="12px">
-	<text>Show Text</text>
-      </g>
-      <rect id="texton" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
-	<set attributeName="visibility" to="visible" begin="0;showtext.endEvent" end="showtext.beginEvent" />
-      </rect>
-      <rect id="textoff" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
-	<set attributeName="visibility" to="visible" begin="showtext.beginEvent" end="showtext.endEvent" />
-      </rect>
+
     </g>
 
-    <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
-
-      <g id="frame1" display="none">
-	<macro:set m:frame="1" attributeName="display" to="block" />
-	<g clip-path="url(#clip-orgtri)">
-	  <use xlink:href="#smalltri-fill-centre" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#blueline-right" />
-	</g>
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-13A" />
-      </g>
-
-      <g id="frame2" display="none">
-	<macro:set m:frame="2" attributeName="display" to="block" />
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#smalltri-fill-centre" />
-	  <use xlink:href="#smalltri-fill-others" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#redline-right" />
-	  <use xlink:href="#redline-xright" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-upper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#blueline-right" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#blueline-xleft" />
-	</g>
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-13B" />
-	<use xlink:href="#label-12A" />
-      </g>
-
-      <g id="frame3" display="none">
-	<macro:set m:frame="3" attributeName="display" to="block" />
-	<g clip-path="url(#clip-orgtri)">
-	  <use xlink:href="#smalltri-fill-centre" />
-	  <use xlink:href="#smalltri-fill-others" />
-	</g>
-	<g transform="translate(31.5,105)">
-	  <animateTransform attributeName="transform" type="rotate"
-			    values="0;0;180;180" keyTimes="0;0.2;0.6;1"
-			    begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
-			    additive="sum" accumulate="sum" />
-	  <g transform="translate(-31.5,-105)">
-	    <g clip-path="url(#expL)">
-	      <use xlink:href="#smalltri-darkfill-others" />
-	    </g>
-	  </g>
-	</g>
-	<g transform="translate(157.5,0)">
-	  <animateTransform attributeName="transform" type="rotate"
-			    values="0;0;180;180" keyTimes="0;0.2;0.6;1"
-			    begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
-			    additive="sum" accumulate="sum" />
-	  <g transform="translate(-157.5,-0)">
-	    <g clip-path="url(#expB)">
-	      <use xlink:href="#smalltri-darkfill-others" />
-	    </g>
-	  </g>
-	</g>
-	<g transform="translate(189,105)">
-	  <animateTransform attributeName="transform" type="rotate"
-			    values="0;0;180;180" keyTimes="0;0.2;0.6;1"
-			    begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
-			    additive="sum" accumulate="sum" />
-	  <g transform="translate(-189,-105)">
-	    <g clip-path="url(#expR)">
-	      <use xlink:href="#smalltri-darkfill-others" />
-	    </g>
-	  </g>
-	</g>
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#redline-right" />
-	  <use xlink:href="#redline-xright" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-upper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#blueline-right" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#blueline-xleft" />
-	</g>
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-13B" />
-	<use xlink:href="#label-12A" />
-      </g>
-
-      <g id="frame4" display="none">
-	<macro:set m:frame="4" attributeName="display" to="block" />
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#smalltri-fill-centre" />
-	  <use xlink:href="#smalltri-fill-others" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#redline-right" />
-	  <use xlink:href="#redline-xright" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-upper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#blueline-right" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#blueline-xleft" />
-	</g>
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-13B" />
-	<use xlink:href="#label-12A" />
-	<circle cx="99" cy="30" r="10" stroke="#000" fill="none" />
-      </g>
-
-      <g id="frame5" display="none">
-	<macro:set m:frame="5" attributeName="display" to="block" />
-	<use xlink:href="#longbase" />
-	<use xlink:href="#redline-left" />
-	<use xlink:href="#greenline-xupper" />
-	<use xlink:href="#greenline-lower" />
-	<use xlink:href="#blueline-xright" />
-	<use xlink:href="#blueline-left" />
-	<use xlink:href="#orgtri" />
-      </g>
-
-      <g id="frame6" display="none">
-	<macro:set m:frame="6" attributeName="display" to="block" />
-	<use xlink:href="#large1-green" />
-	<use xlink:href="#longbase" />
-	<use xlink:href="#greenline-xupper" />
-	<use xlink:href="#greenline-lower" />
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label--2A" />
-      </g>
-
-      <g id="frame7" display="none">
-	<macro:set m:frame="7" attributeName="display" to="block" />
-	<use xlink:href="#large1-blue" />
-	<use xlink:href="#longbase" />
-	<use xlink:href="#blueline-xright" />
-	<use xlink:href="#blueline-left" />
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-12A" />
-	<use xlink:href="#label-32A" />
-      </g>
-
-      <g id="frame8" display="none">
-	<macro:set m:frame="8" attributeName="display" to="block" />
-	<use xlink:href="#large2-green" />
-	<use xlink:href="#longbase" />
-	<use xlink:href="#redline-left" />
-	<use xlink:href="#greenline-xupper" />
-	<use xlink:href="#greenline-lower" />
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label--2A" />
-	<use xlink:href="#label-13A" />
-      </g>
-
-      <g id="frame9" display="none">
-	<macro:set m:frame="9" attributeName="display" to="block" />
-	<use xlink:href="#large2-blue" />
-	<use xlink:href="#longbase" />
-	<use xlink:href="#redline-left" />
-	<use xlink:href="#blueline-xright" />
-	<use xlink:href="#blueline-left" />
-	<use xlink:href="#orgtri" />
-	<use xlink:href="#label-13A" />
-	<use xlink:href="#label-12A" />
-	<use xlink:href="#label-32A" />
-      </g>
-    </g>
-
-    <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
-      <set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent" />
-      <macro:set m:frame="1" attributeName="display" to="block" />
-      <use xlink:href="#text0">
-	<macro:iter>
-	  <macro:set attributeName="xlink:href" to="#ctxt$I" />
-	</macro:iter>
-      </use>
-    </g>
-    <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
-      <use xlink:href="#text0">
-	<macro:iter>
-	  <macro:set attributeName="xlink:href" to="#stxt$I" />
-	</macro:iter>
-      </use>
-    </g>
-
-    <g transform="translate(50,250) translate(0,16)" font-size="16px">
-      <set attributeName="display" to="none" begin="0s" />
-      <text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
-    </g>
-
-  </g>
+  </macro:subst>
 </svg>

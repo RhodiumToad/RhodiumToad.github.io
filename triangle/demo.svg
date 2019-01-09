@@ -1,273 +1,287 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:macro="file:///e05bc57b-10ae-11e9-99c9-6cf049962d5a" xmlns:m="file:///e05bc57c-10ae-11e9-99c9-6cf049962d5a" width="1120" height="500" viewBox="0 0 1120 500">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:macro="file:///e05bc57b-10ae-11e9-99c9-6cf049962d5a" xmlns:m="file:///e05bc57c-10ae-11e9-99c9-6cf049962d5a" xmlns:dc="http://purl.org/dc/elements/1.1/" width="1120" height="500" viewBox="0 0 1120 500">
   <title>Geometric proof of the area of a certain triangle</title>
   <desc>
     Geometric proof of the one-seventh area triangle, based on a
     solution attributed (by Martin Gardner) to Hugo Steinhaus.
   </desc>
-  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata>
     <dc:creator>Andrew Gierth</dc:creator>
-    <dc:date>2019-01-05</dc:date>
+    <dc:date>2019-01-09</dc:date>
     <dc:rights>Creative Commons Attribution/NonCommercial/ShareAlike 4.0</dc:rights>
   </metadata>
+
   <defs>
-    
-
-    <clipPath id="clip-orgtri">
-      <path d="M0,0 L315,0 L63,210 Z"/>
-    </clipPath>
-    <clipPath id="exp1">
-      <path d="M-54,270 L18,-90 L414,30 Z"/>
-    </clipPath>
-    <clipPath id="expL">
-      <path d="M-54,270 L0,0 L63,210 Z"/>
-    </clipPath>
-    <clipPath id="expR">
-      <path d="M63,210 L414,30 L315,0 Z"/>
-    </clipPath>
-    <clipPath id="expB">
-      <path d="M0,0 L18,-90 L315,0 Z"/>
-    </clipPath>
-
-    <g id="longbase">
-      <path stroke="#888" d="M-630,0 L472.5,0"/>
-    </g>
-    <g id="smalltri-fill-centre">
-      <path stroke="none" fill="#fcf" d="M99,30 L198,60 L81,120 Z"/>
-    </g>
-    <g id="smalltri-others">
-	<path stroke="none" d="M180,150 L198,60 L81,120 Z"/>
-	<path stroke="none" transform="translate(-99,-30)" d="M180,150 L198,60 L81,120 Z"/>
-	<path stroke="none" transform="translate(-117,60)" d="M180,150 L198,60 L81,120 Z"/>
-	<path stroke="none" transform="translate(117,-60)" d="M180,150 L198,60 L81,120 Z"/>
-	<path stroke="none" transform="translate(18,-90)" d="M180,150 L198,60 L81,120 Z"/>
-	<path stroke="none" transform="translate(-81,-120)" d="M180,150 L198,60 L81,120 Z"/>
-    </g>
-    <g id="smalltri-fill-others">
-      <g fill="#8ff">
-	<use xlink:href="#smalltri-others"/>
-      </g>
-    </g>
-    <g id="smalltri-darkfill-others">
-      <g fill="#0cc">
-	<use xlink:href="#smalltri-others"/>
-      </g>
-    </g>
-    <g id="large1-green">
-      <path stroke="none" fill="#cfc" d="M-630,0 L315,0 L63,210 Z"/>
-      <path stroke="none" fill="#6f6" d="M0,0 L315,0 L231,70 Z"/>
-    </g>
-    <g id="large1-blue">
-      <path stroke="none" fill="#ccf" d="M0,0 L472.5,0 L63,210 Z"/>
-      <path stroke="none" fill="#66f" d="M0,0 L21,70 L157.5,0 Z"/>
-    </g>
-    <g id="large2-green">
-      <path stroke="none" fill="#cfc" d="M-630,0 L105,0 L63,210 Z"/>
-      <path stroke="none" fill="#6f6" d="M0,0 L105,0 L99,30 Z"/>
-    </g>
-    <g id="large2-blue">
-      <path stroke="none" fill="#ccf" d="M105,0 L63,210 L472.5,0 Z"/>
-      <path stroke="none" fill="#66f" d="M105,0 L99,30 L157.5,0 Z"/>
-    </g>
-    <g id="orgtri">
-      <path stroke-width="2" d="M0,0 L315,0 L63,210 Z"/>
-      <g fill="#000" stroke="none" font-size="20px">
-	<g transform="translate(0,0) scale(1,-1) translate(0,20)">
-	  <text x="0" y="0" text-anchor="end">0</text>
-	</g>
-	<g transform="translate(315,0) scale(1,-1) translate(0,20)">
-	  <text x="0" y="0" text-anchor="end">A</text>
-	</g>
-	<g transform="translate(63,210) scale(1,-1) translate(0,-6)">
-	  <text x="0" y="0" text-anchor="start">B</text>
-	</g>
-      </g>
-    </g>
-    
-    <g id="redline-xleft">
-      <path stroke="#f00" d="M-54,270 L24,-120"/>
-    </g>
-    <g id="redline-left">
-      <path stroke="#f00" d="M51,270 L129,-120"/>
-    </g>
-    <g id="redline-right">
-      <path stroke="#f00" d="M156,270 L234,-120"/>
-    </g>
-    <g id="redline-xright">
-      <path stroke="#f00" d="M261,270 L339,-120"/>
-    </g>
-    
-    <g id="greenline-xupper">
-      <path stroke="#0f0" d="M-630,0 L162,240"/>
-    </g>
-    <g id="greenline-upper">
-      <path stroke="#0f0" d="M-315,0 L279,180"/>
-    </g>
-    <g id="greenline-lower">
-      <path stroke="#0f0" d="M-148.5,-45 L396,120"/>
-    </g>
-    <g id="greenline-xlower">
-      <path stroke="#0f0" d="M18,-90 L414,30"/>
-    </g>
-    
-    <g id="blueline-xleft">
-      <path stroke="#00f" d="M-234,120 L234,-120"/>
-    </g>
-    <g id="blueline-left">
-      <path stroke="#00f" d="M-135,150 L333,-90"/>
-    </g>
-    <g id="blueline-right">
-      <path stroke="#00f" d="M-36,180 L432,-60"/>
-    </g>
-    <g id="blueline-xright">
-      <path stroke="#00f" d="M-54,270 L472.5,0"/>
-    </g>
-
-    <g id="label-32A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(472.5,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">³⁄₂A</text>
-      </g>
-    </g>
-    <g id="label-13A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(105,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">⅓A</text>
-      </g>
-    </g>
-    <g id="label-12A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(157.5,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="end">½A</text>
-      </g>
-    </g>
-    <g id="label--2A" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(-630,0) scale(1,-1) translate(0,20)">
-	<text x="0" y="0" text-anchor="start">-2A</text>
-      </g>
-    </g>
-    <g id="label-13B" fill="#000" stroke="none" font-size="20px">
-      <g transform="translate(21,70) scale(1,-1) translate(-5,13)">
-	<text x="0" y="0" text-anchor="end">⅓B</text>
-      </g>
-    </g>
-
-    <text id="ctxt1">
-      <tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
-      <tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
-      <tspan x="0" y="2">is the shaded pink region?</tspan>
-    </text>
-    <text id="stxt1">
-      <tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
-      <tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
-    </text>
-
-    <text id="ctxt2">
-      <tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
-      <tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
-      <tspan x="0" y="2">pink one, for a total of 7.</tspan>
-    </text>
-    <text id="stxt2">
-      <tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
-      <tspan x="0" y="1">1950 book by Hugo Steinhaus. The explanations and following diagrams</tspan>
-      <tspan x="0" y="2">are the work of the present author.</tspan>
-    </text>
-
-    <text id="ctxt3">
-      <tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
-      <tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
-      <tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
-      <tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
-      <tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
-      <tspan x="0" y="6">But...</tspan>
-    </text>
-    <text id="stxt3">
-    </text>
-
-    <text id="ctxt4">
-      <tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
-      <tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
-      <tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
-    </text>
-    <text id="stxt4">
-    </text>
-
-    <text id="ctxt5">
-      <tspan x="0" y="0">We extend the various lines of interest.</tspan>
-    </text>
-    <text id="stxt5">
-    </text>
-
-    <text id="ctxt6">
-      <tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
-      <tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
-      <tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
-      <tspan x="0" y="3">distance A from the origin.</tspan>
-    </text>
-    <text id="stxt6">
-    </text>
-
-    <text id="ctxt7">
-      <tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
-      <tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
-      <tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
-    </text>
-    <text id="stxt7">
-    </text>
-
-    <text id="ctxt8">
-      <tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
-      <tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
-      <tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
-    </text>
-    <text id="stxt8">
-    </text>
-
-    <text id="ctxt9">
-      <tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
-      <tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
-      <tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
-      <tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
-    </text>
-    <text id="stxt9">
-      <tspan x="0" y="0">QED.</tspan>
-    </text>
-
-    <text id="text0"> </text>
-    
-      <text id="text1">1</text>
-    
-      <text id="text2">2</text>
-    
-      <text id="text3">3</text>
-    
-      <text id="text4">4</text>
-    
-      <text id="text5">5</text>
-    
-      <text id="text6">6</text>
-    
-      <text id="text7">7</text>
-    
-      <text id="text8">8</text>
-    
-      <text id="text9">9</text>
     
   </defs>
 
-  <rect fill="none" stroke="#404" x="0" y="0" width="1120" height="500"/>
+  
+  <defs>
 
-  <g>
+      <clipPath id="clip-orgtri">
+	<path d="M0,0 L315,0 L63,210 Z"/>
+      </clipPath>
+      <clipPath id="exp1">
+	<path transform="translate(18,-90) scale(4,4)" d="M0,0 l99,30 l-117,60 Z"/>
+      </clipPath>
+      <clipPath id="expL">
+	<path d="M0,0 L63,210 l-117,60 Z"/>
+      </clipPath>
+      <clipPath id="expR">
+	<path d="M63,210 L315,0 l99,30 Z"/>
+      </clipPath>
+      <clipPath id="expB">
+	<path d="M315,0 L0,0 l18,-90 Z"/>
+      </clipPath>
 
-    <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
-      <text>© 2019 Andrew Gierth. Creative Commons Attribution/NonCommercial/ShareAlike 4.0</text>
-    </g>
+      <clipPath id="magcircle">
+	<circle cx="99" cy="30" r="10" stroke="#000" fill="none"/>
+      </clipPath>
 
-    <g id="anim-control" transform="translate(1000,20) scale(5,5)" stroke-width="0.2">
-      <rect fill="#ccc" stroke="#444" x="0" y="0" width="20" height="10"/>
-      <rect fill="none" stroke="#fff" x="7" y="1" width="6" height="8"/>
-      <g transform="translate(10,7.5)" font-size="7px" text-anchor="middle">
-	<use xlink:href="#text0">
-	  
-<set attributeName="xlink:href" attributeType="XML" to="#text1" id="step1" begin="0s;anext9.click;aprev2.click" end="anext1.click;aprev1.click" restart="whenNotActive"/>
+      <g id="longbase">
+	<path stroke="#888" d="M-630,0 L472.5,0"/>
+      </g>
+
+      <g id="smalltri-fill-centre">
+	<path stroke="none" fill="#fcf" d="M99,30 l99,30 l-117,60 Z"/>
+      </g>
+      <g id="smalltri-others">
+	<path stroke="none" transform="" d="M0,0 l117,-60 l-18,90 Z"/>
+<path stroke="none" transform="translate(99,30)" d="M0,0 l117,-60 l-18,90 Z"/>
+<path stroke="none" transform="translate(99,30) translate(99,30)" d="M0,0 l117,-60 l-18,90 Z"/>
+<path stroke="none" transform="translate(-18,90)" d="M0,0 l117,-60 l-18,90 Z"/>
+<path stroke="none" transform="translate(-18,90) translate(-18,90)" d="M0,0 l117,-60 l-18,90 Z"/>
+<path stroke="none" transform="translate(-18,90) translate(99,30)" d="M0,0 l117,-60 l-18,90 Z"/>
+
+      </g>
+      <g id="smalltri-fill-others">
+	<g fill="#8ff">
+	  <use xlink:href="#smalltri-others"/>
+	</g>
+      </g>
+      <g id="smalltri-darkfill-others">
+	<g fill="#0cc">
+	  <use xlink:href="#smalltri-others"/>
+	</g>
+      </g>
+      <g id="large1-green">
+	  <path stroke="none" fill="#cfc" d="M-630,0 L315,0 L63,210 Z"/>
+	  <path stroke="none" fill="#6f6" d="M0,0 L315,0 L231,70 Z"/>
+	</g><g id="large1-blue">
+	  <path stroke="none" fill="#ccf" d="M0,0 L472.5,0 L63,210 Z"/>
+	  <path stroke="none" fill="#66f" d="M0,0 L21,70 L157.5,0 Z"/>
+	</g><g id="large2-green">
+	  <path stroke="none" fill="#cfc" d="M-630,0 L105,0 L63,210 Z"/>
+	  <path stroke="none" fill="#6f6" d="M99,30 L0,0 L105,0 Z"/>
+	</g><g id="large2-blue">
+	  <path stroke="none" fill="#ccf" d="M105,0 L63,210 L472.5,0 Z"/>
+	  <path stroke="none" fill="#66f" d="M105,0 L99,30 L157.5,0 Z"/>
+	</g>
+      <g id="orgtri">
+	<path stroke-width="2" d="M0,0 L315,0 L63,210 Z"/>
+	<g fill="#000" stroke="none" font-size="20px">
+	  <g transform="translate(0,0) scale(1,-1) translate(0,20)">
+	    <text x="0" y="0" text-anchor="end">0</text>
+	  </g>
+	  <g transform="translate(315,0) scale(1,-1) translate(0,20)">
+	    <text x="0" y="0" text-anchor="end">A</text>
+	  </g>
+	  <g transform="translate(63,210) scale(1,-1) translate(0,-6)">
+	    <text x="0" y="0" text-anchor="start">B</text>
+	  </g>
+	</g>
+      </g>
+      
+      <g id="redline-xleft">
+	  <path stroke="#f00" transform="translate(18,-90)" d="M0,0 l-18,90 l-18,90 l-18,90 l-18,90"/>
+	</g>
+<g id="redline-left">
+	  <path stroke="#f00" transform="translate(117,-60)" d="M0,0 l-18,90 l-18,90 l-18,90 l-18,90"/>
+	</g>
+<g id="redline-right">
+	  <path stroke="#f00" transform="translate(117,-60) translate(117,-60)" d="M0,0 l-18,90 l-18,90 l-18,90 l-18,90"/>
+	</g>
+<g id="redline-xright">
+	  <path stroke="#f00" transform="translate(99,30) translate(117,-60) translate(117,-60)" d="M0,0 l-18,90 l-18,90 l-18,90 l-18,90"/>
+	</g>
+
+      
+      <g id="greenline-xupper">
+	  <path stroke="#0f0" d="M-630,0 l99,30 l99,30 l99,30 l99,30 l99,30 l99,30 l99,30 l99,30"/>
+	</g>
+<g id="greenline-upper">
+	  <path stroke="#0f0" d="M-117,60 l99,30 l99,30 l99,30 l99,30 l99,30"/>
+	</g>
+<g id="greenline-lower">
+	  <path stroke="#0f0" d="M-99,-30 l99,30 l99,30 l99,30 l99,30 l99,30"/>
+	</g>
+<g id="greenline-xlower">
+	  <path stroke="#0f0" d="M18,-90 l99,30 l99,30 l99,30 l99,30 l99,30"/>
+	</g>
+
+      
+      <g id="blueline-xleft">
+	  <path stroke="#00f" transform="translate(117,-60) translate(117,-60)" d="M0,0 l-117,60 l-117,60 l-117,60 l-117,60"/>
+	</g>
+<g id="blueline-left">
+	  <path stroke="#00f" transform="translate(472.5,0) translate(-99,-30) translate(-99,-30)" d="M0,0 l-117,60 l-117,60 l-117,60 l-117,60"/>
+	</g>
+<g id="blueline-right">
+	  <path stroke="#00f" transform="translate(472.5,0) translate(-99,-30)" d="M0,0 l-117,60 l-117,60 l-117,60 l-117,60"/>
+	</g>
+<g id="blueline-xright">
+	  <path stroke="#00f" transform="translate(472.5,0)" d="M0,0 l-117,60 l-117,60 l-117,60 l-117,60"/>
+	</g>
+
+
+      <g id="major-lines">
+	<use xlink:href="#redline-left"/>
+<use xlink:href="#redline-right"/>
+<use xlink:href="#redline-xright"/>
+<use xlink:href="#greenline-xupper"/>
+<use xlink:href="#greenline-upper"/>
+<use xlink:href="#greenline-lower"/>
+<use xlink:href="#blueline-right"/>
+<use xlink:href="#blueline-left"/>
+<use xlink:href="#blueline-xleft"/>
+
+      </g>
+
+      <g id="label-32A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate(472.5,0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">³⁄₂A</text>
+	</g>
+      </g>
+      <g id="label-13A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate(105,0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">⅓A</text>
+	</g>
+      </g>
+      <g id="label-12A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate(157.5,0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="end">½A</text>
+	</g>
+      </g>
+      <g id="label--2A" fill="#000" stroke="none" font-size="20px">
+	<g transform="translate(-630,0) scale(1,-1) translate(0,20)">
+	  <text x="0" y="0" text-anchor="start">-2A</text>
+	</g>
+      </g>
+      <g id="label-13B" fill="#000" stroke="none" font-size="20px">
+	<g transform="scale(0.3333333333333333,0.3333333333333333) translate(63,210) scale(3,-3) translate(-5,13)">
+	  <text x="0" y="0" text-anchor="end">⅓B</text>
+	</g>
+      </g>
+
+      <text id="ctxt1">
+	<tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
+	<tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
+	<tspan x="0" y="2">is the shaded pink region?</tspan>
+      </text>
+      <text id="stxt1">
+	<tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
+	<tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
+      </text>
+
+      <text id="ctxt2">
+	<tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
+	<tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
+	<tspan x="0" y="2">pink one, for a total of 7.</tspan>
+      </text>
+      <text id="stxt2">
+	<tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
+	<tspan x="0" y="1">1950 book <tspan font-style="italic">Mathematical Snapshots</tspan> by Hugo Steinhaus. The explanations</tspan>
+	<tspan x="0" y="2"> and following diagrams are the work of the present author.</tspan>
+      </text>
+
+      <text id="ctxt3">
+	<tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
+	<tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
+	<tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
+	<tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
+	<tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
+	<tspan x="0" y="6">But...</tspan>
+      </text>
+      <text id="stxt3">
+      </text>
+
+      <text id="ctxt4">
+	<tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
+	<tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
+	<tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
+      </text>
+      <text id="stxt4">
+      </text>
+
+      <text id="ctxt5">
+	<tspan x="0" y="0">We extend the various lines of interest.</tspan>
+      </text>
+      <text id="stxt5">
+      </text>
+
+      <text id="ctxt6">
+	<tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
+	<tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
+	<tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
+	<tspan x="0" y="3">distance A from the origin.</tspan>
+      </text>
+      <text id="stxt6">
+      </text>
+
+      <text id="ctxt7">
+	<tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
+	<tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
+	<tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
+      </text>
+      <text id="stxt7">
+      </text>
+
+      <text id="ctxt8">
+	<tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
+	<tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
+	<tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
+      </text>
+      <text id="stxt8">
+      </text>
+
+      <text id="ctxt9">
+	<tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
+	<tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
+	<tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
+	<tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
+      </text>
+      <text id="stxt9">
+	<tspan x="0" y="0">QED.</tspan>
+      </text>
+
+      <text id="text0"> </text>
+      <text id="text1">1</text>
+<text id="text2">2</text>
+<text id="text3">3</text>
+<text id="text4">4</text>
+<text id="text5">5</text>
+<text id="text6">6</text>
+<text id="text7">7</text>
+<text id="text8">8</text>
+<text id="text9">9</text>
+
+
+      <symbol id="tick" viewBox="0 0 20 20">
+	<path d="M2,12 L8,16 L17,3" stroke-width="3"/>
+      </symbol>
+    </defs><rect fill="none" stroke="#404" x="0" y="0" width="1120" height="500"/><g>
+
+      <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
+	<text>© 2019 Andrew Gierth. Creative Commons Attribution/NonCommercial/ShareAlike 4.0</text>
+      </g>
+
+      <g id="anim-control" transform="translate(1000,20) scale(5,5)" stroke-width="0.2">
+	<rect fill="#ccc" stroke="#444" x="0" y="0" width="20" height="10"/>
+	<rect fill="none" stroke="#fff" x="7" y="1" width="6" height="8"/>
+	<g transform="translate(10,7.5)" font-size="7px" text-anchor="middle">
+	  <use xlink:href="#text0">
+	    <set attributeName="xlink:href" attributeType="XML" to="#text1" id="step1" begin="0s;anext9.click;aprev2.click" end="anext1.click;aprev1.click" restart="whenNotActive"/>
 <set attributeName="xlink:href" attributeType="XML" to="#text2" id="step2" begin="anext1.click;aprev3.click" end="anext2.click;aprev2.click" restart="whenNotActive"/>
 <set attributeName="xlink:href" attributeType="XML" to="#text3" id="step3" begin="anext2.click;aprev4.click" end="anext3.click;aprev3.click" restart="whenNotActive"/>
 <set attributeName="xlink:href" attributeType="XML" to="#text4" id="step4" begin="anext3.click;aprev5.click" end="anext4.click;aprev4.click" restart="whenNotActive"/>
@@ -276,319 +290,279 @@
 <set attributeName="xlink:href" attributeType="XML" to="#text7" id="step7" begin="anext6.click;aprev8.click" end="anext7.click;aprev7.click" restart="whenNotActive"/>
 <set attributeName="xlink:href" attributeType="XML" to="#text8" id="step8" begin="anext7.click;aprev9.click" end="anext8.click;aprev8.click" restart="whenNotActive"/>
 <set attributeName="xlink:href" attributeType="XML" to="#text9" id="step9" begin="anext8.click;aprev1.click" end="anext9.click;aprev9.click" restart="whenNotActive"/>
+
+	  </use>
+	</g>
+	<rect fill="#444" stroke="#aaa" x="1" y="1" width="5" height="8"/>
+	<path fill="#eee" d="M2,5 L5,2.5 L5,7.5 Z"/>
+	<rect fill="#444" stroke="#aaa" x="14" y="1" width="5" height="8"/>
+	<path fill="#eee" transform="translate(20,0) scale(-1,1)" d="M2,5 L5,2.5 L5,7.5 Z"/>
+
+	<g fill="none" stroke="none" transform="translate(1,1) scale(5,8)" visibility="hidden">
+	    <rect id="aprev1" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step1.begin" end="step1.endEvent"/>
+	      </rect>
+<rect id="aprev2" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step2.begin" end="step2.endEvent"/>
+	      </rect>
+<rect id="aprev3" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step3.begin" end="step3.endEvent"/>
+	      </rect>
+<rect id="aprev4" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step4.begin" end="step4.endEvent"/>
+	      </rect>
+<rect id="aprev5" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step5.begin" end="step5.endEvent"/>
+	      </rect>
+<rect id="aprev6" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step6.begin" end="step6.endEvent"/>
+	      </rect>
+<rect id="aprev7" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step7.begin" end="step7.endEvent"/>
+	      </rect>
+<rect id="aprev8" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step8.begin" end="step8.endEvent"/>
+	      </rect>
+<rect id="aprev9" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step9.begin" end="step9.endEvent"/>
+	      </rect>
+
+	  </g>
+<g fill="none" stroke="none" transform="translate(14,1) scale(5,8)" visibility="hidden">
+	    <rect id="anext1" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step1.begin" end="step1.endEvent"/>
+	      </rect>
+<rect id="anext2" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step2.begin" end="step2.endEvent"/>
+	      </rect>
+<rect id="anext3" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step3.begin" end="step3.endEvent"/>
+	      </rect>
+<rect id="anext4" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step4.begin" end="step4.endEvent"/>
+	      </rect>
+<rect id="anext5" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step5.begin" end="step5.endEvent"/>
+	      </rect>
+<rect id="anext6" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step6.begin" end="step6.endEvent"/>
+	      </rect>
+<rect id="anext7" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step7.begin" end="step7.endEvent"/>
+	      </rect>
+<rect id="anext8" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step8.begin" end="step8.endEvent"/>
+	      </rect>
+<rect id="anext9" pointer-events="visible" width="1" height="1" visibility="hidden">
+		<set attributeName="visibility" to="visible" begin="step9.begin" end="step9.endEvent"/>
+	      </rect>
+
+	  </g>
+
+      </g>
+      <g id="text-control" transform="translate(1000,75)" stroke-width="1">
+	<rect fill="none" stroke="#000" x="0" y="0" width="100" height="20"/>
+	<rect fill="none" stroke="#000" x="5" y="5" width="10" height="10"/>
+	<use xlink:href="#tick" x="6" y="6" width="8" height="8" stroke="#000" fill="none" visibility="hidden">
+	  <set id="showtext" attributeName="visibility" to="visible" begin="texton.click" end="textoff.click" restart="whenNotActive"/>
+	</use>
+	
+	<g transform="translate(22,15)" font-size="12px">
+	  <text>Show Text</text>
+	</g>
+	<rect id="texton" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	    <set attributeName="visibility" to="visible" begin="0;showtext.endEvent" end="showtext.beginEvent"/>
+	  </rect>
+<rect id="textoff" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	    <set attributeName="visibility" to="visible" begin="showtext.beginEvent" end="showtext.endEvent"/>
+	  </rect>
+
+      </g>
+
+      <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
+
+	<g id="frame1" display="none">
+	  <set attributeName="display" to="block" begin="step1.begin" end="step1.endEvent"/>
+	  <g clip-path="url(#clip-orgtri)">
+	    <use xlink:href="#smalltri-fill-centre"/>
+	    <use xlink:href="#redline-left"/>
+	    <use xlink:href="#greenline-lower"/>
+	    <use xlink:href="#blueline-right"/>
+	  </g>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-13A"/>
+	</g>
+
+	<g id="frame2" display="none">
+	  <set attributeName="display" to="block" begin="step2.begin" end="step2.endEvent"/>
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#smalltri-fill-centre"/>
+	    <use xlink:href="#smalltri-fill-others"/>
+	    <use xlink:href="#major-lines"/>
+	  </g>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-13B"/>
+	  <use xlink:href="#label-12A"/>
+	</g>
+
+	<g id="frame3" display="none">
+	  <set attributeName="display" to="block" begin="step3.begin" end="step3.endEvent"/>
+	  <g clip-path="url(#clip-orgtri)">
+	    <use xlink:href="#smalltri-fill-centre"/>
+	    <use xlink:href="#smalltri-fill-others"/>
+	  </g>
+	  <g transform="translate(31.5,105)">
+		<animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
+		<g transform="translate(-31.5,-105)">
+		  <g clip-path="url(#expL)">
+		    <use xlink:href="#smalltri-darkfill-others"/>
+		  </g>
+		</g>
+	      </g>
+<g transform="translate(157.5,0)">
+		<animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
+		<g transform="translate(-157.5,-0)">
+		  <g clip-path="url(#expB)">
+		    <use xlink:href="#smalltri-darkfill-others"/>
+		  </g>
+		</g>
+	      </g>
+<g transform="translate(189,105)">
+		<animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
+		<g transform="translate(-189,-105)">
+		  <g clip-path="url(#expR)">
+		    <use xlink:href="#smalltri-darkfill-others"/>
+		  </g>
+		</g>
+	      </g>
+
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#major-lines"/>
+	  </g>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-13B"/>
+	  <use xlink:href="#label-12A"/>
+	</g>
+
+	<g id="frame4" display="none">
+	  <set attributeName="display" to="block" begin="step4.begin" end="step4.endEvent"/>
+	  <g clip-path="url(#exp1)">
+	    <use xlink:href="#smalltri-fill-centre"/>
+	    <use xlink:href="#smalltri-fill-others"/>
+	    <use xlink:href="#major-lines"/>
+	  </g>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-13B"/>
+	  <use xlink:href="#label-12A"/>
+	  <circle cx="99" cy="30" r="10" stroke="#000" fill="none"/>
+	  <g transform="translate(99,30)">
+	    <path stroke="#888" stroke-width="1.5" fill="none" transform="matrix(1 0 0 -1 0 0)" d="M0,10 h-270"/>
+<path stroke="#888" stroke-width="1.5" fill="none" transform="matrix(0.8 -0.6 0.6 0.8 0 0)" d="M0,10 h-270"/>
+
+	    <g transform="translate(-270,90) scale(10,10) translate(-99,-30)">
+	      <g clip-path="url(#magcircle)">
+		<use xlink:href="#smalltri-fill-centre"/>
+		<use xlink:href="#smalltri-fill-others"/>
+		<use xlink:href="#major-lines"/>
+	      </g>
+	      <circle cx="99" cy="30" r="10" stroke="#000" fill="none" stroke-width="0.25"/>
+	    </g>
+	  </g>
+	</g>
+
+	<g id="frame5" display="none">
+	  <set attributeName="display" to="block" begin="step5.begin" end="step5.endEvent"/>
+	  <use xlink:href="#longbase"/>
+	  <use xlink:href="#redline-left"/>
+	  <use xlink:href="#greenline-xupper"/>
+	  <use xlink:href="#greenline-lower"/>
+	  <use xlink:href="#blueline-xright"/>
+	  <use xlink:href="#blueline-left"/>
+	  <use xlink:href="#orgtri"/>
+	</g>
+
+	<g id="frame6" display="none">
+	  <set attributeName="display" to="block" begin="step6.begin" end="step6.endEvent"/>
+	  <use xlink:href="#large1-green"/>
+	  <use xlink:href="#longbase"/>
+	  <use xlink:href="#greenline-xupper"/>
+	  <use xlink:href="#greenline-lower"/>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label--2A"/>
+	</g>
+
+	<g id="frame7" display="none">
+	  <set attributeName="display" to="block" begin="step7.begin" end="step7.endEvent"/>
+	  <use xlink:href="#large1-blue"/>
+	  <use xlink:href="#longbase"/>
+	  <use xlink:href="#blueline-xright"/>
+	  <use xlink:href="#blueline-left"/>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-12A"/>
+	  <use xlink:href="#label-32A"/>
+	</g>
+
+	<g id="frame8" display="none">
+	  <set attributeName="display" to="block" begin="step8.begin" end="step8.endEvent"/>
+	  <use xlink:href="#large2-green"/>
+	  <use xlink:href="#longbase"/>
+	  <use xlink:href="#redline-left"/>
+	  <use xlink:href="#greenline-xupper"/>
+	  <use xlink:href="#greenline-lower"/>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label--2A"/>
+	  <use xlink:href="#label-13A"/>
+	</g>
+
+	<g id="frame9" display="none">
+	  <set attributeName="display" to="block" begin="step9.begin" end="step9.endEvent"/>
+	  <use xlink:href="#large2-blue"/>
+	  <use xlink:href="#longbase"/>
+	  <use xlink:href="#redline-left"/>
+	  <use xlink:href="#blueline-xright"/>
+	  <use xlink:href="#blueline-left"/>
+	  <use xlink:href="#orgtri"/>
+	  <use xlink:href="#label-13A"/>
+	  <use xlink:href="#label-12A"/>
+	  <use xlink:href="#label-32A"/>
+	</g>
+      </g>
+
+      <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
+	<set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent"/>
+	<set attributeName="display" to="block" begin="step1.begin" end="step1.endEvent"/>
+	<use xlink:href="#text0">
+	  <set attributeName="xlink:href" to="#ctxt1" begin="step1.begin" end="step1.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt2" begin="step2.begin" end="step2.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt3" begin="step3.begin" end="step3.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt4" begin="step4.begin" end="step4.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt5" begin="step5.begin" end="step5.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt6" begin="step6.begin" end="step6.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt7" begin="step7.begin" end="step7.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt8" begin="step8.begin" end="step8.endEvent"/>
+<set attributeName="xlink:href" to="#ctxt9" begin="step9.begin" end="step9.endEvent"/>
+
 	</use>
       </g>
-      <rect fill="#444" stroke="#aaa" x="1" y="1" width="5" height="8"/>
-      <path fill="#eee" d="M2,5 L5,2.5 L5,7.5 Z"/>
-      <g fill="none" stroke="none" transform="translate(1,1) scale(5,8)" visibility="hidden">
-	
-	  <rect id="aprev1" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step1.begin" end="step1.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev2" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step2.begin" end="step2.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev3" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step3.begin" end="step3.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev4" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step4.begin" end="step4.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev5" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step5.begin" end="step5.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev6" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step6.begin" end="step6.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev7" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step7.begin" end="step7.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev8" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step8.begin" end="step8.endEvent"/>
-	  </rect>
-	
-	  <rect id="aprev9" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step9.begin" end="step9.endEvent"/>
-	  </rect>
-	
-      </g>
-      <rect fill="#444" stroke="#aaa" x="14" y="1" width="5" height="8"/>
-      <path fill="#eee" transform="translate(20,0) scale(-1,1)" d="M2,5 L5,2.5 L5,7.5 Z"/>
-      <g fill="none" stroke="none" transform="translate(14,1) scale(5,8)" visibility="hidden">
-	
-	  <rect id="anext1" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step1.begin" end="step1.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext2" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step2.begin" end="step2.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext3" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step3.begin" end="step3.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext4" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step4.begin" end="step4.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext5" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step5.begin" end="step5.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext6" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step6.begin" end="step6.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext7" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step7.begin" end="step7.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext8" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step8.begin" end="step8.endEvent"/>
-	  </rect>
-	
-	  <rect id="anext9" pointer-events="visible" width="1" height="1" visibility="hidden">
-	    <set attributeName="visibility" to="visible" begin="step9.begin" end="step9.endEvent"/>
-	  </rect>
-	
-      </g>
-    </g>
-    <g id="text-control" transform="translate(1000,75)" stroke-width="1">
-      <rect fill="none" stroke="#000" x="0" y="0" width="100" height="20"/>
-      <rect fill="none" stroke="#000" x="5" y="5" width="10" height="10">
-	<set id="showtext" attributeName="fill" to="#000" begin="texton.click" end="textoff.click" restart="whenNotActive"/>
-      </rect>
-      <g transform="translate(22,15)" font-size="12px">
-	<text>Show Text</text>
-      </g>
-      <rect id="texton" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
-	<set attributeName="visibility" to="visible" begin="0;showtext.endEvent" end="showtext.beginEvent"/>
-      </rect>
-      <rect id="textoff" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
-	<set attributeName="visibility" to="visible" begin="showtext.beginEvent" end="showtext.endEvent"/>
-      </rect>
-    </g>
-
-    <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
-
-      <g id="frame1" display="none">
-	<set attributeName="display" to="block" begin="step1.begin" end="step1.endEvent"/>
-	<g clip-path="url(#clip-orgtri)">
-	  <use xlink:href="#smalltri-fill-centre"/>
-	  <use xlink:href="#redline-left"/>
-	  <use xlink:href="#greenline-lower"/>
-	  <use xlink:href="#blueline-right"/>
-	</g>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-13A"/>
-      </g>
-
-      <g id="frame2" display="none">
-	<set attributeName="display" to="block" begin="step2.begin" end="step2.endEvent"/>
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#smalltri-fill-centre"/>
-	  <use xlink:href="#smalltri-fill-others"/>
-	  <use xlink:href="#redline-left"/>
-	  <use xlink:href="#redline-right"/>
-	  <use xlink:href="#redline-xright"/>
-	  <use xlink:href="#greenline-xupper"/>
-	  <use xlink:href="#greenline-upper"/>
-	  <use xlink:href="#greenline-lower"/>
-	  <use xlink:href="#blueline-right"/>
-	  <use xlink:href="#blueline-left"/>
-	  <use xlink:href="#blueline-xleft"/>
-	</g>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-13B"/>
-	<use xlink:href="#label-12A"/>
-      </g>
-
-      <g id="frame3" display="none">
-	<set attributeName="display" to="block" begin="step3.begin" end="step3.endEvent"/>
-	<g clip-path="url(#clip-orgtri)">
-	  <use xlink:href="#smalltri-fill-centre"/>
-	  <use xlink:href="#smalltri-fill-others"/>
-	</g>
-	<g transform="translate(31.5,105)">
-	  <animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
-	  <g transform="translate(-31.5,-105)">
-	    <g clip-path="url(#expL)">
-	      <use xlink:href="#smalltri-darkfill-others"/>
-	    </g>
-	  </g>
-	</g>
-	<g transform="translate(157.5,0)">
-	  <animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
-	  <g transform="translate(-157.5,-0)">
-	    <g clip-path="url(#expB)">
-	      <use xlink:href="#smalltri-darkfill-others"/>
-	    </g>
-	  </g>
-	</g>
-	<g transform="translate(189,105)">
-	  <animateTransform attributeName="transform" type="rotate" values="0;0;180;180" keyTimes="0;0.2;0.6;1" begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite" additive="sum" accumulate="sum"/>
-	  <g transform="translate(-189,-105)">
-	    <g clip-path="url(#expR)">
-	      <use xlink:href="#smalltri-darkfill-others"/>
-	    </g>
-	  </g>
-	</g>
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#redline-left"/>
-	  <use xlink:href="#redline-right"/>
-	  <use xlink:href="#redline-xright"/>
-	  <use xlink:href="#greenline-xupper"/>
-	  <use xlink:href="#greenline-upper"/>
-	  <use xlink:href="#greenline-lower"/>
-	  <use xlink:href="#blueline-right"/>
-	  <use xlink:href="#blueline-left"/>
-	  <use xlink:href="#blueline-xleft"/>
-	</g>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-13B"/>
-	<use xlink:href="#label-12A"/>
-      </g>
-
-      <g id="frame4" display="none">
-	<set attributeName="display" to="block" begin="step4.begin" end="step4.endEvent"/>
-	<g clip-path="url(#exp1)">
-	  <use xlink:href="#smalltri-fill-centre"/>
-	  <use xlink:href="#smalltri-fill-others"/>
-	  <use xlink:href="#redline-left"/>
-	  <use xlink:href="#redline-right"/>
-	  <use xlink:href="#redline-xright"/>
-	  <use xlink:href="#greenline-xupper"/>
-	  <use xlink:href="#greenline-upper"/>
-	  <use xlink:href="#greenline-lower"/>
-	  <use xlink:href="#blueline-right"/>
-	  <use xlink:href="#blueline-left"/>
-	  <use xlink:href="#blueline-xleft"/>
-	</g>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-13B"/>
-	<use xlink:href="#label-12A"/>
-	<circle cx="99" cy="30" r="10" stroke="#000" fill="none"/>
-      </g>
-
-      <g id="frame5" display="none">
-	<set attributeName="display" to="block" begin="step5.begin" end="step5.endEvent"/>
-	<use xlink:href="#longbase"/>
-	<use xlink:href="#redline-left"/>
-	<use xlink:href="#greenline-xupper"/>
-	<use xlink:href="#greenline-lower"/>
-	<use xlink:href="#blueline-xright"/>
-	<use xlink:href="#blueline-left"/>
-	<use xlink:href="#orgtri"/>
-      </g>
-
-      <g id="frame6" display="none">
-	<set attributeName="display" to="block" begin="step6.begin" end="step6.endEvent"/>
-	<use xlink:href="#large1-green"/>
-	<use xlink:href="#longbase"/>
-	<use xlink:href="#greenline-xupper"/>
-	<use xlink:href="#greenline-lower"/>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label--2A"/>
-      </g>
-
-      <g id="frame7" display="none">
-	<set attributeName="display" to="block" begin="step7.begin" end="step7.endEvent"/>
-	<use xlink:href="#large1-blue"/>
-	<use xlink:href="#longbase"/>
-	<use xlink:href="#blueline-xright"/>
-	<use xlink:href="#blueline-left"/>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-12A"/>
-	<use xlink:href="#label-32A"/>
-      </g>
-
-      <g id="frame8" display="none">
-	<set attributeName="display" to="block" begin="step8.begin" end="step8.endEvent"/>
-	<use xlink:href="#large2-green"/>
-	<use xlink:href="#longbase"/>
-	<use xlink:href="#redline-left"/>
-	<use xlink:href="#greenline-xupper"/>
-	<use xlink:href="#greenline-lower"/>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label--2A"/>
-	<use xlink:href="#label-13A"/>
-      </g>
-
-      <g id="frame9" display="none">
-	<set attributeName="display" to="block" begin="step9.begin" end="step9.endEvent"/>
-	<use xlink:href="#large2-blue"/>
-	<use xlink:href="#longbase"/>
-	<use xlink:href="#redline-left"/>
-	<use xlink:href="#blueline-xright"/>
-	<use xlink:href="#blueline-left"/>
-	<use xlink:href="#orgtri"/>
-	<use xlink:href="#label-13A"/>
-	<use xlink:href="#label-12A"/>
-	<use xlink:href="#label-32A"/>
-      </g>
-    </g>
-
-    <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
-      <set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent"/>
-      <set attributeName="display" to="block" begin="step1.begin" end="step1.endEvent"/>
-      <use xlink:href="#text0">
-	
-	  <set attributeName="xlink:href" to="#ctxt1" begin="step1.begin" end="step1.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt2" begin="step2.begin" end="step2.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt3" begin="step3.begin" end="step3.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt4" begin="step4.begin" end="step4.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt5" begin="step5.begin" end="step5.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt6" begin="step6.begin" end="step6.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt7" begin="step7.begin" end="step7.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt8" begin="step8.begin" end="step8.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#ctxt9" begin="step9.begin" end="step9.endEvent"/>
-	
-      </use>
-    </g>
-    <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
-      <use xlink:href="#text0">
-	
+      <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
+	<use xlink:href="#text0">
 	  <set attributeName="xlink:href" to="#stxt1" begin="step1.begin" end="step1.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt2" begin="step2.begin" end="step2.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt3" begin="step3.begin" end="step3.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt4" begin="step4.begin" end="step4.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt5" begin="step5.begin" end="step5.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt6" begin="step6.begin" end="step6.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt7" begin="step7.begin" end="step7.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt8" begin="step8.begin" end="step8.endEvent"/>
-	
-	  <set attributeName="xlink:href" to="#stxt9" begin="step9.begin" end="step9.endEvent"/>
-	
-      </use>
-    </g>
+<set attributeName="xlink:href" to="#stxt2" begin="step2.begin" end="step2.endEvent"/>
+<set attributeName="xlink:href" to="#stxt3" begin="step3.begin" end="step3.endEvent"/>
+<set attributeName="xlink:href" to="#stxt4" begin="step4.begin" end="step4.endEvent"/>
+<set attributeName="xlink:href" to="#stxt5" begin="step5.begin" end="step5.endEvent"/>
+<set attributeName="xlink:href" to="#stxt6" begin="step6.begin" end="step6.endEvent"/>
+<set attributeName="xlink:href" to="#stxt7" begin="step7.begin" end="step7.endEvent"/>
+<set attributeName="xlink:href" to="#stxt8" begin="step8.begin" end="step8.endEvent"/>
+<set attributeName="xlink:href" to="#stxt9" begin="step9.begin" end="step9.endEvent"/>
 
-    <g transform="translate(50,250) translate(0,16)" font-size="16px">
-      <set attributeName="display" to="none" begin="0s"/>
-      <text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
-    </g>
+	</use>
+      </g>
 
-  </g>
+      <g transform="translate(50,250) translate(0,16)" font-size="16px">
+	<set attributeName="display" to="none" begin="0s"/>
+	<text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
+      </g>
+
+    </g>
 </svg>

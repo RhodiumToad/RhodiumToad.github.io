@@ -190,9 +190,12 @@
 	<tspan x="0" y="2">pink one, for a total of 7.</tspan>
       </text>
       <text id="stxt2">
-	<tspan x="0" y="0">This part of the solution is reported to have been published in a</tspan>
+	<tspan x="0" y="0">This part of the solution is
+	<a xlink:href="https://web.archive.org/web/20060427055758/http://www.randi.org/jr/02-09-2001.html">
+	  <tspan fill="#00c" text-decoration="underline">reported</tspan>
+	</a> to have been published in a</tspan>
 	<tspan x="0" y="1">1950 book <tspan font-style="italic">Mathematical Snapshots</tspan> by Hugo Steinhaus. The explanations</tspan>
-	<tspan x="0" y="2"> and following diagrams are the work of the present author.</tspan>
+	<tspan x="0" y="2">and following diagrams were written and designed by me.</tspan>
       </text>
 
       <text id="ctxt3">

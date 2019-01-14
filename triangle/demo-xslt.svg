@@ -6,11 +6,13 @@
 <svg
     width="1120" height="500"
     viewBox="0 0 1120 500"
+    xml:space="default"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:macro="file:///e05bc57b-10ae-11e9-99c9-6cf049962d5a"
     xmlns:m="file:///e05bc57c-10ae-11e9-99c9-6cf049962d5a"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
+    pointer-events="none"
     >
   <title>Geometric proof of the area of a certain triangle</title>
   <desc>
@@ -42,16 +44,9 @@
 
       <xsl:template match="xsl:stylesheet" />
 
-      <xsl:template match="*|@*">
-	<xsl:copy>
-	  <xsl:apply-templates select="@*" />
-	  <xsl:apply-templates />
-	</xsl:copy>
-      </xsl:template>
-
       <xsl:template mode="eval" match="@*|text()" />
 
-      <xsl:template mode="eval" match="m:v">
+      <xsl:template mode="eval" match="*">
 	<xsl:message terminate="yes">
 	  <xsl:text>Unknown expression element </xsl:text>
 	  <xsl:value-of select="name()" />
@@ -153,6 +148,7 @@
 	    <xsl:when test="$ref='['"><xsl:value-of select="'['" /></xsl:when>
 	    <xsl:when test="$ref='I'"><xsl:value-of select="$idx" /></xsl:when>
 	    <xsl:when test="$ref='N'"><xsl:value-of select="$n" /></xsl:when>
+	    <xsl:when test="$ref='G'"><xsl:value-of select="$global-n" /></xsl:when>
 	    <xsl:when test="$ref='V'"><xsl:value-of select="string($val)" /></xsl:when>
 	    <xsl:when test="translate($ref,'0123456789','')=''">
 	      <xsl:variable name="vnode" select="$val/@m:*[local-name()=concat('p',$ref)]" />
@@ -211,7 +207,7 @@
 	<xsl:param name="str" /><xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
 	<xsl:param name="strict" select="false()" />
 	<xsl:choose>
-	  <xsl:when test="contains($str,'[')">
+	  <xsl:when test="contains($str,'[') and string-length(substring-after($str,'[')) > 1">
 	    <xsl:value-of select="substring-before($str,'[')" />
 	    <xsl:variable name="str-xrest" select="substring-after($str,'[')" />
 	    <xsl:variable name="str1" select="substring-before($str-xrest,']')" />
@@ -274,6 +270,10 @@
 	</xsl:attribute>
       </xsl:template>
 
+      <xsl:template match="@*">
+	<xsl:copy />
+      </xsl:template>
+
       <xsl:template match="text()" mode="iterated">
 	<xsl:param name="val" /><xsl:param name="idx" /><xsl:param name="n" />
 	<xsl:call-template name="subst">
@@ -309,6 +309,13 @@
 	  <xsl:apply-templates mode="substed" select="@*|node()">
 	    <xsl:with-param name="val" select="$val" />
 	  </xsl:apply-templates>
+	</xsl:copy>
+      </xsl:template>
+
+      <xsl:template match="*">
+	<xsl:copy>
+	  <xsl:apply-templates select="@*" />
+	  <xsl:apply-templates />
 	</xsl:copy>
       </xsl:template>
 
@@ -459,6 +466,16 @@
 	</xsl:call-template>
       </xsl:template>
 
+      <xsl:template match="macro:stet" mode="iterated">
+	<xsl:apply-templates />
+      </xsl:template>
+      <xsl:template match="macro:stet" mode="substed">
+	<xsl:apply-templates />
+      </xsl:template>
+      <xsl:template match="macro:stet">
+	<xsl:apply-templates />
+      </xsl:template>
+
       <xsl:template match="macro:copyright" mode="iterated">
         <xsl:text>©&#xA0;</xsl:text>
 	<xsl:value-of select="substring-before(/svg:svg/svg:metadata/dc:date/text(),'-')" />
@@ -486,11 +503,21 @@
       m:cR="[*dxR],[*dyR]" m:nR="[*nxR],[*nyR]"
       m:cG="[*dxG],[*dyG]" m:nG="[*nxG],[*nyG]"
       m:cL="[*dxL],[*dyL]" m:nL="[*nxL],[*nyL]"
+
+      m:cAR="[*xTA],0"
+      m:cBL="[*xBL],[*yBL]"
+      m:cABG="[*xABG],[*yABG]"
       >
     <m:expr m:name="xMA"><m:div><m:v>[xA]</m:v><m:v>2</m:v></m:div></m:expr>
     <m:expr m:name="xLA"><m:mul><m:v>[xA]</m:v><m:v>-2</m:v></m:mul></m:expr>
     <m:expr m:name="xRA"><m:mul><m:v>[xA]</m:v><m:v>1.5</m:v></m:mul></m:expr>
     <m:expr m:name="xTA"><m:div><m:v>[xA]</m:v><m:v>3</m:v></m:div></m:expr>
+
+    <m:expr m:name="xBL"><m:div><m:mul><m:v>[xB]</m:v><m:v>2</m:v></m:mul><m:v>3</m:v></m:div></m:expr>
+    <m:expr m:name="yBL"><m:div><m:mul><m:v>[yB]</m:v><m:v>2</m:v></m:mul><m:v>3</m:v></m:div></m:expr>
+
+    <m:expr m:name="xABG"><m:div><m:add><m:mul><m:v>[xA]</m:v><m:v>2</m:v></m:mul><m:v>[xB]</m:v></m:add><m:v>3</m:v></m:div></m:expr>
+    <m:expr m:name="yABG"><m:div><m:add><m:mul><m:v>[yA]</m:v><m:v>2</m:v></m:mul><m:v>[yB]</m:v></m:add><m:v>3</m:v></m:div></m:expr>
 
     <!-- gradients:
 	 red gradient is B+R=A/3, B-A/3 = R
@@ -538,6 +565,9 @@
       <clipPath id="clip-orgtri">
 	<path d="M0,0 L[cA] L[cB] Z" />
       </clipPath>
+      <clipPath id="clip-orgtri-ext2">
+	<path d="M0,0 L[cA] L[cB] l-[xA],0 Z" />
+      </clipPath>
       <clipPath id="exp1">
 	<path transform="translate([nR]) scale(4,4)"
 	      d="M0,0 l[cG] l[cL] Z" />
@@ -555,6 +585,8 @@
       <clipPath id="magcircle">
 	<circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" />
       </clipPath>
+
+      <g id="nullitem" />
 
       <g id="longbase">
 	<path stroke="#888" d="M[*xLA],0 L[*xRA],0" />
@@ -613,8 +645,11 @@
 	  <path stroke="none" fill="#66f" d="M[*xTA],0 L[cG] L[*xMA],0 Z" />
 	</g>
       </macro:subst>
-      <g id="orgtri">
+      <g id="orgtri-nolabels">
 	<path stroke-width="2" d="M0,0 L[cA] L[cB] Z" />
+      </g>
+      <g id="orgtri">
+	<use xlink:href="#orgtri-nolabels" />
 	<g fill="#000" stroke="none" font-size="20px">
 	  <g transform="translate(0,0) scale(1,-1) translate(0,20)">
 	    <text x="0" y="0" text-anchor="end">0</text>
@@ -646,7 +681,7 @@
 	<m:v m:name="lower"   m:d="M[nG]" />
 	<m:v m:name="xlower"  m:d="M[nR]" />
 	<g id="greenline-[name]">
-	  <path stroke="#0f0"
+	  <path stroke="#0a0"
 		d="[d] l[cG] l[cG] l[cG] l[cG] l[cG]" />
 	</g>
       </macro:foreach>
@@ -662,6 +697,26 @@
 		d="M0,0 l[cL] l[cL] l[cL] l[cL]" />
 	</g>
       </macro:foreach>
+
+      <g id="thirdtri-fill-left">
+	<path stroke="none" fill="#ccc" d="M0,0 L[cAR] L[cB] Z" />
+      </g>
+      <g id="thirdtri-fill-lower">
+	<path stroke="none" fill="#ccc" d="M0,0 L[cABG] L[cA] Z" />
+      </g>
+      <g id="thirdtri-fill-right">
+	<path stroke="none" fill="#ccc" d="M[cA] L[cBL] L[cB] Z" />
+      </g>
+
+      <g id="21tri-fill-upper">
+	<path stroke="none" fill="#8ff" d="M[cBL] L[cB] l[nR] Z" />
+      </g>
+      <g id="21tri-fill-lower">
+	<path stroke="none" fill="#8ff" d="M[cAR] L0,0 L[cG] Z" />
+      </g>
+      <g id="21tri-fill-right">
+	<path stroke="none" fill="#8ff" d="M[cABG] L[cA] l[cL] Z" />
+      </g>
 
       <g id="major-lines">
 	<macro:foreach>
@@ -698,160 +753,407 @@
 	</g>
       </g>
 
-      <text id="ctxt1">
-	<tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
-	<tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
-	<tspan x="0" y="2">is the shaded pink region?</tspan>
-      </text>
-      <text id="stxt1">
-	<tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
-	<tspan x="0" y="1">The "Show Text" checkbox shows or hides the explanatory text.</tspan>
-      </text>
-
-      <text id="ctxt2">
-	<tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
-	<tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
-	<tspan x="0" y="2">pink one, for a total of 7.</tspan>
-      </text>
-      <text id="stxt2">
-	<tspan x="0" y="0">This part of the solution is
-	<a xlink:href="https://web.archive.org/web/20060427055758/http://www.randi.org/jr/02-09-2001.html">
-	  <tspan fill="#00c" text-decoration="underline">reported</tspan>
-	</a> to have been published in a</tspan>
-	<tspan x="0" y="1">1950 book <tspan font-style="italic">Mathematical Snapshots</tspan> by Hugo Steinhaus. The explanations</tspan>
-	<tspan x="0" y="2">and following diagrams were written and designed by me.</tspan>
-      </text>
-
-      <text id="ctxt3">
-	<tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
-	<tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
-	<tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
-	<tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
-	<tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
-	<tspan x="0" y="6">But...</tspan>
-      </text>
-      <text id="stxt3">
-      </text>
-
-      <text id="ctxt4">
-	<tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
-	<tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
-	<tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
-      </text>
-      <text id="stxt4">
-      </text>
-
-      <text id="ctxt5">
-	<tspan x="0" y="0">We extend the various lines of interest.</tspan>
-      </text>
-      <text id="stxt5">
-      </text>
-
-      <text id="ctxt6">
-	<tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
-	<tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
-	<tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
-	<tspan x="0" y="3">distance A from the origin.</tspan>
-      </text>
-      <text id="stxt6">
-      </text>
-
-      <text id="ctxt7">
-	<tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
-	<tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
-	<tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
-      </text>
-      <text id="stxt7">
-      </text>
-
-      <text id="ctxt8">
-	<tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
-	<tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
-	<tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
-      </text>
-      <text id="stxt8">
-      </text>
-
-      <text id="ctxt9">
-	<tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
-	<tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
-	<tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
-	<tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
-      </text>
-      <text id="stxt9">
-	<tspan x="0" y="0">QED.</tspan>
-      </text>
-
       <text id="text0">&#xA0;</text>
       <macro:iter>
 	<text id="text[I]">[I]</text>
       </macro:iter>
-
-      <symbol id="tick" viewBox="0 0 20 20">
-	<path d="M2,12 L8,16 L17,3" stroke-width="3" />
-      </symbol>
     </defs>
+
+    <macro:stet>
+      <defs>
+	<text id="ctxt1">
+	  <tspan x="0" y="0">The coloured lines each join a vertex to a point one-third of the way</tspan>
+	  <tspan x="0" y="1">along the opposite edge. What proportion of the outer triangle's area</tspan>
+	  <tspan x="0" y="2">is the shaded pink region?</tspan>
+	</text>
+	<text id="stxt1">
+	  <tspan x="0" y="0">Use the navigation buttons at top right to see the solution.</tspan>
+	  <tspan x="0" y="1">The "Show More Text" checkbox shows or hides the explanatory text.</tspan>
+	</text>
+
+	<text id="ctxt2">
+	  <tspan x="0" y="0">Adding parallel lines passing through the corresponding two-thirds</tspan>
+	  <tspan x="0" y="1">points, and the vertices, gives six more triangles congruent to the</tspan>
+	  <tspan x="0" y="2">pink one, for a total of 7.</tspan>
+	</text>
+	<text id="stxt2">
+	  <tspan x="0" y="0"><tspan>This part of the solution is</tspan>
+	  <a pointer-events="visible" xlink:href="https://web.archive.org/web/20060427055758/http://www.randi.org/jr/02-09-2001.html">
+	    <tspan fill="#00c" text-decoration="underline">reported</tspan>
+	  </a>
+	  <tspan>to have been published in a</tspan></tspan>
+	  <tspan x="0" y="1">1950 book <tspan font-style="italic">Mathematical Snapshots</tspan> by Hugo Steinhaus. The explanations</tspan>
+	  <tspan x="0" y="2">and following diagrams were written and designed by me.</tspan>
+	</text>
+
+	<text id="ctxt3">
+	  <tspan x="0" y="0">The parts of the six cyan triangles that project outside the original</tspan>
+	  <tspan x="0" y="1">(black) triangle are exactly congruent to the uncovered spaces. A</tspan>
+	  <tspan x="0" y="2">rotation about the centre of each line demonstrates this. The</tspan>
+	  <tspan x="0" y="3">congruences all follow from the parallelism of the coloured lines,</tspan>
+	  <tspan x="0" y="4">and the equal division of the original sides into halves and thirds.</tspan>
+	  <tspan x="0" y="6">But...</tspan>
+	</text>
+	<text id="stxt3">
+	</text>
+
+	<text id="ctxt4">
+	  <tspan x="0" y="0">In order for this construction to be valid, we need to prove that the</tspan>
+	  <tspan x="0" y="1">additional lines we added do, in fact, pass through the vertices of</tspan>
+	  <tspan x="0" y="2">the pink triangle, for example at the circled point.</tspan>
+	</text>
+	<text id="stxt4">
+	</text>
+
+	<text id="ctxt5">
+	  <tspan x="0" y="0">We extend the various lines of interest.</tspan>
+	</text>
+	<text id="stxt5">
+	</text>
+
+	<text id="ctxt6">
+	  <tspan x="0" y="0">The two shaded green triangles are clearly similar, with a side ratio</tspan>
+	  <tspan x="0" y="1">of 3:1 (by construction, from the fact that line AB is divided at the</tspan>
+	  <tspan x="0" y="2">one-third point). Therefore the vertex on the left is twice the</tspan>
+	  <tspan x="0" y="3">distance A from the origin.</tspan>
+	</text>
+	<text id="stxt6">
+	</text>
+
+	<text id="ctxt7">
+	  <tspan x="0" y="0">Likewise, the two shaded blue triangles are similar, also with a side</tspan>
+	  <tspan x="0" y="1">ratio of 3:1 (by construction). Therefore the vertex on the right is</tspan>
+	  <tspan x="0" y="2">1.5 times the distance A from the origin.</tspan>
+	</text>
+	<text id="stxt7">
+	</text>
+
+	<text id="ctxt8">
+	  <tspan x="0" y="0">These two green triangles are clearly also similar, but this time</tspan>
+	  <tspan x="0" y="1">with an edge ratio of 7:1. Therefore the intersection with the red</tspan>
+	  <tspan x="0" y="2">line is at one-seventh of the distance to B.</tspan>
+	</text>
+	<text id="stxt8">
+	</text>
+
+	<text id="ctxt9">
+	  <tspan x="0" y="0">And finally these two blue triangles are again similar with an edge</tspan>
+	  <tspan x="0" y="1">ratio of 7:1. Therefore the intersection with the red line is also</tspan>
+	  <tspan x="0" y="2">at one-seventh of the distance to B, same as that of the green line.</tspan>
+	  <tspan x="0" y="3">Therefore the three lines of interest intersect at a single point.</tspan>
+	</text>
+	<text id="stxt9">
+	  <tspan x="0" y="0">QED.</tspan>
+	  <tspan x="0" y="2">(Note, there are dozens of other combinations of similar triangles that would work</tspan>
+	  <tspan x="0" y="3">just as well for this demonstration, and many other possible proofs, some of which follow.)</tspan>
+	</text>
+
+	<text id="ctxt10">
+	  <tspan x="0" y="0">Here, for example, the three grey triangles on the left each clearly have an area of one-third of the</tspan>
+	  <tspan x="0" y="1">original triangle. And therefore the area they cover twice, shown in cyan on the right,</tspan>
+	</text>
+	<text id="stxt10">
+	  <tspan x="0" y="0">must equal that of the pink triangle. But we know from the prior argument from similar triangles that</tspan>
+	  <tspan x="0" y="1">each cyan triangle has an altitude of one-seventh of the original triangle with respect to its one-third</tspan>
+	  <tspan x="0" y="2">base length, and thus an area of ¹⁄₂₁; three of them therefore make one-seventh the original area.</tspan>
+	</text>
+
+	<text id="ctxt11">
+	  <tspan x="0" y="0">A more modern approach is simply to say: the terms of the problem are all invariant under</tspan>
+	  <tspan x="0" y="1">affine transformations; any triangle can be mapped to any other triangle by an affine</tspan>
+	  <tspan x="0" y="2">transformation; therefore, a solution for any chosen triangle must apply to all triangles.</tspan>
+	  <tspan x="0" y="3">Choosing a representative triangle with integer coordinates is straightforward, as shown;</tspan>
+	  <tspan x="0" y="4">here the inner triangle has area ½(3×6) = 9 and the outer, ½(14×9) = 63.</tspan>
+	</text>
+	<text id="stxt11">
+	</text>
+
+	<text id="ctxt12">
+	  <tspan x="0" y="0">The general case where the original sides are cut in arbitrary proportions is known as</tspan>
+	  <tspan x="0" y="1"><a pointer-events="visible" xlink:href="https://en.wikipedia.org/wiki/Routh's_theorem"
+				><tspan fill="#00c" text-decoration="underline">Routh's Theorem</tspan></a>.
+	  Starting with the two similar pairs of grey triangles,</tspan>
+	</text>
+	<text id="stxt12">
+	  <tspan x="0" y="0">which can be easily seen to give ¹⁄₇ when x = y = z = 2.</tspan>
+	</text>
+
+	<symbol id="tick" viewBox="0 0 20 20">
+	  <path d="M2,12 L8,16 L17,3" stroke-width="3" />
+	</symbol>
+
+	<symbol id="arrow-left" viewBox="0 0 3 5">
+	  <path d="M0,2.5 L3,0 L3,5 Z" />
+	</symbol>
+	<symbol id="arrow-right" viewBox="0 0 3 5">
+	  <path d="M3,2.5 L0,0 L0,5 Z" />
+	</symbol>
+
+	<pattern id="cartesianGrid" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse">
+	  <rect x="0" y="0" width="1" height="1" fill="none" stroke="#ccc" stroke-width="0.05" />
+	</pattern>
+      </defs>
+
+      <defs id="MathJax_SVG_glyphs">
+	<path stroke-width="1" id="MJMAIN-28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"/>
+	<path stroke-width="1" id="MJMAIN-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"/>
+	<path stroke-width="1" id="MJMAIN-29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"/>
+	<path stroke-width="1" id="MJMATHI-66" d="M118 -162Q120 -162 124 -164T135 -167T147 -168Q160 -168 171 -155T187 -126Q197 -99 221 27T267 267T289 382V385H242Q195 385 192 387Q188 390 188 397L195 425Q197 430 203 430T250 431Q298 431 298 432Q298 434 307 482T319 540Q356 705 465 705Q502 703 526 683T550 630Q550 594 529 578T487 561Q443 561 443 603Q443 622 454 636T478 657L487 662Q471 668 457 668Q445 668 434 658T419 630Q412 601 403 552T387 469T380 433Q380 431 435 431Q480 431 487 430T498 424Q499 420 496 407T491 391Q489 386 482 386T428 385H372L349 263Q301 15 282 -47Q255 -132 212 -173Q175 -205 139 -205Q107 -205 81 -186T55 -132Q55 -95 76 -78T118 -61Q162 -61 162 -103Q162 -122 151 -136T127 -157L118 -162Z"/>
+	<path stroke-width="1" id="MJMATHI-6F" d="M201 -11Q126 -11 80 38T34 156Q34 221 64 279T146 380Q222 441 301 441Q333 441 341 440Q354 437 367 433T402 417T438 387T464 338T476 268Q476 161 390 75T201 -11ZM121 120Q121 70 147 48T206 26Q250 26 289 58T351 142Q360 163 374 216T388 308Q388 352 370 375Q346 405 306 405Q243 405 195 347Q158 303 140 230T121 120Z"/>
+	<path stroke-width="1" id="MJMAIN-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"/>
+	<path stroke-width="1" id="MJMAIN-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"/>
+	<path stroke-width="1" id="MJMAIN-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"/>
+	<path stroke-width="1" id="MJMAIN-2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"/>
+	<path stroke-width="1" id="MJMATHI-55" d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"/>
+	<path stroke-width="1" id="MJMATHI-42" d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"/>
+	<path stroke-width="1" id="MJMATHI-78" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"/>
+	<path stroke-width="1" id="MJMAIN-34" d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"/>
+	<path stroke-width="1" id="MJMATHI-51" d="M399 -80Q399 -47 400 -30T402 -11V-7L387 -11Q341 -22 303 -22Q208 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435Q740 255 592 107Q529 47 461 16L444 8V3Q444 2 449 -24T470 -66T516 -82Q551 -82 583 -60T625 -3Q631 11 638 11Q647 11 649 2Q649 -6 639 -34T611 -100T557 -165T481 -194Q399 -194 399 -87V-80ZM636 468Q636 523 621 564T580 625T530 655T477 665Q429 665 379 640Q277 591 215 464T153 216Q153 110 207 59Q231 38 236 38V46Q236 86 269 120T347 155Q372 155 390 144T417 114T429 82T435 55L448 64Q512 108 557 185T619 334T636 468ZM314 18Q362 18 404 39L403 49Q399 104 366 115Q354 117 347 117Q344 117 341 117T337 118Q317 118 296 98T274 52Q274 18 314 18Z"/>
+	<path stroke-width="1" id="MJMAIN-2032" d="M79 43Q73 43 52 49T30 61Q30 68 85 293T146 528Q161 560 198 560Q218 560 240 545T262 501Q262 496 260 486Q259 479 173 263T84 45T79 43Z"/>
+	<path stroke-width="1" id="MJMATHI-79" d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+	<path stroke-width="1" id="MJMATHI-62" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"/>
+	<path stroke-width="1" id="MJMAIN-35" d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"/>
+	<path stroke-width="1" id="MJMAIN-36" d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"/>
+	<path stroke-width="1" id="MJMAIN-37" d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"/>
+	<path stroke-width="1" id="MJMAIN-38" d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"/>
+	<path stroke-width="1" id="MJMAIN-39" d="M352 287Q304 211 232 211Q154 211 104 270T44 396Q42 412 42 436V444Q42 537 111 606Q171 666 243 666Q245 666 249 666T257 665H261Q273 665 286 663T323 651T370 619T413 560Q456 472 456 334Q456 194 396 97Q361 41 312 10T208 -22Q147 -22 108 7T68 93T121 149Q143 149 158 135T173 96Q173 78 164 65T148 49T135 44L131 43Q131 41 138 37T164 27T206 22H212Q272 22 313 86Q352 142 352 280V287ZM244 248Q292 248 321 297T351 430Q351 508 343 542Q341 552 337 562T323 588T293 615T246 625Q208 625 181 598Q160 576 154 546T147 441Q147 358 152 329T172 282Q197 248 244 248Z"/>
+	<path stroke-width="1" id="MJMAIN-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"/>
+	<path stroke-width="1" id="MJMATHI-61" d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"/>
+	<path stroke-width="1" id="MJMATHI-72" d="M21 287Q22 290 23 295T28 317T38 348T53 381T73 411T99 433T132 442Q161 442 183 430T214 408T225 388Q227 382 228 382T236 389Q284 441 347 441H350Q398 441 422 400Q430 381 430 363Q430 333 417 315T391 292T366 288Q346 288 334 299T322 328Q322 376 378 392Q356 405 342 405Q286 405 239 331Q229 315 224 298T190 165Q156 25 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 114 189T154 366Q154 405 128 405Q107 405 92 377T68 316T57 280Q55 278 41 278H27Q21 284 21 287Z"/>
+	<path stroke-width="1" id="MJMATHI-65" d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"/>
+	<path stroke-width="1" id="MJMATHI-53" d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"/>
+	<path stroke-width="1" id="MJMATHI-41" d="M208 74Q208 50 254 46Q272 46 272 35Q272 34 270 22Q267 8 264 4T251 0Q249 0 239 0T205 1T141 2Q70 2 50 0H42Q35 7 35 11Q37 38 48 46H62Q132 49 164 96Q170 102 345 401T523 704Q530 716 547 716H555H572Q578 707 578 706L606 383Q634 60 636 57Q641 46 701 46Q726 46 726 36Q726 34 723 22Q720 7 718 4T704 0Q701 0 690 0T651 1T578 2Q484 2 455 0H443Q437 6 437 9T439 27Q443 40 445 43L449 46H469Q523 49 533 63L521 213H283L249 155Q208 86 208 74ZM516 260Q516 271 504 416T490 562L463 519Q447 492 400 412L310 260L413 259Q516 259 516 260Z"/>
+	<path stroke-width="1" id="MJMATHI-43" d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"/>
+	<path stroke-width="1" id="MJMAIN-61" d="M137 305T115 305T78 320T63 359Q63 394 97 421T218 448Q291 448 336 416T396 340Q401 326 401 309T402 194V124Q402 76 407 58T428 40Q443 40 448 56T453 109V145H493V106Q492 66 490 59Q481 29 455 12T400 -6T353 12T329 54V58L327 55Q325 52 322 49T314 40T302 29T287 17T269 6T247 -2T221 -8T190 -11Q130 -11 82 20T34 107Q34 128 41 147T68 188T116 225T194 253T304 268H318V290Q318 324 312 340Q290 411 215 411Q197 411 181 410T156 406T148 403Q170 388 170 359Q170 334 154 320ZM126 106Q126 75 150 51T209 26Q247 26 276 49T315 109Q317 116 318 175Q318 233 317 233Q309 233 296 232T251 223T193 203T147 166T126 106Z"/>
+	<path stroke-width="1" id="MJMAIN-6E" d="M41 46H55Q94 46 102 60V68Q102 77 102 91T102 122T103 161T103 203Q103 234 103 269T102 328V351Q99 370 88 376T43 385H25V408Q25 431 27 431L37 432Q47 433 65 434T102 436Q119 437 138 438T167 441T178 442H181V402Q181 364 182 364T187 369T199 384T218 402T247 421T285 437Q305 442 336 442Q450 438 463 329Q464 322 464 190V104Q464 66 466 59T477 49Q498 46 526 46H542V0H534L510 1Q487 2 460 2T422 3Q319 3 310 0H302V46H318Q379 46 379 62Q380 64 380 200Q379 335 378 343Q372 371 358 385T334 402T308 404Q263 404 229 370Q202 343 195 315T187 232V168V108Q187 78 188 68T191 55T200 49Q221 46 249 46H265V0H257L234 1Q210 2 183 2T145 3Q42 3 33 0H25V46H41Z"/>
+	<path stroke-width="1" id="MJMAIN-64" d="M376 495Q376 511 376 535T377 568Q377 613 367 624T316 637H298V660Q298 683 300 683L310 684Q320 685 339 686T376 688Q393 689 413 690T443 693T454 694H457V390Q457 84 458 81Q461 61 472 55T517 46H535V0Q533 0 459 -5T380 -11H373V44L365 37Q307 -11 235 -11Q158 -11 96 50T34 215Q34 315 97 378T244 442Q319 442 376 393V495ZM373 342Q328 405 260 405Q211 405 173 369Q146 341 139 305T131 211Q131 155 138 120T173 59Q203 26 251 26Q322 26 373 103V342Z"/>
+	<path stroke-width="1" id="MJMAIN-6C" d="M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z"/>
+	<path stroke-width="1" id="MJMAIN-69" d="M69 609Q69 637 87 653T131 669Q154 667 171 652T188 609Q188 579 171 564T129 549Q104 549 87 564T69 609ZM247 0Q232 3 143 3Q132 3 106 3T56 1L34 0H26V46H42Q70 46 91 49Q100 53 102 60T104 102V205V293Q104 345 102 359T88 378Q74 385 41 385H30V408Q30 431 32 431L42 432Q52 433 70 434T106 436Q123 437 142 438T171 441T182 442H185V62Q190 52 197 50T232 46H255V0H247Z"/>
+	<path stroke-width="1" id="MJMAIN-6B" d="M36 46H50Q89 46 97 60V68Q97 77 97 91T97 124T98 167T98 217T98 272T98 329Q98 366 98 407T98 482T98 542T97 586T97 603Q94 622 83 628T38 637H20V660Q20 683 22 683L32 684Q42 685 61 686T98 688Q115 689 135 690T165 693T176 694H179V463L180 233L240 287Q300 341 304 347Q310 356 310 364Q310 383 289 385H284V431H293Q308 428 412 428Q475 428 484 431H489V385H476Q407 380 360 341Q286 278 286 274Q286 273 349 181T420 79Q434 60 451 53T500 46H511V0H505Q496 3 418 3Q322 3 307 0H299V46H306Q330 48 330 65Q330 72 326 79Q323 84 276 153T228 222L176 176V120V84Q176 65 178 59T189 49Q210 46 238 46H254V0H246Q231 3 137 3T28 0H20V46H36Z"/>
+	<path stroke-width="1" id="MJMAIN-65" d="M28 218Q28 273 48 318T98 391T163 433T229 448Q282 448 320 430T378 380T406 316T415 245Q415 238 408 231H126V216Q126 68 226 36Q246 30 270 30Q312 30 342 62Q359 79 369 104L379 128Q382 131 395 131H398Q415 131 415 121Q415 117 412 108Q393 53 349 21T250 -11Q155 -11 92 58T28 218ZM333 275Q322 403 238 411H236Q228 411 220 410T195 402T166 381T143 340T127 274V267H333V275Z"/>
+	<path stroke-width="1" id="MJMAIN-77" d="M90 368Q84 378 76 380T40 385H18V431H24L43 430Q62 430 84 429T116 428Q206 428 221 431H229V385H215Q177 383 177 368Q177 367 221 239L265 113L339 328L333 345Q323 374 316 379Q308 384 278 385H258V431H264Q270 428 348 428Q439 428 454 431H461V385H452Q404 385 404 369Q404 366 418 324T449 234T481 143L496 100L537 219Q579 341 579 347Q579 363 564 373T530 385H522V431H529Q541 428 624 428Q692 428 698 431H703V385H697Q696 385 691 385T682 384Q635 377 619 334L559 161Q546 124 528 71Q508 12 503 1T487 -11H479Q460 -11 456 -4Q455 -3 407 133L361 267Q359 263 266 -4Q261 -11 243 -11H238Q225 -11 220 -3L90 368Z"/>
+	<path stroke-width="1" id="MJMAIN-73" d="M295 316Q295 356 268 385T190 414Q154 414 128 401Q98 382 98 349Q97 344 98 336T114 312T157 287Q175 282 201 278T245 269T277 256Q294 248 310 236T342 195T359 133Q359 71 321 31T198 -10H190Q138 -10 94 26L86 19L77 10Q71 4 65 -1L54 -11H46H42Q39 -11 33 -5V74V132Q33 153 35 157T45 162H54Q66 162 70 158T75 146T82 119T101 77Q136 26 198 26Q295 26 295 104Q295 133 277 151Q257 175 194 187T111 210Q75 227 54 256T33 318Q33 357 50 384T93 424T143 442T187 447H198Q238 447 268 432L283 424L292 431Q302 440 314 448H322H326Q329 448 335 442V310L329 304H301Q295 310 295 316Z"/>
+	<path stroke-width="1" id="MJMAIN-2C" d="M78 35T78 60T94 103T137 121Q165 121 187 96T210 8Q210 -27 201 -60T180 -117T154 -158T130 -185T117 -194Q113 -194 104 -185T95 -172Q95 -168 106 -156T131 -126T157 -76T173 -3V9L172 8Q170 7 167 6T161 3T152 1T140 0Q113 0 96 17Z"/>
+	<path stroke-width="1" id="MJMATHI-52" d="M230 637Q203 637 198 638T193 649Q193 676 204 682Q206 683 378 683Q550 682 564 680Q620 672 658 652T712 606T733 563T739 529Q739 484 710 445T643 385T576 351T538 338L545 333Q612 295 612 223Q612 212 607 162T602 80V71Q602 53 603 43T614 25T640 16Q668 16 686 38T712 85Q717 99 720 102T735 105Q755 105 755 93Q755 75 731 36Q693 -21 641 -21H632Q571 -21 531 4T487 82Q487 109 502 166T517 239Q517 290 474 313Q459 320 449 321T378 323H309L277 193Q244 61 244 59Q244 55 245 54T252 50T269 48T302 46H333Q339 38 339 37T336 19Q332 6 326 0H311Q275 2 180 2Q146 2 117 2T71 2T50 1Q33 1 33 10Q33 12 36 24Q41 43 46 45Q50 46 61 46H67Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628Q287 635 230 637ZM630 554Q630 586 609 608T523 636Q521 636 500 636T462 637H440Q393 637 386 627Q385 624 352 494T319 361Q319 360 388 360Q466 361 492 367Q556 377 592 426Q608 449 619 486T630 554Z"/>
+	<path stroke-width="1" id="MJMATHI-7A" d="M347 338Q337 338 294 349T231 360Q211 360 197 356T174 346T162 335T155 324L153 320Q150 317 138 317Q117 317 117 325Q117 330 120 339Q133 378 163 406T229 440Q241 442 246 442Q271 442 291 425T329 392T367 375Q389 375 411 408T434 441Q435 442 449 442H462Q468 436 468 434Q468 430 463 420T449 399T432 377T418 358L411 349Q368 298 275 214T160 106L148 94L163 93Q185 93 227 82T290 71Q328 71 360 90T402 140Q406 149 409 151T424 153Q443 153 443 143Q443 138 442 134Q425 72 376 31T278 -11Q252 -11 232 6T193 40T155 57Q111 57 76 -3Q70 -11 59 -11H54H41Q35 -5 35 -2Q35 13 93 84Q132 129 225 214T340 322Q352 338 347 338Z"/>
+	<path stroke-width="1" id="MJMATHI-50" d="M287 628Q287 635 230 637Q206 637 199 638T192 648Q192 649 194 659Q200 679 203 681T397 683Q587 682 600 680Q664 669 707 631T751 530Q751 453 685 389Q616 321 507 303Q500 302 402 301H307L277 182Q247 66 247 59Q247 55 248 54T255 50T272 48T305 46H336Q342 37 342 35Q342 19 335 5Q330 0 319 0Q316 0 282 1T182 2Q120 2 87 2T51 1Q33 1 33 11Q33 13 36 25Q40 41 44 43T67 46Q94 46 127 49Q141 52 146 61Q149 65 218 339T287 628ZM645 554Q645 567 643 575T634 597T609 619T560 635Q553 636 480 637Q463 637 445 637T416 636T404 636Q391 635 386 627Q384 621 367 550T332 412T314 344Q314 342 395 342H407H430Q542 342 590 392Q617 419 631 471T645 554Z"/>
+	<path stroke-width="1" id="MJMAIN-2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"/>
+      </defs>
+
+    </macro:stet>
 
     <rect fill="none" stroke="#404" x="0" y="0" width="1120" height="500" />
 
-    <g>
+    <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
+      <text><macro:copyright /></text>
+    </g>
 
-      <g id="copyright-msg" transform="translate(3,495)" font-size="12px">
-	<text><macro:copyright /></text>
-      </g>
-
-      <g id="anim-control" transform="translate(1000,20) scale(5,5)" stroke-width="0.2">
-	<rect fill="#ccc" stroke="#444" x="0" y="0" width="20" height="10" />
-	<rect fill="none" stroke="#fff" x="7" y="1" width="6" height="8" />
-	<g transform="translate(10,7.5)" font-size="7px" text-anchor="middle">
-	  <use xlink:href="#text0">
-	    <macro:anim-core macro:n="9" attributeName="xlink:href" attributeType="XML" to="#text[I]" />
-	  </use>
-	</g>
-	<rect fill="#444" stroke="#aaa" x="1" y="1" width="5" height="8" />
-	<path fill="#eee" d="M2,5 L5,2.5 L5,7.5 Z" />
-	<rect fill="#444" stroke="#aaa" x="14" y="1" width="5" height="8" />
-	<path fill="#eee" transform="translate(20,0) scale(-1,1)" d="M2,5 L5,2.5 L5,7.5 Z" />
-
-	<macro:foreach>
-	  <m:v m:p1="prev" m:p2="1" />
-	  <m:v m:p1="next" m:p2="14" />
-	  <g fill="none" stroke="none" transform="translate([2],1) scale(5,8)" visibility="hidden">
-	    <macro:iter>
-	      <rect id="a[1][I]" pointer-events="visible" width="1" height="1" visibility="hidden">
-		<macro:set attributeName="visibility" to="visible" />
-	      </rect>
-	    </macro:iter>
-	  </g>
-	</macro:foreach>
-      </g>
-      <g id="text-control" transform="translate(1000,75)" stroke-width="1">
-	<rect fill="none" stroke="#000" x="0" y="0" width="100" height="20" />
-	<rect fill="none" stroke="#000" x="5" y="5" width="10" height="10" />
-	<use xlink:href="#tick" x="6" y="6" width="8" height="8" stroke="#000" fill="none" visibility="hidden">
-	  <set id="showtext" attributeName="visibility" to="visible" begin="texton.click" end="textoff.click" restart="whenNotActive" />
+    <g id="anim-control" transform="translate(960,20) scale(5,5)" stroke-width="0.2">
+      <rect fill="#ccc" stroke="#444" x="0" y="0" width="28" height="14" />
+      <rect fill="none" stroke="#fff" x="9" y="1" width="10" height="12" />
+      <g transform="translate(14,7.5) scale(0.2,0.2) translate(-1,0)" font-size="35px" font-family="sans-serif" text-anchor="middle">
+	<use xlink:href="#text0">
+	  <macro:anim-core macro:n="12" attributeName="xlink:href" attributeType="XML" to="#text[I]" />
 	</use>
-	<!--<rect fill="none" stroke="#000" x="5" y="5" width="10" height="10">
-	  <set id="showtext" attributeName="fill" to="#000" begin="texton.click" end="textoff.click" restart="whenNotActive" />
-	</rect>-->
-	<g transform="translate(22,15)" font-size="12px">
-	  <text>Show Text</text>
+      </g>
+      <g transform="translate(14,11.5) scale(0.2,0.2) translate(-1,0)" font-size="14px" font-family="sans-serif" text-anchor="middle">
+	<text>of [G]</text>
+      </g>
+      <rect fill="#444" stroke="#aaa" x="1" y="1" width="7" height="12" />
+      <use xlink:href="#arrow-left" fill="#eee" x="2" y="3.5" width="4" height="7"/>
+      <rect fill="#444" stroke="#aaa" x="20" y="1" width="7" height="12" />
+      <use xlink:href="#arrow-right" fill="#eee" x="22" y="3.5" width="4" height="7"/>
+      <macro:foreach>
+	<m:v m:p1="prev" m:p2="1" />
+	<m:v m:p1="next" m:p2="20" />
+	<g fill="none" stroke="none" transform="translate([2],1)" visibility="hidden">
+	  <macro:iter>
+	    <rect id="a[1][I]" pointer-events="visible" width="7" height="12" visibility="hidden">
+	      <macro:set attributeName="visibility" to="visible" />
+	    </rect>
+	  </macro:iter>
 	</g>
-	<macro:foreach>
-	  <m:v m:p1="texton"  m:p2="0;showtext.endEvent" m:p3="showtext.beginEvent" />
-	  <m:v m:p1="textoff" m:p2="showtext.beginEvent" m:p3="showtext.endEvent" />
-	  <rect id="[1]" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
-	    <set attributeName="visibility" to="visible" begin="[2]" end="[3]" />
-	  </rect>
-	</macro:foreach>
+      </macro:foreach>
+    </g>
+    <g id="text-control" transform="translate(960,95)" stroke-width="1">
+      <rect fill="none" stroke="#000" x="0" y="0" width="140" height="20" />
+      <rect fill="none" stroke="#000" x="5" y="5" width="10" height="10" />
+      <use xlink:href="#tick" x="6" y="6" width="8" height="8" stroke="#000" fill="none" visibility="hidden">
+	<set id="showtext" attributeName="visibility" to="visible" begin="texton.click" end="textoff.click" restart="whenNotActive" />
+      </use>
+      <g transform="translate(22,15)" font-size="12px">
+	<text>Show More Text</text>
+      </g>
+      <macro:foreach>
+	<m:v m:p1="texton"  m:p2="0;showtext.endEvent" m:p3="showtext.beginEvent" />
+	<m:v m:p1="textoff" m:p2="showtext.beginEvent" m:p3="showtext.endEvent" />
+	<rect id="[1]" visibility="hidden" pointer-events="visible" fill="none" stroke="none" x="1" y="1" width="99" height="19">
+	  <set attributeName="visibility" to="visible" begin="[2]" end="[3]" />
+	</rect>
+      </macro:foreach>
+    </g>
+
+    <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
+
+      <g id="frame1" display="none">
+	<macro:set macro:frame="1" attributeName="display" to="block" />
+	<g clip-path="url(#clip-orgtri)">
+	  <use xlink:href="#smalltri-fill-centre" />
+	  <use xlink:href="#redline-left" />
+	  <use xlink:href="#greenline-lower" />
+	  <use xlink:href="#blueline-right" />
+	</g>
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13A" />
       </g>
 
-      <g transform="translate(640,320) scale(1,-1)" fill="none" stroke="#000" stroke-width="1.5">
+      <g id="frame2" display="none">
+	<macro:set macro:frame="2" attributeName="display" to="block" />
+	<g clip-path="url(#exp1)">
+	  <use xlink:href="#smalltri-fill-centre" />
+	  <use xlink:href="#smalltri-fill-others" />
+	  <use xlink:href="#major-lines" />
+	</g>
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13B" />
+	<use xlink:href="#label-12A" />
+      </g>
 
-	<g id="frame1" display="none">
-	  <macro:set macro:frame="1" attributeName="display" to="block" />
+      <g id="frame3" display="none">
+	<macro:set macro:frame="3" attributeName="display" to="block" />
+	<g clip-path="url(#clip-orgtri)">
+	  <use xlink:href="#smalltri-fill-centre" />
+	  <use xlink:href="#smalltri-fill-others" />
+	</g>
+	<macro:subst>
+	  <!-- xA and yB are positive, but xB might not be. -->
+	  <m:expr m:name="xMB"><m:div><m:v>[xB]</m:v><m:v>2</m:v></m:div></m:expr>
+	  <m:expr m:name="nxMB"><m:div><m:v>[xB]</m:v><m:v>-2</m:v></m:div></m:expr>
+	  <m:expr m:name="yMB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
+	  <m:expr m:name="xMAB"><m:add><m:v>[*xMB]</m:v><m:v>[*xMA]</m:v></m:add></m:expr>
+	  <m:expr m:name="nxMAB"><m:add><m:v>[*nxMB]</m:v><m:v>-[*xMA]</m:v></m:add></m:expr>
+	  <m:expr m:name="yMAB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
+	  <macro:foreach>
+	    <m:v m:p1="[*xMB]"  m:p2="[*nxMB]"  m:p3="[*yMB]"  m:p4="#expL" />
+	    <m:v m:p1="[*xMA]"  m:p2="-[*xMA]"  m:p3="0"       m:p4="#expB" />
+	    <m:v m:p1="[*xMAB]" m:p2="[*nxMAB]" m:p3="[*yMAB]" m:p4="#expR" />
+	    <g transform="translate([1],[3])">
+	      <animateTransform attributeName="transform" type="rotate"
+				values="0;0;180;180" keyTimes="0;0.2;0.6;1"
+				begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
+				additive="sum" accumulate="sum" />
+	      <g transform="translate([2],-[3])">
+		<g clip-path="url([4])">
+		  <use xlink:href="#smalltri-darkfill-others" />
+		</g>
+	      </g>
+	    </g>
+	  </macro:foreach>
+	</macro:subst>
+	<g clip-path="url(#exp1)">
+	  <use xlink:href="#major-lines" />
+	</g>
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13B" />
+	<use xlink:href="#label-12A" />
+      </g>
+
+      <g id="frame4" display="none">
+	<macro:set macro:frame="4" attributeName="display" to="block" />
+	<g clip-path="url(#exp1)">
+	  <use xlink:href="#smalltri-fill-centre" />
+	  <use xlink:href="#smalltri-fill-others" />
+	  <use xlink:href="#major-lines" />
+	</g>
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13B" />
+	<use xlink:href="#label-12A" />
+	<circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" />
+	<g transform="translate([cG])">
+	  <macro:foreach>
+	    <m:v>matrix(1 0 0 -1 0 0)</m:v><!-- scale(1,-1) -->
+	    <m:v>matrix(0.8 -0.6 0.6 0.8 0 0)</m:v><!-- rotation by -2*atan(1/3) -->
+	    <path stroke="#888" stroke-width="1.5" fill="none"
+		  transform="[V]"
+		  d="M0,10 h-270" />
+	  </macro:foreach>
+	  <g transform="translate(-270,90) scale(10,10) translate([nG])">
+	    <g clip-path="url(#magcircle)">
+	      <use xlink:href="#smalltri-fill-centre" />
+	      <use xlink:href="#smalltri-fill-others" />
+	      <use xlink:href="#major-lines" />
+	    </g>
+	    <circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" stroke-width="0.25" />
+	  </g>
+	</g>
+      </g>
+
+      <g id="frame5" display="none">
+	<macro:set macro:frame="5" attributeName="display" to="block" />
+	<use xlink:href="#longbase" />
+	<use xlink:href="#redline-left" />
+	<use xlink:href="#greenline-xupper" />
+	<use xlink:href="#greenline-lower" />
+	<use xlink:href="#blueline-xright" />
+	<use xlink:href="#blueline-left" />
+	<use xlink:href="#orgtri" />
+      </g>
+
+      <g id="frame6" display="none">
+	<macro:set macro:frame="6" attributeName="display" to="block" />
+	<use xlink:href="#large1-green" />
+	<use xlink:href="#longbase" />
+	<use xlink:href="#greenline-xupper" />
+	<use xlink:href="#greenline-lower" />
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label--2A" />
+      </g>
+
+      <g id="frame7" display="none">
+	<macro:set macro:frame="7" attributeName="display" to="block" />
+	<use xlink:href="#large1-blue" />
+	<use xlink:href="#longbase" />
+	<use xlink:href="#blueline-xright" />
+	<use xlink:href="#blueline-left" />
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-12A" />
+	<use xlink:href="#label-32A" />
+      </g>
+
+      <g id="frame8" display="none">
+	<macro:set macro:frame="8" attributeName="display" to="block" />
+	<use xlink:href="#large2-green" />
+	<use xlink:href="#longbase" />
+	<use xlink:href="#redline-left" />
+	<use xlink:href="#greenline-xupper" />
+	<use xlink:href="#greenline-lower" />
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label--2A" />
+	<use xlink:href="#label-13A" />
+      </g>
+
+      <g id="frame9" display="none">
+	<macro:set macro:frame="9" attributeName="display" to="block" />
+	<use xlink:href="#large2-blue" />
+	<use xlink:href="#longbase" />
+	<use xlink:href="#redline-left" />
+	<use xlink:href="#blueline-xright" />
+	<use xlink:href="#blueline-left" />
+	<use xlink:href="#orgtri" />
+	<use xlink:href="#label-13A" />
+	<use xlink:href="#label-12A" />
+	<use xlink:href="#label-32A" />
+      </g>
+
+      <g id="frame10" display="none">
+	<macro:set macro:frame="10" attributeName="display" to="block" />
+	<g transform="translate(-500,0)">
 	  <g clip-path="url(#clip-orgtri)">
-	    <use xlink:href="#smalltri-fill-centre" />
+	    <use xlink:href="#nullitem">
+	      <animate attributeName="xlink:href" attributeType="XML"
+		       values="#thirdtri-fill-left;#thirdtri-fill-lower;#thirdtri-fill-right"
+		       begin="step10.begin" dur="6s" end="step10.endEvent" repeatCount="indefinite" />
+	    </use>
 	    <use xlink:href="#redline-left" />
 	    <use xlink:href="#greenline-lower" />
 	    <use xlink:href="#blueline-right" />
@@ -859,169 +1161,176 @@
 	  <use xlink:href="#orgtri" />
 	  <use xlink:href="#label-13A" />
 	</g>
-
-	<g id="frame2" display="none">
-	  <macro:set macro:frame="2" attributeName="display" to="block" />
-	  <g clip-path="url(#exp1)">
-	    <use xlink:href="#smalltri-fill-centre" />
-	    <use xlink:href="#smalltri-fill-others" />
-	    <use xlink:href="#major-lines" />
-	  </g>
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label-13B" />
-	  <use xlink:href="#label-12A" />
-	</g>
-
-	<g id="frame3" display="none">
-	  <macro:set macro:frame="3" attributeName="display" to="block" />
+	<g>
 	  <g clip-path="url(#clip-orgtri)">
 	    <use xlink:href="#smalltri-fill-centre" />
-	    <use xlink:href="#smalltri-fill-others" />
-	  </g>
-	  <macro:subst>
-	    <!-- xA and yB are positive, but xB might not be. -->
-	    <m:expr m:name="xMB"><m:div><m:v>[xB]</m:v><m:v>2</m:v></m:div></m:expr>
-	    <m:expr m:name="nxMB"><m:div><m:v>[xB]</m:v><m:v>-2</m:v></m:div></m:expr>
-	    <m:expr m:name="yMB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
-	    <m:expr m:name="xMAB"><m:add><m:v>[*xMB]</m:v><m:v>[*xMA]</m:v></m:add></m:expr>
-	    <m:expr m:name="nxMAB"><m:add><m:v>[*nxMB]</m:v><m:v>-[*xMA]</m:v></m:add></m:expr>
-	    <m:expr m:name="yMAB"><m:div><m:v>[yB]</m:v><m:v>2</m:v></m:div></m:expr>
-	    <macro:foreach>
-	      <m:v m:p1="[*xMB]"  m:p2="[*nxMB]"  m:p3="[*yMB]"  m:p4="#expL" />
-	      <m:v m:p1="[*xMA]"  m:p2="-[*xMA]"  m:p3="0"       m:p4="#expB" />
-	      <m:v m:p1="[*xMAB]" m:p2="[*nxMAB]" m:p3="[*yMAB]" m:p4="#expR" />
-	      <g transform="translate([1],[3])">
-		<animateTransform attributeName="transform" type="rotate"
-				  values="0;0;180;180" keyTimes="0;0.2;0.6;1"
-				  begin="step3.begin" dur="5s" end="step3.endEvent" repeatCount="indefinite"
-				  additive="sum" accumulate="sum" />
-		<g transform="translate([2],-[3])">
-		  <g clip-path="url([4])">
-		    <use xlink:href="#smalltri-darkfill-others" />
-		  </g>
-		</g>
-	      </g>
-	    </macro:foreach>
-	  </macro:subst>
-	  <g clip-path="url(#exp1)">
-	    <use xlink:href="#major-lines" />
+	    <use xlink:href="#21tri-fill-upper" />
+	    <use xlink:href="#21tri-fill-lower" />
+	    <use xlink:href="#21tri-fill-right" />
+	    <use xlink:href="#redline-left" />
+	    <use xlink:href="#greenline-lower" />
+	    <use xlink:href="#blueline-right" />
 	  </g>
 	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label-13B" />
-	  <use xlink:href="#label-12A" />
+	  <use xlink:href="#label-13A" />
 	</g>
+      </g>
 
-	<g id="frame4" display="none">
-	  <macro:set macro:frame="4" attributeName="display" to="block" />
-	  <g clip-path="url(#exp1)">
-	    <use xlink:href="#smalltri-fill-centre" />
-	    <use xlink:href="#smalltri-fill-others" />
-	    <use xlink:href="#major-lines" />
+      <g id="frame11" display="none">
+	<macro:set macro:frame="11" attributeName="display" to="block" />
+	<g transform="translate(-100.5,-60.5) scale(20,20)" stroke-width="0.05">
+	  <rect x="-2" y="-2" width="22" height="13" fill="url(#cartesianGrid)" stroke="none" />
+	  <line x1="-2" y1="0" x2="20" y2="0" stroke="#444" />
+	  <line x1="0" y1="-2" x2="0" y2="11" stroke="#444" />
+	  <path fill="none" stroke="#000" stroke-width="0.075" d="M0,3 L18,9 L12,0 Z" />
+	  <path fill="none" stroke="#f00" d="M12,0 L12,7" />
+	  <path fill="none" stroke="#0a0" d="M0,3 L14,3" />
+	  <path fill="none" stroke="#00f" d="M18,9 L4,2" />
+	</g>
+      </g>
+
+      <g id="frame12" display="none">
+	<macro:set macro:frame="12" attributeName="display" to="block" />
+	<g transform="translate(100,0)">
+	  <defs>
+	    <g id="menelaus-pair1" fill="#ccc" stroke="none">
+	      <path d="M[*xTA],0 L[cA] l[cL] l[cL] Z" />
+	      <path d="M[*xRA],0 m[nG] m[cL] m[cL] m[cL] m[cL] L[cB] l[nR] Z" />
+	    </g>
+	    <g id="menelaus-pair2" fill="#ccc" stroke="none">
+	      <path d="M[cBL] L0,0 L[cA] Z" />
+	      <path d="M[*xRA],0 m[nG] m[cL] m[cL] m[cL] m[cL] L[cB] L[cBL] Z" />
+	    </g>
+	  </defs>
+	  <use xlink:href="#nullitem">
+	    <animate attributeName="xlink:href" attributeType="XML"
+		     values="#menelaus-pair1;#menelaus-pair2"
+		     begin="step12.begin" dur="10s" end="step12.endEvent" repeatCount="indefinite" />
+	  </use>
+	  <path stroke="none" fill="#aaf" d="M[cA] l[cL] l[cL] L[cB] Z" />
+	  <g clip-path="url(#clip-orgtri-ext2)">
+	    <use xlink:href="#redline-left" />
+	    <use xlink:href="#greenline-lower" />
+	    <use xlink:href="#blueline-right" />
 	  </g>
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label-13B" />
-	  <use xlink:href="#label-12A" />
-	  <circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" />
-	  <g transform="translate([cG])">
-	    <macro:foreach>
-	      <m:v>matrix(1 0 0 -1 0 0)</m:v><!-- scale(1,-1) -->
-	      <m:v>matrix(0.8 -0.6 0.6 0.8 0 0)</m:v><!-- rotation by -2*atan(1/3) -->
-	      <path stroke="#888" stroke-width="1.5" fill="none"
-		    transform="[V]"
-		    d="M0,10 h-270" />
-	    </macro:foreach>
-	    <g transform="translate(-270,90) scale(10,10) translate([nG])">
-	      <g clip-path="url(#magcircle)">
-		<use xlink:href="#smalltri-fill-centre" />
-		<use xlink:href="#smalltri-fill-others" />
-		<use xlink:href="#major-lines" />
-	      </g>
-	      <circle cx="[*dxG]" cy="[*dyG]" r="10" stroke="#000" fill="none" stroke-width="0.25" />
+	  <use xlink:href="#orgtri-nolabels" />
+	  <path stroke="#000" stroke-width="1.5" d="M[*xRA],0 m[nG] m[cL] m[cL] m[cL] m[cL] L[cB]" />
+	  <g fill="#000" stroke="none" font-size="20px">
+	    <g transform="translate(0,0) scale(1,-1) translate(0,20)">
+	      <text x="0" y="0" text-anchor="end">C</text>
+	    </g>
+	    <g transform="translate([cA]) scale(1,-1) translate(0,20)">
+	      <text x="0" y="0" text-anchor="end">A</text>
+	    </g>
+	    <g transform="translate([cB]) scale(1,-1) translate(0,-6)">
+	      <text x="0" y="0" text-anchor="start">B</text>
+	    </g>
+	    <g transform="translate([*xTA],0) scale(1,-1) translate(0,20)">
+	      <text x="0" y="0" text-anchor="end">B'</text>
+	    </g>
+	    <g transform="translate([cG]) translate([cG]) scale(1,-1) translate(4,20)">
+	      <text x="0" y="0" text-anchor="end">P</text>
+	    </g>
+	    <g transform="translate([cG]) translate([cR]) scale(1,-1) translate(4,-6)">
+	      <text x="0" y="0" text-anchor="start">Q</text>
+	    </g>
+	    <g transform="translate([cG]) scale(1,-1) translate(0,-8)">
+	      <text x="0" y="0" text-anchor="start">R</text>
+	    </g>
+	    <g transform="translate([*xRA],0) translate([nG]) scale(4,4) translate([cL]) scale(0.25,-0.25) translate(0,-6)">
+	      <text x="0" y="0" text-anchor="start">U</text>
+	    </g>
+	    <g transform="translate([cBL]) scale(1,-1) translate(-8,18)" display="none">
+	      <text x="0" y="0" text-anchor="end">A'</text>
+	    </g>
+	    <g transform="scale(0.16666,0.16666) translate([cA]) scale(6,-6) translate(10,20)">
+	      <text x="0" y="0" text-anchor="end">b</text>
+	    </g>
+	    <g transform="scale(0.66666,0.66666) translate([cA]) scale(1.5,-1.5) translate(0,20)">
+	      <text x="0" y="0" text-anchor="end">yb</text>
+	    </g>
+	    <g transform="scale(0.33333,0.33333) translate([cB]) scale(3,-3) translate(-2,-2)">
+	      <text x="0" y="0" text-anchor="end">xa</text>
+	    </g>
+	    <g transform="scale(0.83333,0.83333) translate([cB]) scale(1.2,-1.2) translate(-2,0)">
+	      <text x="0" y="0" text-anchor="end">a</text>
+	    </g>
+	    <g transform="translate([*xMA],0) translate([cG]) scale(0.5,0.5) translate([cG]) scale(2,-2) translate(-22,0)">
+	      <text x="0" y="0" text-anchor="end">c</text>
+	    </g>
+	    <g transform="translate([cG]) translate([cG]) translate([cR]) scale(1,-1) translate(-18,0)">
+	      <text x="0" y="0" text-anchor="end">zc</text>
 	    </g>
 	  </g>
+
+	  <g transform="scale(1,-1) translate(-740,-320) translate(50,100) translate(0,0)" font-size="12px" stroke="none" fill="#000">
+	    <macro:stet>
+	      <svg x="0" y="0" width="635.6" height="249" viewBox="0 -7943.3 40543.7 15408.3" role="img" focusable="false" aria-hidden="true">
+		<g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)"><g transform="translate(167,0)"><g transform="translate(-16,0)"><use xlink:href="#MJMATHI-78" x="2129" y="6427"></use><g transform="translate(527,3453)"><g transform="translate(120,0)"><rect stroke="none" width="1933" height="60" x="0" y="220"></rect><g transform="translate(191,676)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="791" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><g transform="translate(759,0)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-2032" x="1074" y="408"></use></g></g></g></g><g transform="translate(360,-233)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-51" x="1510" y="0"></use></g></g><g transform="translate(0,-3291)"><g transform="translate(120,0)"><rect stroke="none" width="2460" height="60" x="0" y="220"></rect><g transform="translate(60,760)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-51" x="1510" y="0"></use></g></g><g transform="translate(70,-686)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1510" y="0"></use></g></g></g></g><g transform="translate(0,-6428)"><g transform="translate(120,0)"><rect stroke="none" width="2461" height="60" x="0" y="220"></rect><g transform="translate(60,751)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-155)"><use transform="scale(0.707)" xlink:href="#MJMATHI-50" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-51" x="751" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-52" x="1543" y="0"></use></g></g><g transform="translate(71,-686)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1510" y="0"></use></g></g></g></g></g><g transform="translate(2685,0)"><g transform="translate(0,6427)"><use xlink:href="#MJMAIN-3D" x="277" y="0"></use><g transform="translate(1056,0)"><g transform="translate(397,0)"><rect stroke="none" width="3549" height="60" x="0" y="220"></rect><g transform="translate(60,710)"><use xlink:href="#MJMATHI-62" x="0" y="0"></use>
+		<use xlink:href="#MJMAIN-28" x="429" y="0"></use><use xlink:href="#MJMAIN-31" x="819" y="0"></use><use xlink:href="#MJMAIN-2B" x="1541" y="0"></use><use xlink:href="#MJMATHI-79" x="2542" y="0"></use><use xlink:href="#MJMAIN-29" x="3039" y="0"></use></g><g transform="translate(1011,-686)"><use xlink:href="#MJMATHI-55" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="767" y="0"></use></g></g></g><use xlink:href="#MJMAIN-2C" x="5123" y="0"></use><g transform="translate(7402,0)"><g transform="translate(286,0)"><rect stroke="none" width="1965" height="60" x="0" y="220"></rect><g transform="translate(207,676)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="791" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><g transform="translate(791,0)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-2032" x="1074" y="408"></use></g></g></g></g><use xlink:href="#MJMAIN-3D" x="10052" y="0"></use><g transform="translate(10830,0)"><g transform="translate(397,0)"><rect stroke="none" width="1647" height="60" x="0" y="220"></rect><g transform="translate(60,676)"><use xlink:href="#MJMATHI-55" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="767" y="0"></use></g><g transform="translate(360,-686)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMATHI-62" x="497" y="0"></use></g></g></g><use xlink:href="#MJMAIN-3D" x="13273" y="0"></use><g transform="translate(14051,0)"><g transform="translate(397,0)"><rect stroke="none" width="2340" height="60" x="0" y="220"></rect><g transform="translate(60,676)"><use xlink:href="#MJMAIN-31" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="722" y="0"></use><use xlink:href="#MJMATHI-79" x="1723" y="0"></use></g><g transform="translate(635,-686)"><use xlink:href="#MJMATHI-78" x="0" y="0"></use><use xlink:href="#MJMATHI-79" x="572" y="0"></use></g></g></g></g><g transform="translate(0,3453)"><use xlink:href="#MJMAIN-3D" x="277" y="0"></use><g transform="translate(1056,0)"><g transform="translate(397,0)"><rect stroke="none" width="4739" height="60" x="0" y="220"></rect><g transform="translate(1594,676)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="791" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="791" y="0"></use><use xlink:href="#MJMAIN-2B" x="1773" y="0"></use><use xlink:href="#MJMATHI-51" x="2773" y="0"></use><g transform="translate(3565,0)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-2032" x="1074" y="408"></use></g></g></g></g><use xlink:href="#MJMAIN-3D" x="6591" y="0"></use><g transform="translate(7370,0)"><g transform="translate(397,0)"><rect stroke="none" width="3508" height="60" x="0" y="220"></rect><use xlink:href="#MJMAIN-31" x="1504" y="676"></use><g transform="translate(60,-1069)"><use xlink:href="#MJMAIN-31" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="722" y="0"></use><g transform="translate(1501,0)"><g transform="translate(342,0)"><rect stroke="none" width="1425" height="60" x="0" y="220"></rect><g transform="translate(60,537)"><use transform="scale(0.707)" xlink:href="#MJMATHI-51" x="0" y="0"></use><g transform="translate(559,0)"><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.5)" xlink:href="#MJMAIN-2032" x="1074" y="581"></use></g></g><g transform="translate(164,-399)"><use transform="scale(0.707)" xlink:href="#MJMATHI-51" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="791" y="0"></use></g></g></g></g></g></g><use xlink:href="#MJMAIN-3D" x="11674" y="0"></use><g transform="translate(12452,0)"><g transform="translate(397,0)"><rect stroke="none" width="3459" height="60" x="0" y="220"></rect><use xlink:href="#MJMAIN-31" x="1479" y="676"></use><g transform="translate(60,-819)"><use xlink:href="#MJMAIN-31" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="722" y="0"></use><g transform="translate(1501,0)"><g transform="translate(342,0)"><rect stroke="none" width="1376" height="60" x="0" y="220"></rect><g transform="translate(309,545)"><use transform="scale(0.707)" xlink:href="#MJMATHI-78" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-79" x="572" y="0"></use></g><g transform="translate(60,-372)"><use transform="scale(0.707)" xlink:href="#MJMAIN-31" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-2B" x="500" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-79" x="1279" y="0"></use></g></g></g></g></g></g>
+		<use xlink:href="#MJMAIN-3D" x="16707" y="0"></use><g transform="translate(17486,0)"><g transform="translate(397,0)"><rect stroke="none" width="4633" height="60" x="0" y="220"></rect><g transform="translate(1206,676)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="719" y="0"></use><use xlink:href="#MJMAIN-31" x="1720" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-78" x="0" y="0"></use><use xlink:href="#MJMATHI-79" x="572" y="0"></use><use xlink:href="#MJMAIN-2B" x="1292" y="0"></use><use xlink:href="#MJMATHI-79" x="2292" y="0"></use><use xlink:href="#MJMAIN-2B" x="3012" y="0"></use><use xlink:href="#MJMAIN-31" x="4013" y="0"></use></g></g></g></g><g transform="translate(0,-233)"><use xlink:href="#MJMAIN-3D" x="277" y="0"></use><g transform="translate(1334,0)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-227)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><g transform="translate(1067,0)"><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.5)" xlink:href="#MJMAIN-2032" x="1074" y="581"></use></g></g></g><g transform="translate(3860,0)"><g transform="translate(120,0)"><rect stroke="none" width="1933" height="60" x="0" y="220"></rect><g transform="translate(191,676)"><use xlink:href="#MJMATHI-51" x="0" y="0"></use><use xlink:href="#MJMATHI-42" x="791" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><g transform="translate(759,0)"><use xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-2032" x="1074" y="408"></use></g></g></g></g><use xlink:href="#MJMAIN-3D" x="6312" y="0"></use><g transform="translate(7368,0)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1510" y="0"></use></g></g><g transform="translate(9687,0)"><g transform="translate(120,0)"><rect stroke="none" width="2340" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-79" x="921" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="719" y="0"></use><use xlink:href="#MJMAIN-31" x="1720" y="0"></use></g></g></g><g transform="translate(12268,0)"><g transform="translate(120,0)"><rect stroke="none" width="4633" height="60" x="0" y="220"></rect><g transform="translate(1206,676)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMAIN-2B" x="719" y="0"></use><use xlink:href="#MJMAIN-31" x="1720" y="0"></use></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-78" x="0" y="0"></use><use xlink:href="#MJMATHI-79" x="572" y="0"></use><use xlink:href="#MJMAIN-2B" x="1292" y="0"></use><use xlink:href="#MJMATHI-79" x="2292" y="0"></use><use xlink:href="#MJMAIN-2B" x="3012" y="0"></use><use xlink:href="#MJMAIN-31" x="4013" y="0"></use></g></g></g></g><g transform="translate(0,-3291)"><use xlink:href="#MJMAIN-3D" x="277" y="0"></use><g transform="translate(1056,0)"><g transform="translate(397,0)"><rect stroke="none" width="4633" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-79" x="2068" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-78" x="0" y="0"></use><use xlink:href="#MJMATHI-79" x="572" y="0"></use><use xlink:href="#MJMAIN-2B" x="1292" y="0"></use><use xlink:href="#MJMATHI-79" x="2292" y="0"></use><use xlink:href="#MJMAIN-2B" x="3012" y="0"></use><use xlink:href="#MJMAIN-31" x="4013" y="0"></use>
+		</g></g></g><g transform="translate(7207,0)"><use xlink:href="#MJMAIN-61" x="250" y="0"></use><use xlink:href="#MJMAIN-6E" x="750" y="0"></use><use xlink:href="#MJMAIN-64" x="1307" y="0"></use><use xlink:href="#MJMAIN-6C" x="2113" y="0"></use><use xlink:href="#MJMAIN-69" x="2392" y="0"></use><use xlink:href="#MJMAIN-6B" x="2670" y="0"></use><use xlink:href="#MJMAIN-65" x="3199" y="0"></use><use xlink:href="#MJMAIN-77" x="3643" y="0"></use><use xlink:href="#MJMAIN-69" x="4366" y="0"></use><use xlink:href="#MJMAIN-73" x="4644" y="0"></use><use xlink:href="#MJMAIN-65" x="5039" y="0"></use><use xlink:href="#MJMAIN-2C" x="5483" y="0"></use></g><g transform="translate(14219,0)"><g transform="translate(120,0)"><rect stroke="none" width="2445" height="60" x="0" y="220"></rect><g transform="translate(60,676)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-155)"><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-52" x="759" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1519" y="0"></use></g></g><g transform="translate(63,-686)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1510" y="0"></use></g></g></g></g><use xlink:href="#MJMAIN-3D" x="17183" y="0"></use><g transform="translate(17961,0)"><g transform="translate(397,0)"><rect stroke="none" width="4500" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-7A" x="2016" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMATHI-7A" x="497" y="0"></use><use xlink:href="#MJMAIN-2B" x="1188" y="0"></use><use xlink:href="#MJMATHI-7A" x="2188" y="0"></use><use xlink:href="#MJMAIN-2B" x="2879" y="0"></use><use xlink:href="#MJMAIN-31" x="3880" y="0"></use></g></g></g><use xlink:href="#MJMAIN-2C" x="22980" y="0"></use><g transform="translate(24258,0)"><g transform="translate(286,0)"><rect stroke="none" width="2438" height="60" x="0" y="220"></rect><g transform="translate(62,676)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-50" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1502" y="0"></use></g></g><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-53" x="0" y="0"></use><g transform="translate(613,-163)"><use transform="scale(0.707)" xlink:href="#MJMATHI-41" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-42" x="750" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMATHI-43" x="1510" y="0"></use></g></g></g></g><use xlink:href="#MJMAIN-3D" x="27382" y="0"></use><g transform="translate(28160,0)"><g transform="translate(397,0)"><rect stroke="none" width="4679" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-78" x="2053" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-7A" x="0" y="0"></use><use xlink:href="#MJMATHI-78" x="468" y="0"></use><use xlink:href="#MJMAIN-2B" x="1263" y="0"></use><use xlink:href="#MJMATHI-78" x="2263" y="0"></use><use xlink:href="#MJMAIN-2B" x="3058" y="0"></use><use xlink:href="#MJMAIN-31" x="4059" y="0"></use></g></g></g></g><g transform="translate(0,-6428)"><use xlink:href="#MJMAIN-3D" x="277" y="0"></use><use xlink:href="#MJMAIN-31" x="1334" y="0"></use><use xlink:href="#MJMAIN-2212" x="2056" y="0"></use><g transform="translate(2835,0)"><g transform="translate(342,0)"><rect stroke="none" width="4679" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-78" x="2053" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-7A" x="0" y="0"></use><use xlink:href="#MJMATHI-78" x="468" y="0"></use><use xlink:href="#MJMAIN-2B" x="1263" y="0"></use><use xlink:href="#MJMATHI-78" x="2263" y="0"></use><use xlink:href="#MJMAIN-2B" x="3058" y="0"></use><use xlink:href="#MJMAIN-31" x="4059" y="0"></use></g></g></g><use xlink:href="#MJMAIN-2212" x="8199" y="0"></use><g transform="translate(8978,0)"><g transform="translate(342,0)"><rect stroke="none" width="4633" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-79" x="2068" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-78" x="0" y="0"></use>
+		<use xlink:href="#MJMATHI-79" x="572" y="0"></use><use xlink:href="#MJMAIN-2B" x="1292" y="0"></use><use xlink:href="#MJMATHI-79" x="2292" y="0"></use><use xlink:href="#MJMAIN-2B" x="3012" y="0"></use><use xlink:href="#MJMAIN-31" x="4013" y="0"></use></g></g></g><use xlink:href="#MJMAIN-2212" x="14296" y="0"></use><g transform="translate(15074,0)"><g transform="translate(342,0)"><rect stroke="none" width="4500" height="60" x="0" y="220"></rect><use xlink:href="#MJMATHI-7A" x="2016" y="676"></use><g transform="translate(60,-686)"><use xlink:href="#MJMATHI-79" x="0" y="0"></use><use xlink:href="#MJMATHI-7A" x="497" y="0"></use><use xlink:href="#MJMAIN-2B" x="1188" y="0"></use><use xlink:href="#MJMATHI-7A" x="2188" y="0"></use><use xlink:href="#MJMAIN-2B" x="2879" y="0"></use><use xlink:href="#MJMAIN-31" x="3880" y="0"></use></g></g></g><use xlink:href="#MJMAIN-3D" x="20315" y="0"></use><g transform="translate(21094,0)"><g transform="translate(397,0)"><rect stroke="none" width="15911" height="60" x="0" y="220"></rect><g transform="translate(5708,710)"><use xlink:href="#MJMAIN-28" x="0" y="0"></use><use xlink:href="#MJMATHI-78" x="389" y="0"></use><use xlink:href="#MJMATHI-79" x="962" y="0"></use><use xlink:href="#MJMATHI-7A" x="1459" y="0"></use><use xlink:href="#MJMAIN-2212" x="2150" y="0"></use><use xlink:href="#MJMAIN-31" x="3150" y="0"></use><g transform="translate(3651,0)"><use xlink:href="#MJMAIN-29" x="0" y="0"></use><use transform="scale(0.707)" xlink:href="#MJMAIN-32" x="550" y="513"></use></g></g><g transform="translate(60,-711)"><use xlink:href="#MJMAIN-28" x="0" y="0"></use><use xlink:href="#MJMATHI-7A" x="389" y="0"></use><use xlink:href="#MJMATHI-78" x="858" y="0"></use><use xlink:href="#MJMAIN-2B" x="1652" y="0"></use><use xlink:href="#MJMATHI-78" x="2653" y="0"></use><use xlink:href="#MJMAIN-2B" x="3448" y="0"></use><use xlink:href="#MJMAIN-31" x="4448" y="0"></use><use xlink:href="#MJMAIN-29" x="4949" y="0"></use><use xlink:href="#MJMAIN-28" x="5338" y="0"></use><use xlink:href="#MJMATHI-78" x="5728" y="0"></use><use xlink:href="#MJMATHI-79" x="6300" y="0"></use><use xlink:href="#MJMAIN-2B" x="7020" y="0"></use><use xlink:href="#MJMATHI-79" x="8021" y="0"></use><use xlink:href="#MJMAIN-2B" x="8741" y="0"></use><use xlink:href="#MJMAIN-31" x="9741" y="0"></use><use xlink:href="#MJMAIN-29" x="10242" y="0"></use><use xlink:href="#MJMAIN-28" x="10631" y="0"></use><use xlink:href="#MJMATHI-79" x="11021" y="0"></use><use xlink:href="#MJMATHI-7A" x="11518" y="0"></use><use xlink:href="#MJMAIN-2B" x="12209" y="0"></use><use xlink:href="#MJMATHI-7A" x="13210" y="0"></use><use xlink:href="#MJMAIN-2B" x="13900" y="0"></use><use xlink:href="#MJMAIN-31" x="14901" y="0"></use><use xlink:href="#MJMAIN-29" x="15402" y="0"></use></g></g></g></g></g></g></g>
+	      </svg>
+	    </macro:stet>
+
+	    <!--
+
+\begin{align*}
+x &= \frac{b(1+y)}{UB},\quad\quad
+\frac{QB}{QB'} = \frac{UB}{yb} = \frac{1+y}{xy} \N
+\frac{QB}{BB'} &= \frac{QB}{QB+QB'}
+= \frac{1}{1 + \frac{QB'}{QB}}
+= \frac{1}{1 + \frac{xy}{1+y}}
+= \frac{y+1}{xy + y + 1} \N
+S_{ABQ} &= S_{ABB'} \frac{QB}{BB'}
+= S_{ABC} \frac{y}{y+1} \frac{y+1}{xy+y+1} \N
+\frac{S_{ABQ}}{S_{ABC}} &= \frac{y}{xy+y+1} \quad
+\text{ and likewise, }\quad
+\frac{S_{BRC}}{S_{ABC}} = \frac{z}{yz+z+1}, \quad
+\frac{S_{APC}}{S_{ABC}} = \frac{x}{zx+x+1} \N
+\frac{S_{PQR}}{S_{ABC}} &= 1 - \frac{x}{zx+x+1} - \frac{y}{xy+y+1} - \frac{z}{yz+z+1}
+= \frac{(xyz - 1)^2}{(zx+x+1)(xy+y+1)(yz+z+1)}
+\end{align*}
+
+	    -->
+	  </g>
 	</g>
-
-	<g id="frame5" display="none">
-	  <macro:set macro:frame="5" attributeName="display" to="block" />
-	  <use xlink:href="#longbase" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#blueline-xright" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#orgtri" />
-	</g>
-
-	<g id="frame6" display="none">
-	  <macro:set macro:frame="6" attributeName="display" to="block" />
-	  <use xlink:href="#large1-green" />
-	  <use xlink:href="#longbase" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label--2A" />
-	</g>
-
-	<g id="frame7" display="none">
-	  <macro:set macro:frame="7" attributeName="display" to="block" />
-	  <use xlink:href="#large1-blue" />
-	  <use xlink:href="#longbase" />
-	  <use xlink:href="#blueline-xright" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label-12A" />
-	  <use xlink:href="#label-32A" />
-	</g>
-
-	<g id="frame8" display="none">
-	  <macro:set macro:frame="8" attributeName="display" to="block" />
-	  <use xlink:href="#large2-green" />
-	  <use xlink:href="#longbase" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#greenline-xupper" />
-	  <use xlink:href="#greenline-lower" />
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label--2A" />
-	  <use xlink:href="#label-13A" />
-	</g>
-
-	<g id="frame9" display="none">
-	  <macro:set macro:frame="9" attributeName="display" to="block" />
-	  <use xlink:href="#large2-blue" />
-	  <use xlink:href="#longbase" />
-	  <use xlink:href="#redline-left" />
-	  <use xlink:href="#blueline-xright" />
-	  <use xlink:href="#blueline-left" />
-	  <use xlink:href="#orgtri" />
-	  <use xlink:href="#label-13A" />
-	  <use xlink:href="#label-12A" />
-	  <use xlink:href="#label-32A" />
-	</g>
-      </g>
-
-      <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
-	<set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent" />
-	<macro:set macro:frame="1" attributeName="display" to="block" />
-	<use xlink:href="#text0">
-	  <macro:iter>
-	    <macro:set attributeName="xlink:href" to="#ctxt[I]" />
-	  </macro:iter>
-	</use>
-      </g>
-      <g transform="translate(50,400) scale(20,20) translate(0,1)" font-size="0.8px">
-	<use xlink:href="#text0">
-	  <macro:iter>
-	    <macro:set attributeName="xlink:href" to="#stxt[I]" />
-	  </macro:iter>
-	</use>
-      </g>
-
-      <g transform="translate(50,250) translate(0,16)" font-size="16px">
-	<set attributeName="display" to="none" begin="0s" />
-	<text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
       </g>
 
     </g>
 
+    <g transform="translate(50,20) scale(20,20) translate(0,1)" font-size="0.8px" display="none">
+      <set attributeName="display" to="block" begin="showtext.begin" end="showtext.endEvent" />
+      <macro:set macro:frame="1" attributeName="display" to="block" />
+      <macro:set macro:frame="10" attributeName="display" to="block" />
+      <macro:set macro:frame="11" attributeName="display" to="block" />
+      <macro:set macro:frame="12" attributeName="display" to="block" />
+      <use xlink:href="#text0">
+	<macro:iter>
+	  <macro:set attributeName="xlink:href" to="#ctxt[I]" />
+	</macro:iter>
+      </use>
+    </g>
+    <g transform="translate(50,380) scale(20,20) translate(0,1)" font-size="0.8px">
+      <use xlink:href="#text0">
+	<macro:iter>
+	  <macro:set attributeName="xlink:href" to="#stxt[I]" />
+	</macro:iter>
+      </use>
+    </g>
+
+    <g display="none">
+      <macro:set macro:frame="12" attributeName="display" to="block" />
+      <g transform="translate(50,150)" font-size="16px">
+      </g>
+    </g>
+
   </macro:subst>
+
+  <g transform="translate(50,250) translate(0,16)" font-size="16px">
+    <set attributeName="display" to="none" begin="0s" />
+    <text>If you're seeing an otherwise blank page here, your browser doesn't support SVG animations.</text>
+  </g>
+
 </svg>

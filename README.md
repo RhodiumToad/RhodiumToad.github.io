@@ -2,8 +2,6 @@
 
 Not much to see here.
 
-[Home page](https://www.rhodiumtoad.org.uk/)
-
 For no very good reason, here is an animated SVG of a geometric proof
 of the one-seventh area triangle:
 

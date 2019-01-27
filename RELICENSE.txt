@@ -1,8 +1,15 @@
 RELICENSING
 ===========
 
-This file is not itself part of the license under which the associated
-code is distributed; it grants additional permissions directly from
+The terms set forth in this file apply only to works (the "covered
+work") where a copy of this file, or a link to it, has been included
+in the original distribution by the author, either in a way that
+applies to the work as a whole (such as a file in the work's top level
+directory) or in the headers of individual files (in which case only
+those files constitute the covered work).
+
+This file is not itself part of the license under which the covered
+work is distributed; it grants additional permissions directly from
 the author. The file or links to it may be removed or omitted from
 redistributions of the covered work(s) whether or not the option of
 using an alternative license is exercised.

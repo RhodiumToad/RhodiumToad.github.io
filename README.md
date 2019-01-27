@@ -12,3 +12,5 @@ of the one-seventh area triangle:
 (the former of those is just the result of processing the XSLT, which
 is used to generate repeated elements for things like navigation
 controls)
+
+[Feedback](https://github.com/RhodiumToad/RhodiumToad.github.io/issues)

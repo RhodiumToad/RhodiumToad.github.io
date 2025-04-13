@@ -25,6 +25,11 @@ input, textarea {
 .ui-tab input[type='number'] {
   width: 6em;
 }
+.svgContainer, .pngContainer, .errContainer {
+  margin-top: 5px;
+  max-width: 95vw;
+  overflow: scroll;
+}
 input.mathSvgUpdate {
   margin-right: 2em;
   margin-bottom: 8ex;
@@ -61,7 +66,8 @@ details > summary {
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-MathJax = {
+"use strict";
+window.MathJax = {
   loader: {load: ['ui/safe']},
   tex: {
     processEnvironments: false,
@@ -86,7 +92,7 @@ MathJax = {
   },
 };
 
-MyMath = {
+window.MyMath = {
   prefs: {
     theme: "device",
     colors: {
@@ -122,6 +128,7 @@ MyMath = {
     device: ()=>{ return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; },
   },
   cur_theme: null,
+  ticker: null,
   prefs_init: {
     types: {
       checkbox: (o,n)=>{ return MyMath.prefs.canvas[n] ? ["on"] : []; },
@@ -147,17 +154,18 @@ MyMath = {
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js">
 </script>
 <script>
-toB64 = (function(){
+"use strict";
+window.toB64 = (function(){
   let e = new TextEncoder();
   return function(s){
     const b = e.encode(s);
-    return btoa(Array.from(b, (x)=>(String.fromCodePoint(x))).join(""));
+    return window.btoa(Array.from(b, (x)=>(String.fromCodePoint(x))).join(""));
   };
 })();
 (function($){
   const svg_ns = "http://www.w3.org/2000/svg";
 
-  DoStatus = (function(){
+  window.DoStatus = (function(){
     let t = "";
     return function(m){
       if (m==="") {
@@ -165,7 +173,7 @@ toB64 = (function(){
       } else {
         t += m;
         t += "\n";
-        $("#MathSvgImgErr1").text(t);
+        $("#MathStatus").text(t);
       }
     };
   })();
@@ -192,7 +200,7 @@ toB64 = (function(){
       svg.setAttribute("width", `${tgtw / metrics.ex}ex`);
     }
     let s = svg.outerHTML;
-    if (diags) { diags(s,styles.outerHTML); }
+    if (diags) { diags(svg,styles); }
     return "data:image/svg+xml;base64," + toB64(s);
   };
 
@@ -234,6 +242,101 @@ toB64 = (function(){
     return c.toDataURL();
   };
 
+  let find_error = function(svg){
+    let c = svg.getElementsByTagNameNS(svg_ns, "g");
+    let c2 = svg.querySelector("g[data-mml-node='merror']");
+    let errs = Array.from(c).filter((e)=>{
+      return e.getAttribute("data-mml-node")=="merror";
+    });
+    if (errs.length > 0) {
+      let msg = errs[0].getAttribute("data-mjx-error");
+      return msg || "unspecified error";
+    }
+    return false;
+  };
+
+  let render = function(showErr){
+    DoStatus("");
+    DoStatus(`render start, showErr=${showErr}`);
+    let theme = MyMath.themes[MyMath.prefs.theme]();
+    MyMath.cur_theme = MyMath.prefs.colors[theme];
+    let tgtw = false;
+    let m = $("#MathInput1").val();
+    MathJax.texReset();
+    let tgt = $("#MathSvgImg1");
+    let pngtgt = $("#MathImg1");
+    pngtgt.toggleClass("imgBorder",
+                       !(MyMath.prefs.canvas.border > 0));
+    let metrics = MathJax.getMetricsFor(tgt.get(0),true);
+    MathJax.tex2svgPromise(m, metrics)
+      .then((mjx)=>{
+        let img = new Image();
+        let errm = false;
+        let s = mjx2str(mjx,metrics,
+                        ()=>{ tgtw = MyMath.prefs.canvas.target;
+                              img.width = tgtw;
+                              return tgtw; },
+                        (svg,css)=>{ $("#MathSvg1").val(svg.outerHTML);
+                                     $("#MathCss1").val(css.outerHTML);
+                                     let m = find_error(svg);
+                                     if (m) { errm = m; }
+                                   });
+        if (errm) {
+          DoStatus(errm);
+          $("#MathSvgImgErr1").text(errm);
+        } else {
+          $("#MathSvgImgErr1").text("");
+        }
+        return new Promise((resolve,reject)=>{
+          img.addEventListener("error",
+            function(e){ reject(e.message); },
+            { once: true });
+          img.addEventListener("load",
+            function(e){ resolve(img); },
+            { once: true });
+          if (!errm || showErr) {
+            tgt.empty().prepend(img);
+          }
+          img.src = s;
+        });
+      })
+      .then((img)=>{
+        let u2 = img2png(img,tgtw,
+                         (w,h,sc)=>{
+                           pngtgt.css("width",w).css("height",h);
+                         });
+        pngtgt.attr("src", u2);
+        DoStatus(`${JSON.stringify(metrics)}`);
+      })
+      .catch((e)=>{ DoStatus(e.message); });
+    return true;
+  };
+
+  let tick_count = -1;
+  let do_tick = function(){
+    if (tick_count < 0) {
+      if (tick_count < -3) {
+        let t = MyMath.ticker;
+        MyMath.ticker = null;
+        window.clearInterval(t);
+      } else {
+        tick_count -= 1;
+      }
+      return;
+    }
+    tick_count += 1;
+    if (tick_count > 4) {
+      tick_count = -1;
+      render(false);
+    }
+  };
+  let set_tick = function(){
+    tick_count = 0;
+    if (MyMath.ticker===null) {
+      MyMath.ticker = window.setInterval(do_tick, 1000);
+    }
+  }
+
   $(function($){
     $(".mathCfg").each((i,e)=>{
       let f = MyMath.prefs_init.names[e.name] ||
@@ -246,64 +349,25 @@ toB64 = (function(){
               MyMath.prefs_update.types[this.type];
       f(this,this.name,this.value);
     });
-  });
-
-  $(function($){
     $("input.mathSvgUpdate").click(function(e){
       e.stopPropagation();
-      DoStatus("");
-      let theme = MyMath.themes[MyMath.prefs.theme]();
-      MyMath.cur_theme = MyMath.prefs.colors[theme];
-      let tgtw = false;
-      let m = $("#MathInput1").val();
-      MathJax.texReset();
-      let tgt = $("#MathSvgImg1");
-      let pngtgt = $("#MathImg1");
-      pngtgt.toggleClass("imgBorder",
-                         !(MyMath.prefs.canvas.border > 0));
-      let metrics = MathJax.getMetricsFor(tgt.get(0),true);
-      MathJax.tex2svgPromise(m, metrics)
-        .then((mjx)=>{
-          let img = new Image();
-          let s = mjx2str(mjx,metrics,
-                          ()=>{ tgtw = MyMath.prefs.canvas.target;
-                                img.width = tgtw;
-                                return tgtw; },
-                          (svg,css)=>{ $("#MathSvg1").val(svg);
-                                       $("#MathCss1").val(css); });
-          return new Promise((resolve,reject)=>{
-            img.addEventListener("error",
-              function(e){ reject(e.message); },
-              { once: true });
-            img.addEventListener("load",
-              function(e){ resolve(img); },
-              { once: true });
-            tgt.empty().prepend(img);
-            img.src = s;
-          });
-        })
-        .then((img)=>{
-          let u2 = img2png(img,tgtw,
-                           (w,h,sc)=>{
-                             pngtgt.css("width",w).css("height",h);
-                           });
-          pngtgt.attr("src", u2);
-          DoStatus(`${JSON.stringify(metrics)}`);
-        })
-        .catch((e)=>{ DoStatus(e.message); });
-      return true;
+      tick_count = -1;
+      render(true);
     });
+    $("#MathInput1").on("input", function(e){ set_tick(); });
   });
 })(jQuery.noConflict());
 </script>
 </head>
 <body>
-<div id="MathSvgImg1"></div>
+<div class="svgContainer" id="MathSvgImg1"></div>
+<div class="errContainer"><span>&nbsp;</span><span id="MathSvgImgErr1"></span></div>
 <div><textarea cols=60 rows=20 class="mathInput" id="MathInput1"></textarea></div>
-<div style="display: flex">
 <div><input type="button" class="mathSvgUpdate" value="Update" /></div>
-<div><img id="MathImg1" class="imgBorder" /></div>
-</div>
+<details open>
+<summary>PNG Render</summary>
+<div class="pngContainer"><img id="MathImg1" class="imgBorder" /></div>
+</details>
 <details open>
 <summary>Configuration</summary>
 <div>
@@ -354,15 +418,15 @@ toB64 = (function(){
 </details>
 <details>
 <summary>Status</summary>
- <pre style="font-size: 120%; max-width: 30em; overflow: scroll; white-space: pre-wrap" id="MathSvgImgErr1">(no error 1)</pre>
+ <pre style="font-size: 120%; max-width: 30em; overflow: scroll; white-space: pre-wrap" id="MathStatus">(no error 1)</pre>
 </details>
 <details>
 <summary>SVG content</summary>
-<textarea cols=60 rows=15 id="MathSvg1"></textarea>
+<textarea cols=60 rows=15 id="MathSvg1" readonly></textarea>
 </details>
 <details>
 <summary>CSS content</summary>
-<textarea cols=60 rows=15 id="MathCss1"></textarea>
+<textarea cols=60 rows=15 id="MathCss1" readonly></textarea>
 </details>
 </body>
 </html>

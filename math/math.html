@@ -3,6 +3,36 @@
 <head>
 <meta name="viewport" content="width=device-width" />
 <title>MathJax scratchpad</title>
+<!--
+MIT License
+
+Copyright (c) 2025 Andrew "RhodiumToad" Gierth
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+====
+RELICENSING: This file may be redistributed under alternative licenses as set
+forth in https://rhodiumtoad.github.io/RELICENSE.txt
+
+If you distribute a modified copy, check that document for details on whether
+you will need to remove this clause.
+-->
 <style>
 body {
   padding: 5px;
@@ -32,7 +62,11 @@ input, textarea {
 }
 input.mathSvgUpdate {
   margin-right: 2em;
-  margin-bottom: 8ex;
+  margin-bottom: 4ex;
+}
+.mathLink {
+  margin-top: 2ex;
+  margin-bottom: 2ex;
 }
 #MathSvgImg1, .imgBorder {
   border: 2px solid;
@@ -90,6 +124,13 @@ window.MathJax = {
       },
     },
   },
+  startup: {
+    pageReady: () => {
+      return MathJax.startup.defaultPageReady().then(() => {
+        if (window.MyMath && window.MyMath.ready) { window.MyMath.ready(true); }
+      });
+    },
+  },
 };
 
 window.MyMath = {
@@ -129,6 +170,8 @@ window.MyMath = {
   },
   cur_theme: null,
   ticker: null,
+  ready: null,
+  whenready: null,
   prefs_init: {
     types: {
       checkbox: (o,n)=>{ return MyMath.prefs.canvas[n] ? ["on"] : []; },
@@ -149,19 +192,99 @@ window.MyMath = {
     },
   },
 };
+window.MyMath.whenready = new Promise((resolve,reject)=>{ window.MyMath.ready = resolve; });
 </script>
 <script id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js">
 </script>
 <script>
 "use strict";
-window.toB64 = (function(){
-  let e = new TextEncoder();
-  return function(s){
-    const b = e.encode(s);
-    return window.btoa(Array.from(b, (x)=>(String.fromCodePoint(x))).join(""));
+try {
+(function(){
+  const CHUNKBITS = 7;
+  const CHUNKSZ = 1<<CHUNKBITS;
+  function newbuf() {
+    return new Uint8Array(new ArrayBuffer(0, { maxByteLength: 16777215 }));
+  }
+  function appendbuf(buf, a) {
+    let olen = buf.length;
+    buf.buffer.resize(olen + a.length);
+    buf.set(a, olen);
+    return buf;
+  }
+  function to_byteschunk(buf) {
+    return String.fromCodePoint.apply(null,buf);
+  }
+  function to_bytestring(buf) {
+    let len = buf.length;
+    if (len <= CHUNKSZ) {
+      return to_byteschunk(buf);
+    } else {
+      let a = new Array();
+      for (let o = 0; o < len; o += CHUNKSZ) {
+        a.push(to_byteschunk(buf.subarray(o, o+CHUNKSZ)));
+      }
+      return a.join("");
+    }
+  }
+  function from_bytestring(s) {
+    return Uint8Array.from(s, (x)=>(x.codePointAt(0)));
+  }
+  window.toB64 = function(s) {
+    let enc = new TextEncoder();
+    return window.btoa(to_bytestring(enc.encode(s)));
+  };
+  window.fromB64 = function(b) {
+    let dec = new TextDecoder();
+    return dec.decode(from_bytestring(window.atob(b)));
+  };
+  function to_stream(b) {
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(b);
+        controller.close();
+      }
+    });
+  };
+  window.compress = function(str) {
+    const comp = new CompressionStream("deflate-raw");
+    let enc = new TextEncoderStream();
+    const s = to_stream(str);
+    return from_stream(s.pipeThrough(enc).pipeThrough(comp),
+                       newbuf(),
+                       (acc,chunk)=>(appendbuf(acc,chunk)),
+                       (acc)=>(window.btoa(to_bytestring(acc))));
+  };
+  window.decompress = function(str) {
+    const comp = new DecompressionStream("deflate-raw");
+    let dec = new TextDecoderStream();
+    const s = to_stream(from_bytestring(window.atob(str)));
+    return from_stream(s.pipeThrough(comp).pipeThrough(dec),
+                       "",
+                       (acc,chunk)=>(acc.concat(chunk)),
+                       (acc)=>(acc));
+  };
+  function from_stream(strm,ival,transfn,finalfn) {
+    return new Promise((resolve,reject)=>{
+      let acc = ival;
+      let rdr = strm.getReader();
+      function rdfn() {
+        return rdr.read().then(({ done, value })=>{
+          if (done) {
+            resolve(finalfn(acc));
+            return;
+          }
+          acc = transfn(acc,value);
+          rdfn();
+        }).catch((e)=>DoStatus(e));
+      };
+      rdfn();
+    });
   };
 })();
+} catch(e) {
+  MyMath.err = e;
+}
 (function($){
   const svg_ns = "http://www.w3.org/2000/svg";
 
@@ -190,7 +313,7 @@ window.toB64 = (function(){
       svg.prepend(defs);
     }
     let css = document.createElementNS(svg_ns, "style");
-    let txt = `:root { color: ${MyMath.cur_theme.fg}; }\n`;
+    let txt = `\n:root { color: ${MyMath.cur_theme.fg}; }\n`;
     css.appendChild(document.createTextNode(txt));
     defs.prepend(css);
     let styles = MathJax.svgStylesheet();
@@ -262,6 +385,13 @@ window.toB64 = (function(){
     MyMath.cur_theme = MyMath.prefs.colors[theme];
     let tgtw = false;
     let m = $("#MathInput1").val();
+    let hs = toB64(m);
+    let url = new URL("#?d="+hs, document.location.href);
+    $("#MathLink").attr("href", url.href);
+    compress(m).then((s)=>{
+      let url2 = new URL("#?c="+s, document.location.href);
+      $("#MathLinkC").attr("href", url2.href);
+    }).catch((e)=>DoStatus(e));
     MathJax.texReset();
     let tgt = $("#MathSvgImg1");
     let pngtgt = $("#MathImg1");
@@ -325,25 +455,37 @@ window.toB64 = (function(){
       return;
     }
     tick_count += 1;
-    if (tick_count > 4) {
+    if (tick_count > 6) {
       tick_count = -1;
       render(false);
     }
   };
-  let set_tick = function(){
-    tick_count = 0;
+  let set_tick = function(o){
+    tick_count = o ? 4 : 0;
     if (MyMath.ticker===null) {
       MyMath.ticker = window.setInterval(do_tick, 1000);
     }
   }
 
   $(function($){
+    let doclick = [];
+    DoStatus(`point 1 ${MyMath.err}`);
     $(".mathCfg").each((i,e)=>{
       let f = MyMath.prefs_init.names[e.name] ||
               MyMath.prefs_init.types[e.type] ||
               MyMath.prefs_init.default;
       $(e).val(f(e,e.name));
     });
+    if ($("#MathInput1").val()=="") {
+      DoStatus(`hash=${location.hash}`);
+      if (location.hash.startsWith("#?d=")) {
+        let d = fromB64(location.hash.substring(4));
+        doclick.push(Promise.resolve(d));
+      } else if (location.hash.startsWith("#?c=")) {
+        let cd = location.hash.substring(4);
+        doclick.push(decompress(cd));
+      }
+    }
     $("html").on("change", ".mathCfg", function(e){
       let f = MyMath.prefs_update.names[this.name] ||
               MyMath.prefs_update.types[this.type];
@@ -355,6 +497,13 @@ window.toB64 = (function(){
       render(true);
     });
     $("#MathInput1").on("input", function(e){ set_tick(); });
+    if (doclick.length) {
+      doclick.push(window.MyMath.whenready);
+      Promise.all(doclick).then((a)=>{
+        $("#MathInput1").val(a[0]);
+        render(true);
+      });
+    }
   });
 })(jQuery.noConflict());
 </script>
@@ -364,6 +513,8 @@ window.toB64 = (function(){
 <div class="errContainer"><span>&nbsp;</span><span id="MathSvgImgErr1"></span></div>
 <div><textarea cols=60 rows=20 class="mathInput" id="MathInput1"></textarea></div>
 <div><input type="button" class="mathSvgUpdate" value="Update" /></div>
+<div class="mathLink"><a id="MathLink" href="#">Link</a></div>
+<div class="mathLink"><a id="MathLinkC" href="#">Link (compressed)</a></div>
 <details open>
 <summary>PNG Render</summary>
 <div class="pngContainer"><img id="MathImg1" class="imgBorder" /></div>

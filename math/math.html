@@ -59,6 +59,31 @@ input, textarea {
   margin-right: 2ex;
   max-width: 100%;
 }
+.macro-tab {
+  margin: 2ex 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 3px solid #999;
+}
+.macro-tab > caption {
+  font-weight: bold;
+}
+.macro-tab th {
+  border: 1px solid #999;
+  padding: 4px 1em;
+}
+.macro-tab td {
+  border: 1px solid #999;
+  padding: 4px 6px;
+}
+.macro-tab > thead > tr {
+  background-color: #ccc;
+  border-bottom: 2px solid #999;
+}
+.macro-tab > tbody > tr > td:first-of-type {
+  font-family: monospace;
+  white-space: pre;
+}
 .ui-tab tbody tr > td:nth-of-type(odd) {
   text-align: right;
 }
@@ -140,11 +165,14 @@ details > summary {
     background-color: black;
     color: white;
   }
-  .mathSvgImg, .imgBorder {
+  #MathSvgImg, .imgBorder {
     border-color: white;
   }
   .mathSvgImgErr {
     color: #f68;
+  }
+  .macro-tab > thead > tr {
+    background-color: #444;
   }
 }
 </style>
@@ -155,13 +183,10 @@ window.MathJax = {
   loader: {load: ['ui/safe']},
   tex: {
     processEnvironments: false,
+    processRefs: false,
+    processEscapes: false,
     tags: 'ams',
     macros: {
-      N: "\\\\[5pt]",
-      NN: "\\\\[8pt]",
-      NNN: "\\\\[12pt]",
-      d: ["\\mathrm{d}{#1}", 1],
-      hq: "\\Space{0.5em}{1ex}{0ex}",
     },
   },
   options: {
@@ -176,11 +201,7 @@ window.MathJax = {
   },
   startup: {
     pageReady: () => {
-      return MathJax.startup.defaultPageReady().then(() => {
-        if (window.MyMath && window.MyMath.ready) {
-          window.MyMath.ready(true);
-        }
-      });
+      return MathJax.startup.defaultPageReady().then(() => (window?.MyMath?.ready?.(true)));
     },
   },
 };
@@ -215,6 +236,13 @@ window.MyMath = {
       scale: 1,
       containerWidth: 800,
     },
+    macros: [
+      { name: "N",   def: "\\\\[5pt]",  desc: "Like \\\\ but with more vertical space", },
+      { name: "NN",  def: "\\\\[8pt]",  desc: "Like \\\\ but with even more vertical space", },
+      { name: "NNN", def: "\\\\[12pt]", desc: "Like \\\\ but with still more vertical space", },
+      { name: "d",   nargs: 1, def: "\\mathrm{d}{#1}", desc: "Differential", },
+      { name: "hq",  def: "\\Space{0.5em}{1ex}{0ex}", desc: "Half-quad horizontal space", },
+    ],
   },
   themes: {
     dark: ()=>{ return "dark"; },
@@ -236,9 +264,9 @@ window.MyMath = {
   },
   prefs_update: {
     types: {
-      number: (o,n,v)=>{ MyMath.prefs.canvas[n] = 1*v; },
+      number: (o,n,v)=>{ MyMath.prefs.canvas[n] = +v; },
       checkbox: (o,n,v)=>{ MyMath.prefs.canvas[n] = o.checked; },
-      "select-one": (o,n,v)=>{ MyMath.prefs.canvas[n] = 1*v; },
+      "select-one": (o,n,v)=>{ MyMath.prefs.canvas[n] = +v; },
     },
     names: {
       theme: (o,n,v)=>{ MyMath.prefs.theme = v; },
@@ -246,6 +274,9 @@ window.MyMath = {
   },
 };
 window.MyMath.whenready = new Promise((resolve,reject)=>{ window.MyMath.ready = resolve; });
+window.MyMath.prefs?.macros?.forEach((e)=>{
+  window.MathJax.tex.macros[e.name] = e.nargs ? [ e.def, e.nargs ] : e.def;
+});
 </script>
 <script id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js">
@@ -256,6 +287,8 @@ try {
 (function(){
   const CHUNKBITS = 7;
   const CHUNKSZ = 1<<CHUNKBITS;
+  const btoa = window.btoa;
+  const atob = window.atob;
   function newbuf() {
     return new Uint8Array(new ArrayBuffer(0, { maxByteLength: 16777215 }));
   }
@@ -285,11 +318,11 @@ try {
   }
   this.toB64 = function(s) {
     let enc = new TextEncoder();
-    return window.btoa(to_bytestring(enc.encode(s)));
+    return btoa(to_bytestring(enc.encode(s)));
   };
   this.fromB64 = function(b) {
     let dec = new TextDecoder();
-    return dec.decode(from_bytestring(window.atob(b)));
+    return dec.decode(from_bytestring(atob(b)));
   };
   function to_stream(b) {
     return new ReadableStream({
@@ -306,12 +339,12 @@ try {
     return from_stream(s.pipeThrough(enc).pipeThrough(comp),
                        newbuf(),
                        (acc,chunk)=>(appendbuf(acc,chunk)),
-                       (acc)=>(window.btoa(to_bytestring(acc))));
+                       (acc)=>(btoa(to_bytestring(acc))));
   };
   this.decompress = function(str) {
     const comp = new DecompressionStream("deflate-raw");
     let dec = new TextDecoderStream();
-    const s = to_stream(from_bytestring(window.atob(str)));
+    const s = to_stream(from_bytestring(atob(str)));
     return from_stream(s.pipeThrough(comp).pipeThrough(dec),
                        "",
                        (acc,chunk)=>(acc.concat(chunk)),
@@ -329,7 +362,7 @@ try {
           }
           acc = transfn(acc,value);
           rdfn();
-        }).catch((e)=>DoStatus(e));
+        }).catch((e)=>MyMath.DoStatus(e));
       };
       rdfn();
     });
@@ -337,32 +370,20 @@ try {
   this.promise_map = function(a, fn) {
     return new Promise((resolve,reject)=>{
       let ra = [];
-      let i = 0;
-      function nxt() {
-        if (i >= a.length) {
-          resolve(ra);
-        } else {
-          fn(a[i++]).then((v)=>{
-            ra.push(v);
-            nxt();
-          });
-        }
-      };
-      nxt();
+      let i = a[Symbol.iterator]();
+      let startfn = (f,n)=>(n.done ? resolve(ra) : fn(n.value).then(f));
+      let nxtfn = (v)=>{ ra.push(v); return startfn(nxtfn,i.next()); };
+      startfn(nxtfn,i.next());
     });
   };
   this.load_image = function(img, src) {
     return new Promise((resolve,reject)=>{
-      img.addEventListener("error",
-        function(e){ reject(e.message); },
-        { once: true });
-      img.addEventListener("load",
-        function(e){ resolve(img); },
-        { once: true });
+      img.addEventListener("error", (e)=>(reject(e.message)), {once:true});
+      img.addEventListener("load", (e)=>(resolve(img)), {once:true});
       img.src = src;
     });
   };
-}).call(window);
+}).call(MyMath);
 } catch(e) {
   MyMath.err = e;
 }
@@ -370,7 +391,7 @@ try {
   const svg_ns = "http://www.w3.org/2000/svg";
   const SEP = "\0";
 
-  window.DoStatus = (function(){
+  let DoStatus = (function(){
     let t = "";
     return function(m){
       if (m==="") {
@@ -382,6 +403,7 @@ try {
       }
     };
   })();
+  this.DoStatus = DoStatus;
 
   // conversion takes two steps because the svg image render may be async,
   // and we can't render the canvas until the image is ready.
@@ -402,17 +424,15 @@ try {
     defs.prepend(styles);
     if (svg.getAttribute("width")=="100%") {
       let tgtw = tgtwf();
-      svg.setAttribute("width", `${tgtw / metrics.ex}ex`);
+      svg.setAttribute("width", `${tgtw / metrics.ex}`);
     }
-    let s = svg.outerHTML;
-    if (diags) { diags(svg,styles); }
-    return "data:image/svg+xml;base64," + toB64(s);
+    diags?.(svg,styles);
+    return "data:image/svg+xml;base64," + MyMath.toB64(svg.outerHTML);
   };
 
   // convert images to a PNG data url
   let img2png = function(imgs,tgtw,sizef) {
-    let w = tgtw ? tgtw
-                 : imgs.reduce((a,v)=>(Math.max(a,v.naturalWidth)),0);
+    let w = tgtw ?? imgs.reduce((a,v)=>(Math.max(a,v.naturalWidth)),0);
     let h = imgs.reduce((a,v)=>(a+v.naturalHeight),0);
     let cl = MyMath.prefs.canvas.cropleft;
     let c = document.createElement("canvas");
@@ -446,7 +466,7 @@ try {
     let vp = b*sc;
     for (const img of imgs) {
       let lh = img.naturalHeight;
-      let lw = tgtw ? tgtw : img.naturalWidth;
+      let lw = tgtw ?? img.naturalWidth;
       ctx.drawImage(img,cl,0,lw-cl,lh,
                         b*sc,vp,(lw-cl)*sc,lh*sc);
       vp += (lh+sp)*sc;
@@ -465,7 +485,7 @@ try {
       let msg = errs[0].getAttribute("data-mjx-error");
       return msg || "unspecified error";
     }
-    return false;
+    return null;
   };
 
   let render = function(showErr){
@@ -473,12 +493,12 @@ try {
     DoStatus(`render start, showErr=${showErr}`);
     let theme = MyMath.themes[MyMath.prefs.theme]();
     MyMath.cur_theme = MyMath.prefs.colors[theme];
-    let tgtw = false;
+    let tgtw = null;
     let m = $("textarea.mathInput").get().map((e)=>($(e).val()));
-    let hs = m.map((e)=>(toB64(e))).join(";d=");
+    let hs = m.map((e)=>(MyMath.toB64(e))).join(";d=");
     let url = new URL("#?d="+hs, document.location.href);
     $("#MathLink").attr("href", url.href);
-    compress(m.join(SEP)).then((s)=>{
+    MyMath.compress(m.join(SEP)).then((s)=>{
       let url2 = new URL("#?c="+s, document.location.href);
       $("#MathLinkC").attr("href", url2.href);
     }).catch((e)=>DoStatus(e));
@@ -488,12 +508,12 @@ try {
     pngtgt.toggleClass("imgBorder",
                        !(MyMath.prefs.canvas.border > 0));
     let metrics = MathJax.getMetricsFor(tgt.get(0),true);
-    promise_map(m, (em)=>(MathJax.tex2svgPromise(em, metrics)))
+    MyMath.promise_map(m, (em)=>(MathJax.tex2svgPromise(em, metrics)))
       .then((mjxs)=>{
         let res = mjxs.map((mjx,i)=>{
           let img = new Image();
           let n = i+1;
-          let errm = false;
+          let errm = null;
           let s = mjx2str(mjx,metrics,
                           ()=>{ tgtw = MyMath.prefs.canvas.target;
                                 img.width = tgtw;
@@ -501,7 +521,7 @@ try {
                           (svg,css)=>{ $(`#MathSvg-${n}`).val(svg.outerHTML);
                                        if (n==1) { $("#MathCss1").val(css.outerHTML); }
                                        let m = find_error(svg);
-                                       if (m) { errm = m; }
+                                       errm ??= m;
                                      });
           if (errm) {
             DoStatus(errm);
@@ -509,7 +529,7 @@ try {
           } else {
             $(`#MathSvgImgErr-${n}`).text("");
           }
-          return load_image(img, s).then((v)=>{
+          return MyMath.load_image(img, s).then((v)=>{
             if (!errm || showErr) {
               $(`#MathSvgImg-${n}`).empty().prepend(v);
             }
@@ -520,9 +540,7 @@ try {
       })
       .then((imgs)=>{
         let u2 = img2png(imgs,tgtw,
-                         (w,h,sc)=>{
-                           pngtgt.css("width",w).css("height",h);
-                         });
+                         (w,h,sc)=>(pngtgt.css("width",w).css("height",h)));
         pngtgt.attr("src", u2);
         DoStatus(`${JSON.stringify(metrics)}`);
       })
@@ -550,9 +568,7 @@ try {
   };
   let set_tick = function(o){
     tick_count = o ? 8 : 0;
-    if (MyMath.ticker===null) {
-      MyMath.ticker = window.setInterval(do_tick, 600);
-    }
+    MyMath.ticker ??= window.setInterval(do_tick, 600);
   }
 
   function add_input() {
@@ -589,35 +605,38 @@ try {
 
   $(function($){
     let doclick = [];
-    DoStatus(`point 1 ${MyMath.err}`);
     $(".mathCfg").each((i,e)=>{
-      let f = MyMath.prefs_init.names[e.name] ||
-              MyMath.prefs_init.types[e.type] ||
+      let f = MyMath.prefs_init.names[e.name] ??
+              MyMath.prefs_init.types[e.type] ??
               MyMath.prefs_init.default;
       $(e).val(f(e,e.name));
     });
+    let mtgt = $(".macro-tab > tbody");
+    let mdefs = "";
+    MyMath.prefs.macros?.forEach((e)=>{
+      $("<tr>").append($("<td>").text("\\" + e.name + (e.nargs ? "{}".repeat(e.nargs) : "")))
+               .append($("<td>").text(e.desc))
+               .appendTo(mtgt);
+      mdefs += "\\newcommand\\"+e.name+(e.nargs ? `[${e.nargs}]` : "")+`{${e.def}}\n`;
+    });
+    $("#MathMacros").val(mdefs);
+    DoStatus(`point 1 ${MyMath.err}`);
     if ($("#MathInput-1").val()=="") {
       DoStatus(`hash=${location.hash}`);
       if (location.hash.startsWith("#?d=")) {
         let d = location.hash.substring(2);
-        let da = d.split(";").map((e)=>(fromB64(e.substring(2))));
+        let da = d.split(";").map((e)=>(MyMath.fromB64(e.substring(2))));
         doclick.push(Promise.resolve(da));
       } else if (location.hash.startsWith("#?c=")) {
         let cd = location.hash.substring(4);
-        doclick.push(decompress(cd).then((v)=>(v.split(SEP))));
+        doclick.push(MyMath.decompress(cd).then((v)=>(v.split(SEP))));
       }
     }
     $("html").on("change", ".mathCfg", function(e){
-      let f = MyMath.prefs_update.names[this.name] ||
+      let f = MyMath.prefs_update.names[this.name] ??
               MyMath.prefs_update.types[this.type];
       f(this,this.name,this.value);
     });
-    $("input.mathSvgUpdate").click(function(e){
-      e.stopPropagation();
-      tick_count = -1;
-      render(true);
-    });
-    $("html").on("input", ".mathInput", function(e){ set_tick(); });
     if (doclick.length) {
       doclick.push(window.MyMath.whenready);
       Promise.all(doclick).then((a)=>{
@@ -628,13 +647,17 @@ try {
         render(true);
       });
     }
-    $("html").on("click", ".mathAddInput", function(e){ insert_input($(this).closest(".inputElement")); });
-    $("html").on("click", ".mathDelInput", function(e){ delete_input($(this).closest(".inputElement")); });
+    DoStatus(`point 2 ${MyMath.err}`);
+    $("html")
+      .on("click", "input.mathSvgUpdate", function(e){ tick_count = -1; render(true); })
+      .on("input", ".mathInput", function(e){ set_tick(); })
+      .on("click", ".mathAddInput", function(e){ insert_input($(this).closest(".inputElement")); })
+      .on("click", ".mathDelInput", function(e){ delete_input($(this).closest(".inputElement")); });
   });
-})(jQuery.noConflict());
+}).call(MyMath,jQuery.noConflict());
 </script>
 </head>
-<body>
+<body class="tex2jax_ignore">
 <div id="Main" class="contentMain">
 <details open>
 <summary>SVG render</summary>
@@ -644,17 +667,14 @@ try {
  </div>
 </div>
 </details>
-<details open>
-<summary>Input</summary>
 <div id="InputContainer" class="cloneContainer">
 <details class="inputElement" id="InputElement-1" open>
 <summary>Input 1</summary>
 <div class="errContainer"><span>&nbsp;</span><span class="mathSvgImgErr" id="MathSvgImgErr-1"></span></div>
-<div><textarea rows=20 class="mathInput" id="MathInput-1"  placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
+<div><textarea rows=20 class="mathInput" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
 <div class="flexOuter inputControls"><input type="button" class="mathAddInput" value="+" /><input type="button" class="mathDelInput" value="&#x1F5D1;&#xFE0E;" /></div>
 </details>
 </div>
-</details>
 <details open>
 <summary>PNG Render</summary>
 <div>
@@ -727,7 +747,17 @@ try {
 <details>
 <summary>Predefined Macros</summary>
 <div>
-<p>A number of predefined macros exist:</p>
+<table class="macro-tab">
+ <thead>
+  <tr><th>Name</th><th>Description</th></tr>
+ </thead>
+ <tbody>
+ </tbody>
+</table>
+<details>
+<summary>Macro Definitions</summary>
+<div><textarea rows=8 id="MathMacros" readonly></textarea></div>
+</details>
 </div>
 </details>
 <details>

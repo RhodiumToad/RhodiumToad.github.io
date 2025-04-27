@@ -186,8 +186,7 @@ window.MathJax = {
     processRefs: false,
     processEscapes: false,
     tags: 'ams',
-    macros: {
-    },
+    macros: {},  // populated below
   },
   options: {
     safeOptions: {
@@ -200,8 +199,8 @@ window.MathJax = {
     },
   },
   startup: {
-    pageReady: () => {
-      return MathJax.startup.defaultPageReady().then(() => (window?.MyMath?.ready?.(true)));
+    pageReady: ()=>{
+      return MathJax.startup.defaultPageReady().then(()=>(window?.MyMath?.whenready?.ready?.(true)));
     },
   },
 };
@@ -237,7 +236,7 @@ window.MyMath = {
       containerWidth: 800,
     },
     macros: [
-      { name: "N",   def: "\\\\[5pt]",  desc: "Like \\\\ but with more vertical space", },
+      { name: "N",   def: "\\\\[4pt]",  desc: "Like \\\\ but with more vertical space", },
       { name: "NN",  def: "\\\\[8pt]",  desc: "Like \\\\ but with even more vertical space", },
       { name: "NNN", def: "\\\\[12pt]", desc: "Like \\\\ but with still more vertical space", },
       { name: "d",   nargs: 1, def: "\\mathrm{d}{#1}", desc: "Differential", },
@@ -245,22 +244,24 @@ window.MyMath = {
     ],
   },
   themes: {
-    dark: ()=>{ return "dark"; },
-    light: ()=>{ return "light"; },
-    device: ()=>{ return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; },
+    dark: ()=>("dark"),
+    light: ()=>("light"),
+    device: ()=>(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
   },
   cur_theme: null,
-  ticker: null,
-  ready: null,
-  whenready: null,
+  whenready: (()=>{
+               let o = {};
+               o.promise = new Promise((resolve,reject)=>{ o.ready = resolve; o.err = reject; });
+               return o;
+              })(),
   prefs_init: {
     types: {
-      checkbox: (o,n)=>{ return MyMath.prefs.canvas[n] ? ["on"] : []; },
+      checkbox: (o,n)=>(MyMath.prefs.canvas[n] ? ["on"] : []),
     },
     names: {
-      theme: (o,n)=>{ return MyMath.prefs.theme; },
+      theme: (o,n)=>(MyMath.prefs.theme),
     },
-    default: (o,n)=>{ return MyMath.prefs.canvas[n]; },
+    default: (o,n)=>(MyMath.prefs.canvas[n]),
   },
   prefs_update: {
     types: {
@@ -273,7 +274,6 @@ window.MyMath = {
     },
   },
 };
-window.MyMath.whenready = new Promise((resolve,reject)=>{ window.MyMath.ready = resolve; });
 window.MyMath.prefs?.macros?.forEach((e)=>{
   window.MathJax.tex.macros[e.name] = e.nargs ? [ e.def, e.nargs ] : e.def;
 });
@@ -424,7 +424,7 @@ try {
     defs.prepend(styles);
     if (svg.getAttribute("width")=="100%") {
       let tgtw = tgtwf();
-      svg.setAttribute("width", `${tgtw / metrics.ex}`);
+      svg.setAttribute("width", `${tgtw / metrics.ex}ex`);
     }
     diags?.(svg,styles);
     return "data:image/svg+xml;base64," + MyMath.toB64(svg.outerHTML);
@@ -508,6 +508,7 @@ try {
     pngtgt.toggleClass("imgBorder",
                        !(MyMath.prefs.canvas.border > 0));
     let metrics = MathJax.getMetricsFor(tgt.get(0),true);
+    // as far as I can tell, "metrics" is ignored. MathJax bug?
     MyMath.promise_map(m, (em)=>(MathJax.tex2svgPromise(em, metrics)))
       .then((mjxs)=>{
         let res = mjxs.map((mjx,i)=>{
@@ -520,8 +521,7 @@ try {
                                 return tgtw; },
                           (svg,css)=>{ $(`#MathSvg-${n}`).val(svg.outerHTML);
                                        if (n==1) { $("#MathCss1").val(css.outerHTML); }
-                                       let m = find_error(svg);
-                                       errm ??= m;
+                                       errm ??= find_error(svg);
                                      });
           if (errm) {
             DoStatus(errm);
@@ -548,38 +548,52 @@ try {
     return true;
   };
 
-  let tick_count = -1;
-  let do_tick = function(){
-    if (tick_count < 0) {
-      if (tick_count < -3) {
-        let t = MyMath.ticker;
-        MyMath.ticker = null;
-        window.clearInterval(t);
+  let ticker = {
+    tick_count: -1,
+    ticker: null,
+    action: ()=>(render(false)),
+    ticker_fn: null,
+    reset_tick() {
+      this.tick_count = -1;
+    },
+    set_tick(o) {
+      this.tick_count = o ? 999 : 0;
+      this.ticker ??= this.start_tick();
+    },
+    start_tick() {
+      this.ticker_fn ??= this.do_tick.bind(this);
+      return window.setInterval(this.ticker_fn, 600);
+    },
+    do_tick() {
+      if (this.tick_count < 0) {
+        if (this.tick_count-- < -5) {
+          let t = this.ticker;
+          this.ticker = null;
+          window.clearInterval(t);
+        }
       } else {
-        tick_count -= 1;
+        if (this.tick_count++ > 5) {
+          this.tick_count = -1;
+          (this.action)();
+        }
       }
-      return;
-    }
-    tick_count += 1;
-    if (tick_count > 5) {
-      tick_count = -1;
-      render(false);
-    }
+    },
   };
-  let set_tick = function(o){
-    tick_count = o ? 8 : 0;
-    MyMath.ticker ??= window.setInterval(do_tick, 600);
-  }
 
-  function add_input() {
+  function add_input(num=1) {
+    if (num < 1) { return; }
     $(".cloneContainer").each(function(e){
       let c = $(this).children();
-      let n = c.length + 1;
-      let t = c.first().clone();
-      t.attr("id",(i,oa)=>(!oa ? oa : oa.replace(/\d+$/, String(n))));
-      $("[id]",t).attr("id", (i,oa)=>(oa.replace(/\d+$/, String(n))));
-      $("summary",t).text((i,ot)=>(ot.replace(/\d+$/, String(n))));
-      t.appendTo(this);
+      let cf = c.first();
+      let last = c.length + num;
+      let t = $(document.createDocumentFragment());
+      for (let n = c.length + 1; n <= last; ++n) {
+        cf.clone(true,true).appendTo(t);
+        $("[id]",t).attr("id", (i,oa)=>(oa.replace(/1$/, String(n))));
+        $("summary",t).text((i,ot)=>(ot.replace(/1$/, String(n))));
+        $("[data-index]",t).data("index",n-1);
+        t.appendTo(this);
+      }
     });
   }
   function remove_input() {
@@ -588,19 +602,25 @@ try {
 
   function insert_input(after) {
     add_input();
-    let pos = after.attr("id").match(/-(\d+)$/)[1] * 1 + 1;
-    let n = after.siblings().length + 1;
-    for (let i = n; i > pos; --i) { $(`#MathInput-${i}`).val($(`#MathInput-${i-1}`).val()); }
-    $(`#MathInput-${pos}`).val("");
+    let asib = after.nextAll().find("textarea.mathInput");
+    let vals = [""];
+    asib.each(function(i,e){ vals[i+1] = $(this).val(); });
+    asib.each(function(i,e){ $(this).val(vals[i]); });
     render(false);
   }
   function delete_input(victim) {
-    let pos = victim.attr("id").match(/-(\d+)$/)[1] * 1;
-    let n = victim.siblings().length + 1;
-    for (let i = pos; i < n; ++i) { $(`#MathInput-${i}`).val($(`#MathInput-${i+1}`).val()); }
-    $(`#MathInput-${n}`).val("");
+    let pos = victim.data("index");
+    let sibs = victim.parent().find("textarea.mathInput");
+    let vals = sibs.map(function(i,e){ return $(this).val(); }).get();
     remove_input();
+    sibs.each(function(i,e){ if (i >= pos) { $(this).val(vals[i+1] ?? ""); } });
     render(false);
+  }
+
+  function cfg_update(elem) {
+    let f = MyMath.prefs_update.names[elem.name] ??
+            MyMath.prefs_update.types[elem.type];
+    f(elem,elem.name,elem.value);
   }
 
   $(function($){
@@ -614,10 +634,10 @@ try {
     let mtgt = $(".macro-tab > tbody");
     let mdefs = "";
     MyMath.prefs.macros?.forEach((e)=>{
-      $("<tr>").append($("<td>").text("\\" + e.name + (e.nargs ? "{}".repeat(e.nargs) : "")))
+      $("<tr>").append($("<td>").text(`\\${e.name}${e.nargs ? "{}".repeat(e.nargs) : ""}`))
                .append($("<td>").text(e.desc))
                .appendTo(mtgt);
-      mdefs += "\\newcommand\\"+e.name+(e.nargs ? `[${e.nargs}]` : "")+`{${e.def}}\n`;
+      mdefs += `\\newcommand\\${e.name}${e.nargs ? `[${e.nargs}]` : ""}{${e.def}}\n`;
     });
     $("#MathMacros").val(mdefs);
     DoStatus(`point 1 ${MyMath.err}`);
@@ -632,27 +652,21 @@ try {
         doclick.push(MyMath.decompress(cd).then((v)=>(v.split(SEP))));
       }
     }
-    $("html").on("change", ".mathCfg", function(e){
-      let f = MyMath.prefs_update.names[this.name] ??
-              MyMath.prefs_update.types[this.type];
-      f(this,this.name,this.value);
-    });
+    $("html")
+      .on("change", ".mathCfg", function(e){ cfg_update(this); })
+      .on("click",  "input.mathSvgUpdate", function(e){ ticker.reset_tick(); render(true); })
+      .on("input",  ".mathInput", function(e){ ticker.set_tick(); })
+      .on("click",  ".mathAddInput", function(e){ insert_input($(this).closest(".inputElement")); })
+      .on("click",  ".mathDelInput", function(e){ delete_input($(this).closest(".inputElement")); });
     if (doclick.length) {
-      doclick.push(window.MyMath.whenready);
+      doclick.push(window.MyMath.whenready.promise);
       Promise.all(doclick).then((a)=>{
-        for (let i=1; i < a[0].length; ++i) {
-           add_input();
-        }
-        a[0].map((v,i,a)=>($(`#MathInput-${i+1}`).val(v)));
+        add_input(a[0].length - 1);
+        $("textarea.mathInput").val((i,v)=>(a[0][i]));
         render(true);
       });
     }
     DoStatus(`point 2 ${MyMath.err}`);
-    $("html")
-      .on("click", "input.mathSvgUpdate", function(e){ tick_count = -1; render(true); })
-      .on("input", ".mathInput", function(e){ set_tick(); })
-      .on("click", ".mathAddInput", function(e){ insert_input($(this).closest(".inputElement")); })
-      .on("click", ".mathDelInput", function(e){ delete_input($(this).closest(".inputElement")); });
   });
 }).call(MyMath,jQuery.noConflict());
 </script>
@@ -663,15 +677,15 @@ try {
 <summary>SVG render</summary>
 <div>
  <div class="svgContainer mathSvgImg cloneContainer" id="MathSvgImg">
-  <div class="mathSvgImgSub" id="MathSvgImg-1"></div>
+  <div class="mathSvgImgSub" data-index="0" id="MathSvgImg-1"></div>
  </div>
 </div>
 </details>
 <div id="InputContainer" class="cloneContainer">
-<details class="inputElement" id="InputElement-1" open>
+<details class="inputElement" data-index="0" id="InputElement-1" open>
 <summary>Input 1</summary>
-<div class="errContainer"><span>&nbsp;</span><span class="mathSvgImgErr" id="MathSvgImgErr-1"></span></div>
-<div><textarea rows=20 class="mathInput" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
+<div class="errContainer"><span>&nbsp;</span><span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span></div>
+<div><textarea rows=20 autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" class="mathInput" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
 <div class="flexOuter inputControls"><input type="button" class="mathAddInput" value="+" /><input type="button" class="mathDelInput" value="&#x1F5D1;&#xFE0E;" /></div>
 </details>
 </div>
@@ -767,7 +781,7 @@ try {
 <details>
 <summary>SVG content</summary>
 <div id="OutputContainer" class="cloneContainer">
- <details><summary>1</summary><textarea rows=15 id="MathSvg-1" readonly></textarea></details>
+ <details><summary>1</summary><textarea rows=15 data-index="0" id="MathSvg-1" readonly></textarea></details>
 </div>
 </details>
 <details>

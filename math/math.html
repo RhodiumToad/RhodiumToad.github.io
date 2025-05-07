@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="no-js">
 <head>
-<meta name="viewport" content="width=device-width" />
-<title>MathJax scratchpad</title>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width" />
+ <title>MathJax scratchpad</title>
+ <meta name="author" content="Andrew Gierth" />
 <!--
 MIT License
 
@@ -33,13 +35,67 @@ forth in https://rhodiumtoad.github.io/RELICENSE.txt
 If you distribute a modified copy, check that document for details on whether
 you will need to remove this clause.
 -->
+<script>
+"use strict";
+// minimal logger
+window.Logger = {
+  chunks: ["","",""],
+  expose: null,
+  start_ts: Date.now(),
+  logts()       { let t = (Date.now() - this.start_ts)/1000.0; return t.toFixed(3); },
+  log(...a)     { this.chunks[0] += `${this.logts()} ${a.join("\n")}\n`; this.do_expose(); },
+  err(e)        { this.log(String(e)); },
+  init(fn)      { this.expose = fn; this.do_expose(); },
+  do_expose()   { this.expose?.(this.chunks.reduceRight((a,v)=>(a+"----\n"+v))); },
+  trim()        { this.chunks.unshift(""); this.chunks.pop(); },
+};
+// quicky feature-test module
+window.Features = ((cl)=>{
+  let f = {};
+  try {
+    const tests = {
+      withResolvers: ()=>("withResolvers" in Promise),
+      buf_resize: ()=>("resize" in ArrayBuffer.prototype),
+    }
+    const subs = {
+      withResolvers: ()=>{ Promise.withResolvers =
+        function(){ let o = {}; o.promise = new Promise((r,j)=>{ o.resolve=r; o.reject=j; }); return o; };
+      },
+    }
+    function set_class(n,v) { cl?.add(`${v?"has":"no"}-${n}`); cl?.remove(`${v?"no":"has"}-${n}`); }
+    function set_feature(n,v) { Logger.log(`feature ${n} ${v}`); v || subs[n]?.(); return v; }
+    set_class("js",true);
+    for (const nm in tests) {
+      switch (typeof tests[nm]) {
+        case "function": set_feature(nm, tests[nm]()); break;
+      }
+    }
+  } catch(e) { DoErr(e); }
+  return f;
+})(document?.documentElement?.classList);
+</script>
 <style>
+html.has-js .script-hide { display: none; }
+html.has-js .noscript-nohide { display: none; }
+html.no-js .noscript-hide { display: none; }
+html.no-js .script-nohide { display: none; }
+.hide { display: none; }
 body {
   padding: 2px;
   overscroll-behavior-y: contain;
 }
+.alertBox {
+  margin: 2em;
+  border: 8px solid red;
+  padding: 1ex;
+  font-size: 150%;
+}
 .contentMain {
 
+}
+.hintText {
+  font-style: italic;
+  opacity: 70%;
 }
 .mathInput {
   font-size: 150%;
@@ -77,7 +133,7 @@ input, textarea {
   padding: 4px 6px;
 }
 .macro-tab > thead > tr {
-  background-color: #ccc;
+  background-color: #ddd;
   border-bottom: 2px solid #999;
 }
 .macro-tab > tbody > tr > td:first-of-type {
@@ -91,7 +147,7 @@ input, textarea {
   margin-right: 2em;
 }
 .ui-tab input[type='number'] {
-  width: 6em;
+  width: 4em;
 }
 .svgContainer {
   margin-top: 5px;
@@ -106,7 +162,7 @@ input, textarea {
 .svgContainer, .pngContainer, .errContainer {
   overflow: scroll;
 }
-input.mathSvgUpdate, input.mathAddInput, input.mathDelInput {
+input.mathSvgUpdate, input.mathPngDownload, input.mathAddInput, input.mathDelInput {
   font-size: 120%;
   padding: 4px 6px;
   min-width: 2em;
@@ -135,7 +191,7 @@ input.mathSvgUpdate, input.mathAddInput, input.mathDelInput {
 
 }
 #MathStatus {
-  font-size: 120%;
+  font-size: 100%;
   max-width: 90vw;
   overflow: scroll;
   white-space: pre-wrap;
@@ -157,6 +213,9 @@ details > summary {
   border: 2px solid;
   margin-bottom: 5px;
 }
+details:not([open]) > summary {
+  background-color: #ddd;
+}
 .mathSvgImgErr {
   color:  #700;
 }
@@ -172,6 +231,9 @@ details > summary {
     color: #f68;
   }
   .macro-tab > thead > tr {
+    background-color: #444;
+  }
+  details:not(:open) > summary {
     background-color: #444;
   }
 }
@@ -200,7 +262,10 @@ window.MathJax = {
   },
   startup: {
     pageReady: ()=>{
-      return MathJax.startup.defaultPageReady().then(()=>(window?.MyMath?.whenready?.ready?.(true)));
+      return MathJax.startup.defaultPageReady()
+        .then((v)=>{ Logger.log(`MathJax ready ${v}`);
+                     window?.MyMath?.whenready?.resolve?.(true);
+                     return v; });
     },
   },
 };
@@ -236,11 +301,15 @@ window.MyMath = {
       containerWidth: 800,
     },
     macros: [
-      { name: "N",   def: "\\\\[4pt]",  desc: "Like \\\\ but with more vertical space", },
-      { name: "NN",  def: "\\\\[8pt]",  desc: "Like \\\\ but with even more vertical space", },
-      { name: "NNN", def: "\\\\[12pt]", desc: "Like \\\\ but with still more vertical space", },
-      { name: "d",   nargs: 1, def: "\\mathrm{d}{#1}", desc: "Differential", },
-      { name: "hq",  def: "\\Space{0.5em}{1ex}{0ex}", desc: "Half-quad horizontal space", },
+      { name: "N",     def: "\\\\[4pt]",  desc: "Like \\\\ but with more vertical space", },
+      { name: "NN",    def: "\\\\[8pt]",  desc: "Like \\\\ but with even more vertical space", },
+      { name: "NNN",   def: "\\\\[12pt]", desc: "Like \\\\ but with still more vertical space", },
+      { name: "d",     nargs: 1, def: "\\mathrm{d}{#1}", desc: "Differential", },
+      { name: "half",  def: "\\tfrac{1}{2}", desc: "Half", },
+      { name: "hq",    def: "\\Space{0.5em}{1ex}{0ex}", desc: "Half-quad horizontal space", },
+      { name: "paren", nargs: 1, def: "\\left({#1}\\right)" , desc: "parens around expression", },
+      { name: "pfrac", nargs: 2, def: "\\left(\\frac{#1}{#2}\\right)", desc: "Fraction with parens", },  
+      { name: "ptext", nargs: 1, def: "\\pod{\\text{#1}}", desc: "pod with text content", },
     ],
   },
   themes: {
@@ -249,11 +318,8 @@ window.MyMath = {
     device: ()=>(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
   },
   cur_theme: null,
-  whenready: (()=>{
-               let o = {};
-               o.promise = new Promise((resolve,reject)=>{ o.ready = resolve; o.err = reject; });
-               return o;
-              })(),
+  whenready: Promise.withResolvers(),
+  render_queue: Promise.resolve(true),
   prefs_init: {
     types: {
       checkbox: (o,n)=>(MyMath.prefs.canvas[n] ? ["on"] : []),
@@ -284,20 +350,28 @@ window.MyMath.prefs?.macros?.forEach((e)=>{
 <script>
 "use strict";
 try {
-(function(){
+ (function(){
   const CHUNKBITS = 7;
   const CHUNKSZ = 1<<CHUNKBITS;
   const btoa = window.btoa;
   const atob = window.atob;
-  function newbuf() {
-    return new Uint8Array(new ArrayBuffer(0, { maxByteLength: 16777215 }));
+  function newbuf(len) {
+    return new Uint8Array(new ArrayBuffer(len ?? 0, (len ? null : { maxByteLength: 16777215 })));
   }
-  function appendbuf(buf, a) {
-    let olen = buf.length;
-    buf.buffer.resize(olen + a.length);
-    buf.set(a, olen);
-    return buf;
-  }
+  const appendbuf = (
+    Features.buf_resize ?
+      (function(buf, a) {
+        let olen = buf.length;
+        buf.buffer.resize(olen + a.length);
+        buf.set(a, olen);
+        return buf;
+      }) :
+      (function(buf, a) {
+        let res = newbuf(buf.length + a.length);
+        res.set(buf, 0);
+        res.set(a, buf.length);
+        return res;
+      }));
   function to_byteschunk(buf) {
     return String.fromCodePoint.apply(null,buf);
   }
@@ -362,7 +436,7 @@ try {
           }
           acc = transfn(acc,value);
           rdfn();
-        }).catch((e)=>MyMath.DoStatus(e));
+        }).catch((e)=>Logger.err(e));
       };
       rdfn();
     });
@@ -378,32 +452,29 @@ try {
   };
   this.load_image = function(img, src) {
     return new Promise((resolve,reject)=>{
-      img.addEventListener("error", (e)=>(reject(e.message)), {once:true});
+      img.addEventListener("error", (e)=>(reject(e)), {once:true});
       img.addEventListener("load", (e)=>(resolve(img)), {once:true});
       img.src = src;
     });
   };
-}).call(MyMath);
-} catch(e) {
-  MyMath.err = e;
-}
+ }).call(MyMath);
+} catch(e) { Logger.err(e); }
+
 (function($){
   const svg_ns = "http://www.w3.org/2000/svg";
   const SEP = "\0";
 
-  let DoStatus = (function(){
-    let t = "";
-    return function(m){
-      if (m==="") {
-        t = m;
-      } else {
-        t += m;
-        t += "\n";
-        $("#MathStatus").text(t);
-      }
-    };
-  })();
+  let DoStatus = Logger.log.bind(Logger);
+  let DoErr = Logger.err.bind(Logger);
   this.DoStatus = DoStatus;
+  this.DoErr = DoErr;
+
+  function Pcall(f) {
+    try { return f(); } catch(e) { DoErr(e); throw(e); }
+  }
+  function Pwrap(f) {
+    return function(...a){ try { return f.apply(this,a); } catch (e) { DoErr(e); throw e; } };
+  }
 
   // conversion takes two steps because the svg image render may be async,
   // and we can't render the canvas until the image is ready.
@@ -488,28 +559,31 @@ try {
     return null;
   };
 
-  let render = function(showErr){
-    DoStatus("");
+  let do_render = function(showErr){
+    Logger.trim();
     DoStatus(`render start, showErr=${showErr}`);
     let theme = MyMath.themes[MyMath.prefs.theme]();
     MyMath.cur_theme = MyMath.prefs.colors[theme];
     let tgtw = null;
     let m = $("textarea.mathInput").get().map((e)=>($(e).val()));
+    DoStatus(`render ${m.length} inputs`);
     let hs = m.map((e)=>(MyMath.toB64(e))).join(";d=");
     let url = new URL("#?d="+hs, document.location.href);
     $("#MathLink").attr("href", url.href);
     MyMath.compress(m.join(SEP)).then((s)=>{
       let url2 = new URL("#?c="+s, document.location.href);
       $("#MathLinkC").attr("href", url2.href);
-    }).catch((e)=>DoStatus(e));
+    }).catch((e)=>DoErr(e));
     MathJax.texReset();
     let tgt = $("#MathSvgImg");
     let pngtgt = $("#MathImg1");
+    let linktgt = $("#MathLink1");
     pngtgt.toggleClass("imgBorder",
                        !(MyMath.prefs.canvas.border > 0));
+    $(".hintText").hide();
     let metrics = MathJax.getMetricsFor(tgt.get(0),true);
     // as far as I can tell, "metrics" is ignored. MathJax bug?
-    MyMath.promise_map(m, (em)=>(MathJax.tex2svgPromise(em, metrics)))
+    return MyMath.promise_map(m, (em)=>(MathJax.tex2svgPromise(em, metrics)))
       .then((mjxs)=>{
         let res = mjxs.map((mjx,i)=>{
           let img = new Image();
@@ -527,26 +601,32 @@ try {
             DoStatus(errm);
             $(`#MathSvgImgErr-${n}`).text(errm);
           } else {
+            $("#MathSvgImg").css("background-color",MyMath.cur_theme.bg);
             $(`#MathSvgImgErr-${n}`).text("");
           }
           return MyMath.load_image(img, s).then((v)=>{
             if (!errm || showErr) {
-              $(`#MathSvgImg-${n}`).empty().prepend(v);
+              $(`#MathSvgImg-${n}`).css("background-color",MyMath.cur_theme.bg).empty().prepend(v);
             }
             return v;
-          });
+          }).catch((e)=>DoErr(e));
         });
         return Promise.all(res);
       })
       .then((imgs)=>{
         let u2 = img2png(imgs,tgtw,
                          (w,h,sc)=>(pngtgt.css("width",w).css("height",h)));
-        pngtgt.attr("src", u2);
+        pngtgt.attr("src", u2).removeClass("hide");
+        linktgt.attr("href", u2).removeClass("hide");
+        $("input.mathPngDownload").prop("disabled",false);
         DoStatus(`${JSON.stringify(metrics)}`);
       })
-      .catch((e)=>{ DoStatus(e.message); });
-    return true;
+      .catch((e)=>DoErr(e));
   };
+
+  function render(showErr) {
+    MyMath.render_queue = MyMath.render_queue.then(()=>(do_render(showErr)), (e)=>DoErr(e));
+  }
 
   let ticker = {
     tick_count: -1,
@@ -561,18 +641,19 @@ try {
       this.ticker ??= this.start_tick();
     },
     start_tick() {
-      this.ticker_fn ??= this.do_tick.bind(this);
+      this.ticker_fn ??= Pwrap(this.do_tick.bind(this));
       return window.setInterval(this.ticker_fn, 600);
+    },
+    stop_tick() {
+      let t = this.ticker;
+      this.ticker = null;
+      window.clearInterval(t);
     },
     do_tick() {
       if (this.tick_count < 0) {
-        if (this.tick_count-- < -5) {
-          let t = this.ticker;
-          this.ticker = null;
-          window.clearInterval(t);
-        }
+        (--this.tick_count < -10) && this.stop_tick();
       } else {
-        if (this.tick_count++ > 5) {
+        if (++this.tick_count > 5) {
           this.tick_count = -1;
           (this.action)();
         }
@@ -605,7 +686,7 @@ try {
     let asib = after.nextAll().find("textarea.mathInput");
     let vals = [""];
     asib.each(function(i,e){ vals[i+1] = $(this).val(); });
-    asib.each(function(i,e){ $(this).val(vals[i]); });
+    asib.val(function(i,v){ return vals[i]; });
     render(false);
   }
   function delete_input(victim) {
@@ -613,7 +694,7 @@ try {
     let sibs = victim.parent().find("textarea.mathInput");
     let vals = sibs.map(function(i,e){ return $(this).val(); }).get();
     remove_input();
-    sibs.each(function(i,e){ if (i >= pos) { $(this).val(vals[i+1] ?? ""); } });
+    sibs.val(function(i,v){ return vals[i < pos ? i : i+1] ?? ""; });
     render(false);
   }
 
@@ -623,8 +704,37 @@ try {
     f(elem,elem.name,elem.value);
   }
 
+  function init_from_hash(a) {
+    if (a.some((e)=>(e.length > 0))) {
+      add_input(a.length - 1);
+      $("textarea.mathInput").val((i,v)=>(a[i]));
+      render(true);
+    }
+  }
+  const newkey = (m,k,v)=>(m.set(k,v), v);
+  function process_hash(hash, plist) {
+    DoStatus(`hash=${hash}`);
+    if (hash.startsWith("#?")) {
+      let f = new Map();
+      for (const m of hash.substring(2).matchAll(/(\w+)=([^;]*)(?:;|$)/g)) {
+        let nm = m[1];
+        (f.get(nm) ?? newkey(f,nm,[])).push(m[2]);
+      }
+      if (f.has("c")) {
+        let cd = f.get("c")[0];
+        plist.push(MyMath.decompress(cd).then((v)=>(()=>(init_from_hash(v.split(SEP))))).catch((e)=>DoErr(e)));
+      } else if (f.has("d")) {
+        let da = f.get("d").map((e)=>(MyMath.fromB64(e)));
+        plist.push(Promise.resolve(()=>(init_from_hash(da))));
+      }
+    }
+  }
+
   $(function($){
-    let doclick = [];
+    let sts = $("#MathStatus");
+    Logger.init((s)=>(sts.text(s)));
+    Logger.trim();
+    let promise_list = [MyMath.whenready.promise];
     $(".mathCfg").each((i,e)=>{
       let f = MyMath.prefs_init.names[e.name] ??
               MyMath.prefs_init.types[e.type] ??
@@ -640,51 +750,45 @@ try {
       mdefs += `\\newcommand\\${e.name}${e.nargs ? `[${e.nargs}]` : ""}{${e.def}}\n`;
     });
     $("#MathMacros").val(mdefs);
-    DoStatus(`point 1 ${MyMath.err}`);
-    if ($("#MathInput-1").val()=="") {
-      DoStatus(`hash=${location.hash}`);
-      if (location.hash.startsWith("#?d=")) {
-        let d = location.hash.substring(2);
-        let da = d.split(";").map((e)=>(MyMath.fromB64(e.substring(2))));
-        doclick.push(Promise.resolve(da));
-      } else if (location.hash.startsWith("#?c=")) {
-        let cd = location.hash.substring(4);
-        doclick.push(MyMath.decompress(cd).then((v)=>(v.split(SEP))));
-      }
+    if ($("#MathInput-1").val()=="" && location.hash.length > 2) {
+      process_hash(location.hash, promise_list);
     }
-    $("html")
-      .on("change", ".mathCfg", function(e){ cfg_update(this); })
-      .on("click",  "input.mathSvgUpdate", function(e){ ticker.reset_tick(); render(true); })
-      .on("input",  ".mathInput", function(e){ ticker.set_tick(); })
-      .on("click",  ".mathAddInput", function(e){ insert_input($(this).closest(".inputElement")); })
-      .on("click",  ".mathDelInput", function(e){ delete_input($(this).closest(".inputElement")); });
-    if (doclick.length) {
-      doclick.push(window.MyMath.whenready.promise);
-      Promise.all(doclick).then((a)=>{
-        add_input(a[0].length - 1);
-        $("textarea.mathInput").val((i,v)=>(a[0][i]));
-        render(true);
-      });
-    }
-    DoStatus(`point 2 ${MyMath.err}`);
+    Promise.all(promise_list)
+      .then((a)=>(a.forEach((v)=>((typeof v === "function") && v()))))
+      .catch((e)=>DoErr(e))
+      .then(()=>{
+        $("html")
+          .on("change", ".mathCfg", Pwrap(function(e){ cfg_update(this); }))
+          .on("click",  "input.mathSvgUpdate", Pwrap(function(e){ ticker.reset_tick(); render(true); }))
+          .on("click",  "input.mathPngDownload", Pwrap(function(e){ $("#MathLink1").get(0).click(); }))
+          .on("input",  ".mathInput", function(e){ ticker.set_tick(); })
+          .on("click",  ".mathAddInput", Pwrap(function(e){ insert_input($(this).closest(".inputElement")); }))
+          .on("click",  ".mathDelInput", Pwrap(function(e){ delete_input($(this).closest(".inputElement")); }));
+        DoStatus("event handlers installed");
+      })
+      .catch((e)=>DoErr(e));
+    DoStatus("document init done");
   });
 }).call(MyMath,jQuery.noConflict());
 </script>
 </head>
 <body class="tex2jax_ignore">
-<div id="Main" class="contentMain">
+<div id="NoJS" class="alertBox script-hide">
+ <p>This isn't going to work without Javascript, sorry.</p>
+</div>
+<div id="Main" class="contentMain noscript-hide">
 <details open>
 <summary>SVG render</summary>
 <div>
  <div class="svgContainer mathSvgImg cloneContainer" id="MathSvgImg">
-  <div class="mathSvgImgSub" data-index="0" id="MathSvgImg-1"></div>
+  <div class="mathSvgImgSub" data-index="0" id="MathSvgImg-1"><span class="hintText">SVG rendering will appear here</span></div>
  </div>
 </div>
 </details>
 <div id="InputContainer" class="cloneContainer">
 <details class="inputElement" data-index="0" id="InputElement-1" open>
 <summary>Input 1</summary>
-<div class="errContainer"><span>&nbsp;</span><span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span></div>
+<div class="errContainer"><span>&nbsp;</span><span class="hintText">errors will appear here</span><span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span></div>
 <div><textarea rows=20 autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" class="mathInput" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
 <div class="flexOuter inputControls"><input type="button" class="mathAddInput" value="+" /><input type="button" class="mathDelInput" value="&#x1F5D1;&#xFE0E;" /></div>
 </details>
@@ -701,7 +805,17 @@ try {
     </div>
   </div>
   <div class="flexInner">
-    <div><div class="pngContainer"><img id="MathImg1" class="imgBorder" /></div></div>
+    <div>
+      <div class="pngContainer">
+        <span class="hintText">Downloadable PNG will appear here</span>
+        <a class="hide" download="math.png" id="MathLink1"><img class="hide" id="MathImg1" alt="math.png" /></a>
+      </div>
+    </div>
+    <div>
+      <div class="mathControl">
+        <input disabled type="button" class="mathPngDownload" value="Download" />
+      </div>
+    </div>
   </div>
 </div>
 </div>
@@ -756,6 +870,7 @@ try {
   </tr>
  </tbody>
 </table>
+<div class="mathControl"><input type="button" class="mathSvgUpdate" value="Update" /></div>
 </div>
 </details>
 <details>

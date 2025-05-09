@@ -80,9 +80,13 @@ html.has-js .noscript-nohide { display: none; }
 html.no-js .noscript-hide { display: none; }
 html.no-js .script-nohide { display: none; }
 .hide { display: none; }
+html {
+  background-color: #ddd;
+  color: black;
+}
 body {
-  padding: 2px;
   overscroll-behavior-y: contain;
+  margin: 0;
 }
 .alertBox {
   margin: 2em;
@@ -91,7 +95,14 @@ body {
   font-size: 150%;
 }
 .contentMain {
-
+  background-color: #ddd;
+  padding: 10px 0.5em;
+  display: grid;
+  grid-template-columns: 100%;
+  gap: 10px 1em;
+}
+.contentMain > * {
+  background-color: white;
 }
 .hintText {
   font-style: italic;
@@ -170,6 +181,9 @@ input.mathSvgUpdate, input.mathPngDownload, input.mathAddInput, input.mathDelInp
 .inputElement:only-of-type .mathDelInput {
   display: none;
 }
+.inputElement {
+  padding-bottom: 10px;
+}
 .mathControl {
   margin: 2ex 0;
 }
@@ -192,26 +206,26 @@ input.mathSvgUpdate, input.mathPngDownload, input.mathAddInput, input.mathDelInp
 }
 #MathStatus {
   font-size: 100%;
-  max-width: 90vw;
   overflow: scroll;
   white-space: pre-wrap;
 }
 textarea {
   resize: true;
-  width: 97%;
+  width: calc(100% - 6px);
 }
 details {
-  margin-bottom: 10px;
+  padding-top: 5px;
 }
 details > div {
-  padding-left: 1em;
+  padding: 0 1em;
 }
 details > summary {
   font-size: 120%;
-  width: 30em;
+  width: 16em;
   padding: 2px 6px;
   border: 2px solid;
   margin-bottom: 5px;
+  margin-left: 5px;
 }
 details:not([open]) > summary {
   background-color: #ddd;
@@ -219,10 +233,31 @@ details:not([open]) > summary {
 .mathSvgImgErr {
   color:  #700;
 }
+@media (min-width: 60em) {
+  html:not(.disable-grid) .contentMain {
+    grid-template-columns: repeat(2, calc(50% - 0.5em));
+  }
+  html:not(.disable-grid):has(input[name="allowcols"]:not(:checked)) .contentMain .mainCol {
+    grid-column: 1 / span 2;
+  }
+  html:not(.disable-grid) .contentMain .wideCol {
+    grid-column: 1 / span 2;
+  }
+}
 @media (prefers-color-scheme: dark) {
-  html, textarea {
+  html {
+    background-color: #444;
+    color: white;
+  }
+  textarea {
     background-color: black;
     color: white;
+  }
+  .contentMain {
+    background-color: #444;
+  }
+  .contentMain > * {
+    background-color: black;
   }
   #MathSvgImg, .imgBorder {
     border-color: white;
@@ -233,7 +268,7 @@ details:not([open]) > summary {
   .macro-tab > thead > tr {
     background-color: #444;
   }
-  details:not(:open) > summary {
+  details:not([open]) > summary {
     background-color: #444;
   }
 }
@@ -326,6 +361,7 @@ window.MyMath = {
     },
     names: {
       theme: (o,n)=>(MyMath.prefs.theme),
+      allowcols: (o,n)=>(["on"]),
     },
     default: (o,n)=>(MyMath.prefs.canvas[n]),
   },
@@ -337,6 +373,7 @@ window.MyMath = {
     },
     names: {
       theme: (o,n,v)=>{ MyMath.prefs.theme = v; },
+      allowcols: (o,n,v)=>(null),
     },
   },
 };
@@ -777,7 +814,7 @@ try {
  <p>This isn't going to work without Javascript, sorry.</p>
 </div>
 <div id="Main" class="contentMain noscript-hide">
-<details open>
+<details class="mainCol" open>
 <summary>SVG render</summary>
 <div>
  <div class="svgContainer mathSvgImg cloneContainer" id="MathSvgImg">
@@ -785,7 +822,7 @@ try {
  </div>
 </div>
 </details>
-<div id="InputContainer" class="cloneContainer">
+<div id="InputContainer" class="cloneContainer mainCol">
 <details class="inputElement" data-index="0" id="InputElement-1" open>
 <summary>Input 1</summary>
 <div class="errContainer"><span>&nbsp;</span><span class="hintText">errors will appear here</span><span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span></div>
@@ -793,7 +830,7 @@ try {
 <div class="flexOuter inputControls"><input type="button" class="mathAddInput" value="+" /><input type="button" class="mathDelInput" value="&#x1F5D1;&#xFE0E;" /></div>
 </details>
 </div>
-<details open>
+<details class="mainCol" open>
 <summary>PNG Render</summary>
 <div>
 <div class="flexOuter pngDiv">
@@ -826,19 +863,19 @@ try {
 <table class="ui-tab">
  <tbody>
   <tr>
-   <td>Scale:</td>
-   <td><input type="number" class="mathCfg" name="scale" value="1" min="0.1" max="20" /></td>
-   <td>Device ratio:</td>
-   <td><input type="checkbox" class="mathCfg" name="device_scale"></td>
-   <td>Transparent:</td>
-   <td><input type="checkbox" class="mathCfg" name="transparent" checked></td>
+   <td><label for="Iscale">Scale:</label></td>
+   <td><input id="Iscale" type="number" class="mathCfg" name="scale" value="1" min="0.1" max="20" /></td>
+   <td><label for="Idevice_scale">Device ratio:</label></td>
+   <td><input id="Idevice_scale" type="checkbox" class="mathCfg" name="device_scale"></td>
+   <td><label for="Itransparent">Transparent:</label></td>
+   <td><input id="Itransparent" type="checkbox" class="mathCfg" name="transparent" checked></td>
   </tr>
   <tr>
-   <td>Target width:</td>
-   <td><input type="number" class="mathCfg" name="target" value="100" min="50" max="4000" /></td>
-   <td>Border:</td>
+   <td><label for="Itarget_width">Target width:</label></td>
+   <td><input id="Itarget_width" type="number" class="mathCfg" name="target" value="100" min="50" max="4000" /></td>
+   <td><label for="Iborder">Border:</label></td>
    <td>
-    <select class="mathCfg" name="border">
+    <select id="Iborder" class="mathCfg" name="border">
      <option value="0">none</option>
      <option value="1">1px solid</option>
      <option value="2">2px solid</option>
@@ -849,11 +886,11 @@ try {
    </td>
   </tr>
   <tr>
-   <td>Crop left:</td>
-   <td><input type="number" class="mathCfg" name="cropleft" value="0" min="0" max="4000" /></td>
-   <td>Theme:</td>
+   <td><label for="Icropleft">Crop left:</label></td>
+   <td><input id="Icropleft" type="number" class="mathCfg" name="cropleft" value="0" min="0" max="4000" /></td>
+   <td><label for="Itheme">Theme:</label></td>
    <td>
-    <select class="mathCfg" name="theme">
+    <select id="Itheme" class="mathCfg" name="theme">
      <option value="device">Device theme</option>
      <option value="dark">Dark theme</option>
      <option value="light">Light theme</option>
@@ -861,12 +898,14 @@ try {
    </td>
   </tr>
   <tr>
-   <td>Padding:</td>
-   <td><input type="number" class="mathCfg" name="padding" value="5" min="0" max="50" / ></td>
+   <td><label for="Ipadding">Padding:</label></td>
+   <td><input id="Ipadding" type="number" class="mathCfg" name="padding" value="5" min="0" max="50" / ></td>
+   <td><label for="Iallowcols">Allow 2-column:</label></td>
+   <td><input id="Iallowcols" type="checkbox" class="mathCfg" name="allowcols" checked /></td>
   </tr>
   <tr>
-   <td>Spacing:</td>
-   <td><input type="number" class="mathCfg" name="spacing" value="5" min="0" max="50" / ></td>
+   <td><label for="Ispacing">Spacing:</label></td>
+   <td><input id="Ispacing" type="number" class="mathCfg" name="spacing" value="5" min="0" max="50" / ></td>
   </tr>
  </tbody>
 </table>
@@ -890,10 +929,6 @@ try {
 </div>
 </details>
 <details>
-<summary>Status</summary>
- <div><pre id="MathStatus">(no error 1)</pre></div>
-</details>
-<details>
 <summary>SVG content</summary>
 <div id="OutputContainer" class="cloneContainer">
  <details><summary>1</summary><textarea rows=15 data-index="0" id="MathSvg-1" readonly></textarea></details>
@@ -902,6 +937,10 @@ try {
 <details>
 <summary>CSS content</summary>
 <div><textarea rows=15 id="MathCss1" readonly></textarea></div>
+</details>
+<details class="wideCol">
+<summary>Status</summary>
+ <div><pre id="MathStatus">(no error 1)</pre></div>
 </details>
 </div>
 </body>

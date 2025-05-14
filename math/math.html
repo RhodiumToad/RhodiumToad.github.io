@@ -53,19 +53,20 @@ window.Logger = {
 window.Features = ((cl)=>{
   let f = {};
   try {
+    function set_class(n,v) { cl?.add(`${v?"has":"no"}-${n}`); cl?.remove(`${v?"no":"has"}-${n}`); }
+    function set_feature(n,v) { Logger.log(`feature ${n} ${v}`); v || subs[n]?.(); return v; }
     const tests = {
       withResolvers: ()=>("withResolvers" in Promise),
       buf_resize: ()=>("resize" in ArrayBuffer.prototype),
+      local_storage: ()=>(window.localStorage && ("getItem" in window.localStorage)),
     }
     const subs = {
       withResolvers: ()=>{ Promise.withResolvers =
         function(){ let o = {}; o.promise = new Promise((r,j)=>{ o.resolve=r; o.reject=j; }); return o; };
       },
     }
-    function set_class(n,v) { cl?.add(`${v?"has":"no"}-${n}`); cl?.remove(`${v?"no":"has"}-${n}`); }
-    function set_feature(n,v) { Logger.log(`feature ${n} ${v}`); v || subs[n]?.(); return v; }
     set_class("js",true);
-    for (const nm in tests) {
+    for (const nm of Object.keys(tests)) {
       switch (typeof tests[nm]) {
         case "function": set_feature(nm, tests[nm]()); break;
       }
@@ -115,6 +116,9 @@ body {
 input, textarea {
   border-width: 3px;
 }
+textarea {
+  padding: 4px;
+}
 .inputControls {
   justify-content: space-between;
 }
@@ -151,11 +155,15 @@ input, textarea {
   font-family: monospace;
   white-space: pre;
 }
+.ui-tab {
+  table-layout: fixed;
+  width: 100%;
+}
+.ui-tab tbody tr > td:nth-of-type(1) { width: 7em; }
+.ui-tab tbody tr > td:nth-of-type(2) { width: 4.5em; }
+.ui-tab tbody tr > td:nth-of-type(3) { width: 8.5em; }
 .ui-tab tbody tr > td:nth-of-type(odd) {
   text-align: right;
-}
-.ui-tab input {
-  margin-right: 2em;
 }
 .ui-tab input[type='number'] {
   width: 4em;
@@ -173,10 +181,26 @@ input, textarea {
 .svgContainer, .pngContainer, .errContainer {
   overflow: scroll;
 }
-input.mathSvgUpdate, input.mathPngDownload, input.mathAddInput, input.mathDelInput {
+input.mathSvgUpdate, input.mathPngDownload, input.mathInputButton {
   font-size: 120%;
   padding: 4px 6px;
   min-width: 2em;
+}
+.inputControls input.mathInputButton {
+  min-height: calc(2ex + 20px);
+  vertical-align: top;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+input.mathEnlargeInput {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjMjEyMTIxIj48cGF0aCBkPSJtNi43NSAxOS41aDE0LjVjLjQxNDIgMCAuNzUtLjMzNTguNzUtLjc1IDAtLjM3OTctLjI4MjItLjY5MzUtLjY0ODItLjc0MzJsLS4xMDE4LS4wMDY4aC0xNC41Yy0uNDE0MjEgMC0uNzUuMzM1OC0uNzUuNzUgMCAuMzc5Ny4yODIxNS42OTM1LjY0ODIzLjc0MzJ6Ii8+PHBhdGggZD0ibTYuNzUgNC41aDE0LjVjLjQxNDIgMCAuNzUtLjMzNTc5Ljc1LS43NSAwLS4zNzk3LS4yODIyLS42OTM0OS0uNjQ4Mi0uNzQzMTVsLS4xMDE4LS4wMDY4NWgtMTQuNWMtLjQxNDIxIDAtLjc1LjMzNTc5LS43NS43NSAwIC4zNzk3LjI4MjE1LjY5MzQ5LjY0ODIzLjc0MzE1eiIvPjxwYXRoIGQ9Im0xMy43NSA4Yy0uNDE0MiAwLS43NS4zMzU3OS0uNzUuNzVzLjMzNTguNzUuNzUuNzVoNy41Yy40MTQyIDAgLjc1LS4zMzU3OS43NS0uNzVzLS4zMzU4LS43NS0uNzUtLjc1eiIvPjxwYXRoIGQ9Im0xMyAxMy43NWMwLS40MTQyLjMzNTgtLjc1Ljc1LS43NWg3LjVjLjQxNDIgMCAuNzUuMzM1OC43NS43NXMtLjMzNTguNzUtLjc1Ljc1aC03LjVjLS40MTQyIDAtLjc1LS4zMzU4LS43NS0uNzV6Ii8+PHBhdGggZD0ibTExIDExLjVjMCAyLjQ4NTMtMi4wMTQ3MiA0LjUtNC41IDQuNXMtNC41LTIuMDE0Ny00LjUtNC41YzAtMi40ODUyOCAyLjAxNDcyLTQuNSA0LjUtNC41czQuNSAyLjAxNDcyIDQuNSA0LjV6bS00LTJjMC0uMjc2MTQtLjIyMzg2LS41LS41LS41cy0uNS4yMjM4Ni0uNS41djEuNWgtMS41Yy0uMjc2MTQgMC0uNS4yMjM5LS41LjVzLjIyMzg2LjUuNS41aDEuNXYxLjVjMCAuMjc2MS4yMjM4Ni41LjUuNXMuNS0uMjIzOS41LS41di0xLjVoMS41Yy4yNzYxNCAwIC41LS4yMjM5LjUtLjVzLS4yMjM4Ni0uNS0uNS0uNWgtMS41eiIvPjwvZz48L3N2Zz4NCg==");
+}
+input.mathShrinkInput {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPSJub25lIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSIjMjEyMTIxIj48cGF0aCBkPSJtNi43NSA0LjVoMTQuNWMuNDE0MiAwIC43NS0uMzM1NzkuNzUtLjc1IDAtLjM3OTctLjI4MjItLjY5MzQ5LS42NDgyLS43NDMxNWwtLjEwMTgtLjAwNjg1aC0xNC41Yy0uNDE0MjEgMC0uNzUuMzM1NzktLjc1Ljc1IDAgLjM3OTcuMjgyMTUuNjkzNDkuNjQ4MjMuNzQzMTV6Ii8+PHBhdGggZD0ibTYuNzUgMTkuNWgxNC41Yy40MTQyIDAgLjc1LS4zMzU4Ljc1LS43NSAwLS4zNzk3LS4yODIyLS42OTM1LS42NDgyLS43NDMybC0uMTAxOC0uMDA2OGgtMTQuNWMtLjQxNDIxIDAtLjc1LjMzNTgtLjc1Ljc1IDAgLjM3OTcuMjgyMTUuNjkzNS42NDgyMy43NDMyeiIvPjxwYXRoIGQ9Im0xMy43NSA4Yy0uNDE0MiAwLS43NS4zMzU3OS0uNzUuNzVzLjMzNTguNzUuNzUuNzVoNy41Yy40MTQyIDAgLjc1LS4zMzU3OS43NS0uNzVzLS4zMzU4LS43NS0uNzUtLjc1eiIvPjxwYXRoIGQ9Im0xMyAxMy43NWMwLS40MTQyLjMzNTgtLjc1Ljc1LS43NWg3LjVjLjQxNDIgMCAuNzUuMzM1OC43NS43NXMtLjMzNTguNzUtLjc1Ljc1aC03LjVjLS40MTQyIDAtLjc1LS4zMzU4LS43NS0uNzV6Ii8+PHBhdGggZD0ibTExIDExLjVjMCAyLjQ4NTMtMi4wMTQ3MiA0LjUtNC41IDQuNXMtNC41LTIuMDE0Ny00LjUtNC41YzAtMi40ODUyOCAyLjAxNDcyLTQuNSA0LjUtNC41czQuNSAyLjAxNDcyIDQuNSA0LjV6bS0yIDBjMC0uMjc2MS0uMjIzODYtLjUtLjUtLjVoLTRjLS4yNzYxNCAwLS41LjIyMzktLjUuNXMuMjIzODYuNS41LjVoNGMuMjc2MTQgMCAuNS0uMjIzOS41LS41eiIvPjwvZz48L3N2Zz4NCg==");
+}
+input.mathInputButton:not(:first-of-type) {
+  margin-left: 6px;
 }
 .inputElement:only-of-type .mathDelInput {
   display: none;
@@ -211,7 +235,7 @@ input.mathSvgUpdate, input.mathPngDownload, input.mathAddInput, input.mathDelInp
 }
 textarea {
   resize: true;
-  width: calc(100% - 6px);
+  width: calc(100% - 13px);
 }
 details {
   padding-top: 5px;
@@ -237,7 +261,7 @@ details:not([open]) > summary {
   html:not(.disable-grid) .contentMain {
     grid-template-columns: repeat(2, calc(50% - 0.5em));
   }
-  html:not(.disable-grid):has(input[name="allowcols"]:not(:checked)) .contentMain .mainCol {
+  html:not(.disable-grid):has(input[name="ui.allowcols"]:not(:checked)) .contentMain .mainCol {
     grid-column: 1 / span 2;
   }
   html:not(.disable-grid) .contentMain .wideCol {
@@ -298,7 +322,7 @@ window.MathJax = {
   startup: {
     pageReady: ()=>{
       return MathJax.startup.defaultPageReady()
-        .then((v)=>{ Logger.log(`MathJax ready ${v}`);
+        .then((v)=>{ Logger.log(`MathJax ready`);
                      window?.MyMath?.whenready?.resolve?.(true);
                      return v; });
     },
@@ -317,6 +341,10 @@ window.MyMath = {
         fg: "#000",
         bg: "#fff",
       },
+    },
+    ui: {
+      timeout: 2,
+      allowcols: true,
     },
     canvas: {
       scale: 2,
@@ -357,23 +385,21 @@ window.MyMath = {
   render_queue: Promise.resolve(true),
   prefs_init: {
     types: {
-      checkbox: (o,n)=>(MyMath.prefs.canvas[n] ? ["on"] : []),
+      checkbox: (o,c,n)=>(MyMath.prefs[c][n] ? ["on"] : []),
     },
     names: {
-      theme: (o,n)=>(MyMath.prefs.theme),
-      allowcols: (o,n)=>(["on"]),
+      theme: (o,c,n)=>(MyMath.prefs.theme),
     },
-    default: (o,n)=>(MyMath.prefs.canvas[n]),
+    default: (o,c,n)=>(MyMath.prefs[c][n]),
   },
   prefs_update: {
     types: {
-      number: (o,n,v)=>{ MyMath.prefs.canvas[n] = +v; },
-      checkbox: (o,n,v)=>{ MyMath.prefs.canvas[n] = o.checked; },
-      "select-one": (o,n,v)=>{ MyMath.prefs.canvas[n] = +v; },
+      number: (o,c,n,v)=>{ MyMath.prefs[c][n] = +v; },
+      checkbox: (o,c,n,v)=>{ MyMath.prefs[c][n] = o.checked; },
+      "select-one": (o,c,n,v)=>{ MyMath.prefs[c][n] = +v; },
     },
     names: {
-      theme: (o,n,v)=>{ MyMath.prefs.theme = v; },
-      allowcols: (o,n,v)=>(null),
+      theme: (o,c,n,v)=>{ MyMath.prefs.theme = v; },
     },
   },
 };
@@ -670,6 +696,7 @@ try {
     ticker: null,
     action: ()=>(render(false)),
     ticker_fn: null,
+    get_timeout: ()=>(MyMath.prefs.ui.timeout),
     reset_tick() {
       this.tick_count = -1;
     },
@@ -679,7 +706,8 @@ try {
     },
     start_tick() {
       this.ticker_fn ??= Pwrap(this.do_tick.bind(this));
-      return window.setInterval(this.ticker_fn, 600);
+      this.timeout = 1 + 4 * ((this.get_timeout)?.() ?? 3);
+      return window.setInterval(this.ticker_fn, 250);
     },
     stop_tick() {
       let t = this.ticker;
@@ -688,9 +716,9 @@ try {
     },
     do_tick() {
       if (this.tick_count < 0) {
-        (--this.tick_count < -10) && this.stop_tick();
+        (--this.tick_count < -15) && this.stop_tick();
       } else {
-        if (++this.tick_count > 5) {
+        if (++this.tick_count > this.timeout) {
           this.tick_count = -1;
           (this.action)();
         }
@@ -735,10 +763,34 @@ try {
     render(false);
   }
 
+  function cfg_save() {
+    try {
+      window.localStorage.setItem("MyMath.prefs", JSON.stringify(MyMath.prefs.ui));
+    } catch(e) { DoErr(e); }
+  }
+  function cfg_load() {
+    try {
+      let v = window.localStorage.getItem("MyMath.prefs");
+      if (v && v.length > 0) {
+        try {
+          let nobj = JSON.parse(v);
+          let obj = MyMath.prefs.ui;
+          for (let k of Object.keys(obj)) {
+            obj[k] = nobj[k] ?? obj[k];
+          }
+        } catch (e) { DoErr(e); }
+      }
+    } catch(e) { DoErr(e); }
+  }
+
+  function cfg_call(base,elem) {
+    let [n,c = null] = elem.name.split(".").reverse();
+    return (base.names[elem.name] ?? base.types[elem.type] ?? base.default)?.(elem,c,n,elem.value);
+  }
+
   function cfg_update(elem) {
-    let f = MyMath.prefs_update.names[elem.name] ??
-            MyMath.prefs_update.types[elem.type];
-    f(elem,elem.name,elem.value);
+    cfg_call(MyMath.prefs_update,elem);
+    cfg_save();
   }
 
   function init_from_hash(a) {
@@ -772,12 +824,8 @@ try {
     Logger.init((s)=>(sts.text(s)));
     Logger.trim();
     let promise_list = [MyMath.whenready.promise];
-    $(".mathCfg").each((i,e)=>{
-      let f = MyMath.prefs_init.names[e.name] ??
-              MyMath.prefs_init.types[e.type] ??
-              MyMath.prefs_init.default;
-      $(e).val(f(e,e.name));
-    });
+    cfg_load();
+    $(".mathCfg").each((i,e)=>($(e).val(cfg_call(MyMath.prefs_init,e))));
     let mtgt = $(".macro-tab > tbody");
     let mdefs = "";
     MyMath.prefs.macros?.forEach((e)=>{
@@ -800,7 +848,9 @@ try {
           .on("click",  "input.mathPngDownload", Pwrap(function(e){ $("#MathLink1").get(0).click(); }))
           .on("input",  ".mathInput", function(e){ ticker.set_tick(); })
           .on("click",  ".mathAddInput", Pwrap(function(e){ insert_input($(this).closest(".inputElement")); }))
-          .on("click",  ".mathDelInput", Pwrap(function(e){ delete_input($(this).closest(".inputElement")); }));
+          .on("click",  ".mathDelInput", Pwrap(function(e){ delete_input($(this).closest(".inputElement")); }))
+          .on("click",  ".mathEnlargeInput", Pwrap(function(e){ $(this).closest(".inputElement").find(".mathInput").attr("rows",(i,v)=>(3+(+v))); }))
+          .on("click",  ".mathShrinkInput", Pwrap(function(e){ $(this).closest(".inputElement").find(".mathInput").attr("rows",(i,v)=>((+v)>6 ? ((+v)-3) : v)); }));
         DoStatus("event handlers installed");
       })
       .catch((e)=>DoErr(e));
@@ -818,16 +868,31 @@ try {
 <summary>SVG render</summary>
 <div>
  <div class="svgContainer mathSvgImg cloneContainer" id="MathSvgImg">
-  <div class="mathSvgImgSub" data-index="0" id="MathSvgImg-1"><span class="hintText">SVG rendering will appear here</span></div>
+  <div class="mathSvgImgSub" data-index="0" id="MathSvgImg-1">
+   <span class="hintText">SVG rendering will appear here</span>
+  </div>
  </div>
 </div>
 </details>
 <div id="InputContainer" class="cloneContainer mainCol">
 <details class="inputElement" data-index="0" id="InputElement-1" open>
 <summary>Input 1</summary>
-<div class="errContainer"><span>&nbsp;</span><span class="hintText">errors will appear here</span><span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span></div>
-<div><textarea rows=20 autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" class="mathInput" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea></div>
-<div class="flexOuter inputControls"><input type="button" class="mathAddInput" value="+" /><input type="button" class="mathDelInput" value="&#x1F5D1;&#xFE0E;" /></div>
+<div class="errContainer">
+ <span>&nbsp;</span>
+ <span class="hintText">errors will appear here</span>
+ <span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span>
+</div>
+<div>
+ <textarea rows=20 autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" class="mathInput" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea>
+</div>
+<div class="flexOuter inputControls">
+ <div>
+  <input type="button" class="mathEnlargeInput mathInputButton" />
+  <input type="button" class="mathShrinkInput mathInputButton" />
+  <input type="button" class="mathAddInput mathInputButton" value="+" />
+ </div>
+ <input type="button" class="mathDelInput mathInputButton" value="&#x1F5D1;&#xFE0E;" />
+</div>
 </details>
 </div>
 <details class="mainCol" open>
@@ -860,22 +925,27 @@ try {
 <details open>
 <summary>Configuration</summary>
 <div>
+<fieldset><legend>Canvas settings:</legend>
 <table class="ui-tab">
  <tbody>
   <tr>
    <td><label for="Iscale">Scale:</label></td>
-   <td><input id="Iscale" type="number" class="mathCfg" name="scale" value="1" min="0.1" max="20" /></td>
+   <td><input id="Iscale" type="number" class="mathCfg" name="canvas.scale" value="1" min="0.1" max="20" /></td>
    <td><label for="Idevice_scale">Device ratio:</label></td>
-   <td><input id="Idevice_scale" type="checkbox" class="mathCfg" name="device_scale"></td>
-   <td><label for="Itransparent">Transparent:</label></td>
-   <td><input id="Itransparent" type="checkbox" class="mathCfg" name="transparent" checked></td>
+   <td><input id="Idevice_scale" type="checkbox" class="mathCfg" name="canvas.device_scale"></td>
   </tr>
   <tr>
    <td><label for="Itarget_width">Target width:</label></td>
-   <td><input id="Itarget_width" type="number" class="mathCfg" name="target" value="100" min="50" max="4000" /></td>
+   <td><input id="Itarget_width" type="number" class="mathCfg" name="canvas.target" value="100" min="50" max="4000" /></td>
+   <td><label for="Itransparent">Transparent:</label></td>
+   <td><input id="Itransparent" type="checkbox" class="mathCfg" name="canvas.transparent" checked></td>
+  </tr>
+  <tr>
+   <td><label for="Icropleft">Crop left:</label></td>
+   <td><input id="Icropleft" type="number" class="mathCfg" name="canvas.cropleft" value="0" min="0" max="4000" /></td>
    <td><label for="Iborder">Border:</label></td>
    <td>
-    <select id="Iborder" class="mathCfg" name="border">
+    <select id="Iborder" class="mathCfg" name="canvas.border">
      <option value="0">none</option>
      <option value="1">1px solid</option>
      <option value="2">2px solid</option>
@@ -886,8 +956,8 @@ try {
    </td>
   </tr>
   <tr>
-   <td><label for="Icropleft">Crop left:</label></td>
-   <td><input id="Icropleft" type="number" class="mathCfg" name="cropleft" value="0" min="0" max="4000" /></td>
+   <td><label for="Ipadding">Padding:</label></td>
+   <td><input id="Ipadding" type="number" class="mathCfg" name="canvas.padding" value="5" min="0" max="50" /></td>
    <td><label for="Itheme">Theme:</label></td>
    <td>
     <select id="Itheme" class="mathCfg" name="theme">
@@ -898,17 +968,24 @@ try {
    </td>
   </tr>
   <tr>
-   <td><label for="Ipadding">Padding:</label></td>
-   <td><input id="Ipadding" type="number" class="mathCfg" name="padding" value="5" min="0" max="50" / ></td>
-   <td><label for="Iallowcols">Allow 2-column:</label></td>
-   <td><input id="Iallowcols" type="checkbox" class="mathCfg" name="allowcols" checked /></td>
-  </tr>
-  <tr>
    <td><label for="Ispacing">Spacing:</label></td>
-   <td><input id="Ispacing" type="number" class="mathCfg" name="spacing" value="5" min="0" max="50" / ></td>
+   <td><input id="Ispacing" type="number" class="mathCfg" name="canvas.spacing" value="5" min="0" max="50" /></td>
   </tr>
  </tbody>
 </table>
+</fieldset>
+<fieldset><legend>UI settings:</legend>
+<table class="ui-tab">
+ <tbody>
+  <tr>
+   <td><label for="Itimeout">Timeout:</label></td>
+   <td><input id="Itimeout" type="number" class="mathCfg" name="ui.timeout" value="3" min="1" max="60" /></td>
+   <td><label for="Iallowcols">Allow 2-column:</label></td>
+   <td><input id="Iallowcols" type="checkbox" class="mathCfg" name="ui.allowcols" checked /></td>
+  </tr>
+ </tbody>
+</table>
+</fieldset>
 <div class="mathControl"><input type="button" class="mathSvgUpdate" value="Update" /></div>
 </div>
 </details>
@@ -929,14 +1006,16 @@ try {
 </div>
 </details>
 <details>
-<summary>SVG content</summary>
+<summary>SVG and CSS content</summary>
+<div>
 <div id="OutputContainer" class="cloneContainer">
  <details><summary>1</summary><textarea rows=15 data-index="0" id="MathSvg-1" readonly></textarea></details>
 </div>
-</details>
 <details>
 <summary>CSS content</summary>
 <div><textarea rows=15 id="MathCss1" readonly></textarea></div>
+</details>
+</div>
 </details>
 <details class="wideCol">
 <summary>Status</summary>

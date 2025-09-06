@@ -59,6 +59,8 @@ window.Features = ((cl)=>{
       withResolvers: ()=>("withResolvers" in Promise),
       buf_resize: ()=>("resize" in ArrayBuffer.prototype),
       local_storage: ()=>(window.localStorage && ("getItem" in window.localStorage)),
+      secure_context: ()=>(window.isSecureContext),
+      clipboard: ()=>(window.navigator.clipboard),
     }
     const subs = {
       withResolvers: ()=>{ Promise.withResolvers =
@@ -85,8 +87,10 @@ html {
   background-color: #ddd;
   color: black;
 }
-body {
+body, html {
   overscroll-behavior-y: contain;
+}
+body {
   margin: 0;
 }
 .alertBox {
@@ -112,6 +116,12 @@ body {
 .mathInput {
   font-size: 150%;
   margin-top: 1ex;
+}
+.unicodeBuf {
+  font-size: 150%;
+}
+.unicodeOuter input {
+  font-size: 120%;
 }
 input, textarea {
   border-width: 3px;
@@ -233,8 +243,10 @@ input.mathInputButton:not(:first-of-type) {
   overflow: scroll;
   white-space: pre-wrap;
 }
-textarea {
+textarea.mathInput {
   resize: true;
+}
+textarea.fullsize {
   width: calc(100% - 13px);
 }
 details {
@@ -256,6 +268,14 @@ details:not([open]) > summary {
 }
 .mathSvgImgErr {
   color:  #700;
+}
+div.unicodeOuter {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+  gap: 1ex;
+}
+.unicodeOuter textarea.unicodeBuf {
+  grid-column: 1 / span 2;
 }
 @media (min-width: 60em) {
   html:not(.disable-grid) .contentMain {
@@ -819,6 +839,38 @@ try {
     }
   }
 
+  function do_unicode(elt, ev) {
+    let o = document.activeElement;
+    if (elt.value === "") {
+      $("textarea.unicodeBuf").val("");
+    } else {
+      DoStatus(`unicode: ${elt.value} U+${elt.value.codePointAt(0).toString(16).toUpperCase().padStart(6,"0")}`);
+      $("textarea.unicodeBuf").val((i,v)=>(v+elt.value)).get(0).select();
+      document.execCommand("copy");
+      o?.focus();
+    }
+  }
+  const char_range = (a,b)=>(Array.from({length: b-a+1}, (e,i)=>(String.fromCodePoint(a+i))).join(""));
+  function populate_unicode() {
+    let o = $(".unicodeOuter");
+    let b = $("<input type='button' class='unicodeButton' />");
+    let excl = "\u{208F}" ;
+    let seen = new Set(excl);
+    let chars = "ℵℶℕℚℝℤ∀∃\u{00AC}∑∏∛∅∈∉∩∪⊂⊃⊤⊥∧∨αθφωςβγδεζηικλμνοπρστυψχξΩΛΓΔΞ\u{2070}\u{00B9}\u{00B2}\u{00B3}";
+    chars += char_range(0x2074,0x207E) + "\u{2071}";
+    chars += char_range(0x207F,0x209C);
+    chars += char_range(0x2200,0x22FF);
+    chars += char_range(0x2100,0x214F);
+    chars += char_range(0x2190,0x21FF);
+    chars += char_range(0x2A00,0x2AFF);
+    for (let c of chars) {
+      if (!seen.has(c)) {
+        seen.add(c);
+        b.clone().attr("value",c).appendTo(o);
+      }
+    }
+  }
+
   $(function($){
     let sts = $("#MathStatus");
     Logger.init((s)=>(sts.text(s)));
@@ -850,10 +902,12 @@ try {
           .on("click",  ".mathAddInput", Pwrap(function(e){ insert_input($(this).closest(".inputElement")); }))
           .on("click",  ".mathDelInput", Pwrap(function(e){ delete_input($(this).closest(".inputElement")); }))
           .on("click",  ".mathEnlargeInput", Pwrap(function(e){ $(this).closest(".inputElement").find(".mathInput").attr("rows",(i,v)=>(3+(+v))); }))
-          .on("click",  ".mathShrinkInput", Pwrap(function(e){ $(this).closest(".inputElement").find(".mathInput").attr("rows",(i,v)=>((+v)>6 ? ((+v)-3) : v)); }));
+          .on("click",  ".mathShrinkInput", Pwrap(function(e){ $(this).closest(".inputElement").find(".mathInput").attr("rows",(i,v)=>((+v)>6 ? ((+v)-3) : v)); }))
+          .on("click",  ".unicodeOuter input", Pwrap(function(e){ do_unicode(this,e); }));
         DoStatus("event handlers installed");
       })
       .catch((e)=>DoErr(e));
+    Pcall(()=>populate_unicode());
     DoStatus("document init done");
   });
 }).call(MyMath,jQuery.noConflict());
@@ -883,7 +937,7 @@ try {
  <span class="mathSvgImgErr" data-index="0" id="MathSvgImgErr-1"></span>
 </div>
 <div>
- <textarea rows=20 autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" class="mathInput" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea>
+ <textarea rows="20" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" wrap="soft" class="mathInput fullsize" data-index="0" id="MathInput-1" placeholder="Enter LaTeX here (at your own risk)"></textarea>
 </div>
 <div class="flexOuter inputControls">
  <div>
@@ -1001,19 +1055,26 @@ try {
 </table>
 <details>
 <summary>Macro Definitions</summary>
-<div><textarea rows=8 id="MathMacros" readonly></textarea></div>
+<div><textarea rows=8 id="MathMacros" class="fullsize" readonly></textarea></div>
 </details>
+</div>
+</details>
+<details>
+<summary>Unicode shortcuts</summary>
+<div class="unicodeOuter">
+<textarea cols=10 rows=1 class="unicodeBuf" readonly></textarea>
+<input type="button" value="" class="unicodeButton" />
 </div>
 </details>
 <details>
 <summary>SVG and CSS content</summary>
 <div>
 <div id="OutputContainer" class="cloneContainer">
- <details><summary>1</summary><textarea rows=15 data-index="0" id="MathSvg-1" readonly></textarea></details>
+ <details><summary>1</summary><textarea rows=15 data-index="0" id="MathSvg-1" class="fullsize" readonly></textarea></details>
 </div>
 <details>
 <summary>CSS content</summary>
-<div><textarea rows=15 id="MathCss1" readonly></textarea></div>
+<div><textarea rows=15 id="MathCss1" class="fullsize" readonly></textarea></div>
 </details>
 </div>
 </details>
